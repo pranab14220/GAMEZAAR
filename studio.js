@@ -135,8 +135,8 @@ async function handleImageUploads(typeId,files,input){
  if(!file){input.value="";return;}
  if(getAssets(typeId).length>=1){setStatus("A design is already uploaded for "+type.title+". Tap × on its preview and confirm delete before uploading another.");input.value="";return;}
  if(!["image/png","image/jpeg","image/webp"].includes(file.type)){setStatus("Use PNG, JPG or WebP images only.");input.value="";return;}
- if(file.size>type.maxKB*1024){setStatus(file.name+" is too large. Maximum is "+type.maxKB+" KB.");input.value="";return;}
- if(totalBytes()+file.size>MAX_TOTAL){setStatus("Custom asset limit reached. One game can use up to 2 MB of uploaded assets.");input.value="";return;}
+ if(file.size>type.maxKB*1024){setStatus("Upload nahi ho sakta: "+file.name+" file bahut badi hai. "+type.title+" ke liye maximum size "+type.maxKB+" KB hai.");input.value="";return;}
+ if(totalBytes()+file.size>MAX_TOTAL){setStatus("Upload nahi ho sakta: sabhi custom uploads ka total limit 2 MB hai. Pehle koi purani file delete karo.");input.value="";return;}
  const dimensions=await readDimensions(file);if(!dimensions){setStatus("Could not read "+file.name+".");input.value="";return;}
  let valid=dimensions.width<=type.maxW&&dimensions.height<=type.maxH;
  if(typeId==="bgRoad"||typeId==="bgLand"){valid=dimensions.width<=1280&&dimensions.height<=720;}
