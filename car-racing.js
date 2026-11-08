@@ -146,7 +146,7 @@ function draw(){
  traffic.forEach(v=>drawCar(lanes[v.lane],v.y,v.color,false));
  drawCar(playerX,500,"#df454c",true,playerTilt);
 }
-function speedForScore(s){return Number((1+Math.floor(s/200)*0.1).toFixed(1));}
+function speedForScore(s){return Number((1+Math.floor(s/100)*0.1).toFixed(1));}
 function reset(){playerLane=1;playerX=lanes[1];playerTilt=0;traffic=[];score=0;speed=1;spawn=0;crashing=false;$("score").textContent="0000";$("speed").textContent="1.0x";}
 function endGame(){
  if(crashing)return;
