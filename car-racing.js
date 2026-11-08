@@ -22,6 +22,7 @@ if(!unlocked.includes(selectedCarId))selectedCarId="starter";
 let selectedCar=CAR_LIST.find(c=>c.id===selectedCarId)||CAR_LIST[0];
 let playerLane=1,playerX=lanes[1],playerTilt=0,traffic=[],score=0,best=Number(localStorage.getItem("gamezaar-race-best")||0);
 let speed=1,running=false,crashing=false,crashStarted=0,last=0,spawn=0,world=0,raf=0,audio=null,explosion={x:180,y:500};
+let roadCoins=[],coinSpawn=0,nextCoinSpawn=900+Math.random()*300,coinsThisRace=0;
 const trafficColors=["#ff754f","#55d9ff","#c58cff","#ffd166","#65e6a8"];
 const buildings=[];
 for(let side=0;side<2;side++){
@@ -192,13 +193,25 @@ function drawCar(x,y,color,player=false,tilt=0,accent="#ffe0a1"){
  if(player){ctx.fillStyle=accent;ctx.fillRect(-3,-23,6,12);ctx.fillStyle="#fff0b0";ctx.fillRect(-2,-1,4,3);ctx.fillStyle=accent;ctx.fillRect(-2,16,4,2);}
  ctx.restore();
 }
+function drawCoin(x,y,now){
+ const pulse=1+Math.sin(now/115)*.09;
+ ctx.save();ctx.translate(x,y);ctx.scale(pulse,1);
+ ctx.shadowColor="#ffd34e";ctx.shadowBlur=15;
+ ctx.fillStyle="#9b5b12";ctx.beginPath();ctx.ellipse(0,0,10,13,0,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle="#ffbd32";ctx.beginPath();ctx.ellipse(0,-1,8,11,0,0,Math.PI*2);ctx.fill();
+ ctx.shadowBlur=0;ctx.strokeStyle="#fff0a0";ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(0,-1,4,7,0,0,Math.PI*2);ctx.stroke();
+ ctx.fillStyle="#fff4bd";ctx.fillRect(-2,-7,2,3);ctx.fillRect(3,2,2,2);
+ ctx.restore();
+ if(Math.floor(now/150)%2===0){ctx.fillStyle="rgba(255,239,155,.9)";ctx.fillRect(x+12,y-12,3,3);ctx.fillRect(x-15,y+7,2,2);}
+}
 function draw(){
  drawRoad();
  traffic.forEach(v=>drawCar(lanes[v.lane],v.y,v.color,false));
+ roadCoins.forEach(c=>drawCoin(lanes[c.lane],c.y,performance.now()));
  drawCar(playerX,500,selectedCar.color,true,playerTilt,selectedCar.accent);
 }
 function speedForScore(s){return Number((1+Math.floor(s/100)*0.1).toFixed(1));}
-function reset(){playerLane=1;playerX=lanes[1];playerTilt=0;traffic=[];score=0;speed=1;spawn=0;crashing=false;$("score").textContent="0000";$("speed").textContent="1.0x";}
+function reset(){playerLane=1;playerX=lanes[1];playerTilt=0;traffic=[];roadCoins=[];coinSpawn=0;nextCoinSpawn=900+Math.random()*300;coinsThisRace=0;score=0;speed=1;spawn=0;crashing=false;$("score").textContent="0000";$("speed").textContent="1.0x";}
 function endGame(){
  if(crashing)return;
  running=false;crashing=true;crashStarted=performance.now();explosion={x:playerX,y:500};
@@ -220,7 +233,7 @@ function drawExplosion(now){
  if(age>720){
   crashing=false;$("raceShell").classList.remove("screen-shake");
   $("overlayTitle").textContent="Race over!";
-  $("overlayText").textContent="You scored "+score+". Earned "+Math.floor(score/10)+" coins this race. Choose your next ride!";
+  $("overlayText").textContent="You scored "+score+" and collected "+coinsThisRace+" road coins. Choose your next ride!";
   $("garageMessage").textContent="";renderGarage();$("overlay").classList.remove("hidden");
  }
 }
@@ -236,7 +249,27 @@ function frame(now){
   if(Math.abs(targetX-playerX)<.45){playerX=targetX;playerTilt*=.75;}
   spawn+=dt;
   if(spawn>Math.max(20,64-speed*8)){spawn=0;const lane=Math.floor(Math.random()*3);traffic.push({lane,y:-48,color:trafficColors[Math.floor(Math.random()*trafficColors.length)],passed:false});}
-  traffic.forEach(v=>{v.y+=(1.7+speed*2.85)*dt;if(!v.passed&&v.y>535){v.passed=true;score+=10;coins+=1;localStorage.setItem("gamezaar-race-coins",String(coins));$("coins").textContent=String(coins).padStart(4,"0");$("garageCoins").textContent=String(coins);$("score").textContent=String(score).padStart(4,"0");sound(760,.045,"triangle",.018);}});
+  traffic.forEach(v=>{v.y+=(1.7+speed*2.85)*dt;if(!v.passed&&v.y>535){v.passed=true;score+=10;$("score").textContent=String(score).padStart(4,"0");}});
+  // A road coin appears roughly every 15–20 seconds: only touching it adds to the wallet.
+  coinSpawn+=dt;
+  if(coinSpawn>=nextCoinSpawn){
+   coinSpawn=0;nextCoinSpawn=900+Math.random()*300;
+   let lane=Math.floor(Math.random()*3);
+   for(let tries=0;tries<4;tries++){
+    const blocked=traffic.some(v=>v.lane===lane&&v.y>-115&&v.y<95);
+    if(!blocked)break;lane=(lane+1)%3;
+   }
+   roadCoins.push({lane,y:-28});
+  }
+  roadCoins.forEach(c=>{c.y+=(1.7+speed*2.85)*dt;});
+  roadCoins=roadCoins.filter(c=>{
+   if(Math.abs(lanes[c.lane]-playerX)<23&&Math.abs(c.y-500)<29){
+    coins+=1;coinsThisRace+=1;localStorage.setItem("gamezaar-race-coins",String(coins));
+    $("coins").textContent=String(coins).padStart(4,"0");$("garageCoins").textContent=String(coins);
+    sound(880,.09,"triangle",.04);setTimeout(()=>sound(1180,.07,"sine",.025),45);return false;
+   }
+   return c.y<650;
+  });
   traffic=traffic.filter(v=>v.y<660);
   speed=speedForScore(score);$("speed").textContent=speed.toFixed(1)+"x";
   for(const v of traffic){
