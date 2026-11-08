@@ -65,3 +65,46 @@ if (gameGrid) {
     alert(`${gameName} selected! The Game Studio editor is the next development step.`);
   });
 }
+
+
+// Expand one category at a time; each panel contains its four game choices.
+const categoryGrid = document.getElementById("categoryGrid");
+const categoryPanels = [...document.querySelectorAll("[data-category-panel]")];
+
+function closeCategoryPanels() {
+  categoryPanels.forEach((panel) => { panel.hidden = true; });
+  categoryGrid?.querySelectorAll("[data-category-toggle]").forEach((button) => {
+    button.setAttribute("aria-expanded", "false");
+    const plus = button.querySelector(".category-meta b");
+    if (plus) plus.textContent = "＋";
+  });
+}
+
+if (categoryGrid) {
+  categoryGrid.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-category-toggle]");
+    if (!button) return;
+    const id = button.dataset.categoryToggle;
+    const panel = document.querySelector(`[data-category-panel="${id}"]`);
+    const wasOpen = button.getAttribute("aria-expanded") === "true";
+    closeCategoryPanels();
+    if (!wasOpen && panel) {
+      panel.hidden = false;
+      button.setAttribute("aria-expanded", "true");
+      const plus = button.querySelector(".category-meta b");
+      if (plus) plus.textContent = "−";
+      panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  });
+}
+
+categoryPanels.forEach((panel) => {
+  panel.querySelector(".panel-close")?.addEventListener("click", closeCategoryPanels);
+});
+
+document.querySelectorAll(".choose-game").forEach((button) => {
+  button.addEventListener("click", () => {
+    const gameName = button.dataset.game || "Game";
+    alert(`${gameName} selected! The Game Studio editor is the next development step.`);
+  });
+});
