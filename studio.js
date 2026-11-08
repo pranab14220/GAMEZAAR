@@ -52,7 +52,6 @@ const buttonTypes = [
  {id:"btnPause",title:"Pause Button",desc:"Pause the race",limit:"30 KB · 64 × 64 px max",maxKB:30,maxW:64,maxH:64,count:5,options:[["⏸️","Classic"],["Ⅱ","Slim"],["🟧","Round"],["▥","Pixel"],["⏯️","Modern"]]},
  {id:"btnResume",title:"Resume Button",desc:"Continue a paused race",limit:"30 KB · 128 × 64 px max",maxKB:30,maxW:128,maxH:64,count:5,options:[["▶️","Classic"],["⏵","Modern"],["🟢","Round"],["⚡","Neon"],["🏎️","Turbo"]]},
  {id:"btnRestart",title:"Restart Button",desc:"Restart the current race",limit:"30 KB · 64 × 64 px max",maxKB:30,maxW:64,maxH:64,count:5,options:[["🔄","Classic"],["↻","Minimal"],["🟠","Round"],["⟲","Pixel"],["⚡","Neon"]]},
- {id:"btnHome",title:"Home Button",desc:"Return to the game home screen",limit:"30 KB · 64 × 64 px max",maxKB:30,maxW:64,maxH:64,count:5,options:[["🏠","Classic"],["⌂","Minimal"],["🏡","Cute"],["🟠","Round"],["🏁","Racing"]]},
  {id:"btnSettings",title:"Settings Button",desc:"Open game settings",limit:"30 KB · 64 × 64 px max",maxKB:30,maxW:64,maxH:64,count:5,options:[["⚙️","Classic"],["🔧","Tools"],["☷","Minimal"],["🟠","Round"],["🎛️","Control"]]}
 ];
 const soundTypes = [
