@@ -235,3 +235,27 @@ async function init(){
  setValues({...defaults,...saved});selectedAssets=saved.selectedAssets||{};selectedSounds=saved.selectedSounds||{};soundEnabled=saved.soundEnabled||{};selectedClimateByGroup={bgTree:"summer",bgRoad:"summer",bgLand:"summer",...(saved.climateSelections||{}),...(saved.treeClimate?{bgTree:saved.treeClimate}:{})};render();
 }
 init();
+
+// Floating popup for testing the playable racing template.
+const floatingPreviewButton=$("floatingPreviewButton");
+const playablePreviewModal=$("playablePreviewModal");
+const playablePreviewFrame=$("playablePreviewFrame");
+const closePlayablePreview=$("closePlayablePreview");
+function openPlayablePreview(){
+ playablePreviewModal.classList.add("open");
+ playablePreviewModal.setAttribute("aria-hidden","false");
+ if(playablePreviewFrame.getAttribute("src")==="about:blank")playablePreviewFrame.src="./car-racing.html?preview=1";
+ document.body.style.overflow="hidden";
+ closePlayablePreview.focus();
+}
+function closePlayablePreviewModal(){
+ playablePreviewModal.classList.remove("open");
+ playablePreviewModal.setAttribute("aria-hidden","true");
+ playablePreviewFrame.src="about:blank";
+ document.body.style.overflow="";
+ floatingPreviewButton.focus();
+}
+floatingPreviewButton.addEventListener("click",openPlayablePreview);
+closePlayablePreview.addEventListener("click",closePlayablePreviewModal);
+playablePreviewModal.addEventListener("click",event=>{if(event.target===playablePreviewModal)closePlayablePreviewModal();});
+document.addEventListener("keydown",event=>{if(event.key==="Escape"&&playablePreviewModal.classList.contains("open"))closePlayablePreviewModal();});
