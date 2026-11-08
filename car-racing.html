@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#171B2E"><title>Pixel Road — GAMEZAAR</title>
-<link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="car-racing.css?v=2">
+<link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="car-racing.css?v=3">
 </head>
 <body class="race-page">
 <header class="site-header"><a class="brand" href="./"><span class="brand-mark">G</span> GAMEZAAR</a><a class="studio-back" href="./">← All games</a></header>
 <main class="race-main">
   <div class="race-heading"><span class="eyebrow">HD PIXEL ART • ARCADE RACING</span><h1>Pixel Road</h1><p>Dodge traffic, collect points and beat your high score.</p></div>
   <section class="race-shell" id="raceShell">
-    <div class="race-hud"><div><small>SCORE</small><strong id="score">0000</strong></div><div><small>BEST</small><strong id="best">0000</strong></div><div><small>SPEED</small><strong id="speed">1x</strong></div></div>
+    <div class="race-hud" aria-label="Race information"><div class="hud-stat" aria-label="Score"><span class="hud-icon" aria-hidden="true">🏆</span><strong id="score">0000</strong></div><div class="hud-stat" aria-label="Best score"><span class="hud-icon" aria-hidden="true">👑</span><strong id="best">0000</strong></div><div class="hud-stat" aria-label="Speed"><span class="hud-icon" aria-hidden="true">🏎️</span><strong id="speed">1.0x</strong></div></div>
     <div class="canvas-wrap"><canvas id="game" width="360" height="600" aria-label="Car racing game"></canvas>
       <div class="game-overlay" id="overlay"><div class="overlay-card"><span class="overlay-icon">🏁</span><h2 id="overlayTitle">Ready to race?</h2><p id="overlayText">Use the arrows or touch controls to dodge traffic.</p><button id="startBtn" class="button button-primary" type="button">START RACE</button></div></div>
     </div>
@@ -18,5 +18,5 @@
   </section>
   <p class="race-tip">Tip: Stay in the open lane. Every car you pass adds to your score.</p>
 </main>
-<script src="car-racing.js?v=4"></script>
+<script src="car-racing.js?v=5"></script>
 </body></html>
