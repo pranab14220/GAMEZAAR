@@ -2,7 +2,7 @@
 "use strict";
 const canvas=document.getElementById("game"),ctx=canvas.getContext("2d");
 const $=id=>document.getElementById(id);
-const W=360,H=600,lanes=[96,180,264];
+const W=360,H=600,lanes=[112,180,248];
 let playerLane=1,playerX=lanes[1],playerTilt=0,traffic=[],score=0,best=Number(localStorage.getItem("gamezaar-race-best")||0);
 let speed=1,running=false,crashing=false,crashStarted=0,last=0,spawn=0,world=0,raf=0,audio=null,explosion={x:180,y:500};
 const trafficColors=["#ff754f","#55d9ff","#c58cff","#ffd166","#65e6a8"];
@@ -39,65 +39,107 @@ function steerSound(){sound(240,.055,"square",.018);setTimeout(()=>sound(360,.04
 function glowRect(x,y,w,h,color,blur=8){ctx.save();ctx.shadowColor=color;ctx.shadowBlur=blur;ctx.fillStyle=color;ctx.fillRect(x,y,w,h);ctx.restore();ctx.fillStyle=color;ctx.fillRect(x,y,w,h);}
 function pixelText(text,x,y,size,color){ctx.save();ctx.font="bold "+size+"px monospace";ctx.fillStyle=color;ctx.shadowColor=color;ctx.shadowBlur=7;ctx.fillText(text,x,y);ctx.restore();}
 function drawSky(){
- const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,"#334b42");g.addColorStop(1,"#192f32");ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
- // leafy green city verges, with pixel clusters
- for(let i=0;i<42;i++){const x=(i*47+13)%W,y=(i*83+world*.45)%(H+30)-15;
-  ctx.fillStyle=i%2?"#263f37":"#40543e";ctx.fillRect(x,y,10,7);ctx.fillRect(x-4,y+4,7,7);ctx.fillRect(x+5,y+5,8,6);
-  if(i%3===0){ctx.fillStyle="#78814c";ctx.fillRect(x+2,y+2,2,2);}
+ const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,"#71816a");g.addColorStop(.55,"#536b56");g.addColorStop(1,"#344d43");ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+ // grass, shrubs and little stone details along both outer edges
+ for(let i=0;i<90;i++){
+  const x=(i*71+17)%W,y=(i*97+world*.58)%(H+24)-12;
+  if(x>70&&x<290)continue;
+  ctx.fillStyle=i%3===0?"#233e34":i%3===1?"#405b3e":"#66734a";
+  ctx.fillRect(x,y,5+(i%3)*2,4);ctx.fillRect(x-2,y+4,7,4);
+  if(i%4===0){ctx.fillStyle="#9a9a64";ctx.fillRect(x+2,y+2,2,2);}
  }
 }
 function drawBuilding(b){
- const x=b.side===0?0:W-b.w,y=b.y;
- ctx.fillStyle="#596b67";ctx.fillRect(x,y,b.w,b.h);
- ctx.fillStyle="#9b9a7b";ctx.fillRect(x+3,y+4,b.w-6,7);
- ctx.fillStyle="#384e52";ctx.fillRect(x+5,y+15,b.w-10,b.h-20);
- for(let row=0;row<4;row++)for(let col=0;col<3;col++){
-  const wx=x+8+col*10,wy=y+23+row*18;
-  ctx.fillStyle=(row+col+b.seed*10)%3<1?"#d8b47c":"#263c49";ctx.fillRect(wx,wy,6,10);
-  ctx.fillStyle="#81918a";ctx.fillRect(wx+2,wy,1,10);
+ const x=b.side===0?0:304,y=b.y,w=56,h=b.h;
+ // deep shadow, facade and roof ledge
+ ctx.fillStyle="#263b42";ctx.fillRect(x+2,y+3,w,h);
+ ctx.fillStyle=b.seed>.5?"#9a9078":"#697e79";ctx.fillRect(x,y,w-2,h-2);
+ ctx.fillStyle="#c2b28c";ctx.fillRect(x,y,w-2,5);
+ ctx.fillStyle="#4b6263";ctx.fillRect(x+4,y+9,w-10,h-18);
+ // windows in a crisp pixel grid
+ for(let row=0;row<4;row++)for(let col=0;col<2;col++){
+  const wx=x+8+col*21,wy=y+16+row*19;
+  ctx.fillStyle=((row*3+col+b.seed*10)%4<2)?"#f5c879":"#263e4b";
+  ctx.fillRect(wx,wy,12,12);ctx.fillStyle="#9aaba0";ctx.fillRect(wx+5,wy,2,12);ctx.fillRect(wx,wy+5,12,1);
  }
- ctx.fillStyle="#c1ae85";ctx.fillRect(x,y+b.h-8,b.w,8);
- // sidewalk planters and little trees
- if(b.seed>.32){const tx=x+(b.side===0?b.w-15:5),ty=y+b.h-34;
-  ctx.fillStyle="#815d48";ctx.fillRect(tx+4,ty+15,9,10);
-  ctx.fillStyle="#315f43";ctx.fillRect(tx,ty+3,17,15);ctx.fillStyle="#67964e";ctx.fillRect(tx+4,ty,9,8);
- }
+ // shop awning / sign at street level
+ ctx.fillStyle="#273e46";ctx.fillRect(x+3,y+h-24,w-9,18);
+ ctx.fillStyle=b.seed>.5?"#d8754e":"#e5b45e";ctx.fillRect(x+5,y+h-22,w-13,5);
+ ctx.fillStyle="#f7dca0";ctx.fillRect(x+8,y+h-21,w-19,2);
+ ctx.fillStyle="#27343a";ctx.fillRect(x+8,y+h-14,w-19,8);
+ // doorway and glowing shop window
+ ctx.fillStyle="#182d38";ctx.fillRect(x+6,y+h-14,9,14);
+ ctx.fillStyle="#f4c06e";ctx.fillRect(x+20,y+h-14,17,9);
+ ctx.fillStyle="#fff0ae";ctx.fillRect(x+22,y+h-12,3,3);
 }
 function drawRoad(){
  drawSky();
- buildings.forEach(b=>{const yy=((b.y+world*.72)%(H+190))-90;drawBuilding({...b,y:yy});});
- // tiled sidewalks and curb
- ctx.fillStyle="#8b9b8d";ctx.fillRect(38,0,284,H);
- for(let y=-20+(world%34);y<H;y+=34){ctx.fillStyle="#aab2a0";ctx.fillRect(39,y,282,1);ctx.fillStyle="#687e7c";ctx.fillRect(42,y+13,276,1);}
- // road with asphalt texture
- ctx.fillStyle="#34454b";ctx.fillRect(75,0,210,H);
- ctx.fillStyle="#3e5052";ctx.fillRect(81,0,198,H);
- for(let i=0;i<65;i++){const x=82+(i*37%194),y=(i*59+world*1.15)%(H);ctx.fillStyle=i%2?"rgba(20,35,43,.16)":"rgba(170,178,150,.10)";ctx.fillRect(x,y,2,3);}
- // yellow road edge lines and white dashed center
- ctx.fillStyle="#e8bb46";ctx.fillRect(76,0,3,H);ctx.fillRect(281,0,3,H);
- for(let y=-54+(world%78);y<H;y+=78){ctx.fillStyle="#e8e6d7";ctx.fillRect(177,y,6,38);}
- // road shoulder blocks inspired by the reference track
- for(let y=-24+(world%44);y<H;y+=44){ctx.fillStyle="#e8dfc5";ctx.fillRect(70,y,5,22);ctx.fillStyle="#d58b3e";ctx.fillRect(70,y+22,5,22);ctx.fillStyle="#e8dfc5";ctx.fillRect(285,y,5,22);ctx.fillStyle="#d58b3e";ctx.fillRect(285,y+22,5,22);}
+ // moving city blocks on either side of the road
+ buildings.forEach(b=>{const yy=((b.y+world*.78)%(H+190))-90;drawBuilding({...b,y:yy});});
+ // sidewalks with paving slabs and drain covers
+ ctx.fillStyle="#b2aa91";ctx.fillRect(56,0,22,H);ctx.fillRect(282,0,22,H);
+ for(let y=-30+(world%32);y<H;y+=32){
+  ctx.fillStyle="#d0c4a4";ctx.fillRect(57,y,20,1);ctx.fillRect(283,y+15,20,1);
+  ctx.fillStyle="#89948a";ctx.fillRect(60,y+8,2,2);ctx.fillRect(296,y+22,3,3);
+ }
+ // planters, trees and street lamps scroll with the city
+ for(let y=-95+(world%190);y<H+80;y+=190){
+  for(const x of [62,286]){
+   ctx.fillStyle="#75533e";ctx.fillRect(x+2,y+24,14,13);
+   ctx.fillStyle="#294b3b";ctx.fillRect(x,y+5,18,22);ctx.fillRect(x+3,y,12,8);
+   ctx.fillStyle="#689451";ctx.fillRect(x+4,y+5,5,5);ctx.fillRect(x+11,y+12,4,5);
+   ctx.fillStyle="#59696a";ctx.fillRect(x+8,y+37,2,19);ctx.fillRect(x+8,y+37,12,2);
+   glowRect(x+17,y+34,4,4,"#ffe1a0",7);
+  }
+ }
+ // asphalt roadway and darker shoulders
+ ctx.fillStyle="#26353d";ctx.fillRect(78,0,204,H);
+ const asphalt=ctx.createLinearGradient(78,0,282,0);asphalt.addColorStop(0,"#35434a");asphalt.addColorStop(.5,"#465158");asphalt.addColorStop(1,"#35434a");
+ ctx.fillStyle=asphalt;ctx.fillRect(82,0,196,H);
+ // subtle worn pixel texture
+ for(let i=0;i<100;i++){const x=84+(i*43%192),y=(i*67+world*1.22)%H;ctx.fillStyle=i%2?"rgba(15,25,31,.16)":"rgba(205,197,164,.10)";ctx.fillRect(x,y,2+(i%3),2);}
+ // yellow edge lines, lane separators and moving dashed markers
+ ctx.fillStyle="#e2b94d";ctx.fillRect(79,0,3,H);ctx.fillRect(279,0,3,H);
+ for(let y=-58+(world%82);y<H;y+=82){
+  ctx.fillStyle="#d9d8c8";ctx.fillRect(145,y,3,39);ctx.fillRect(212,y,3,39);
+ }
+ // alternating curb blocks, white and burnt orange like the reference track
+ for(let y=-26+(world%46);y<H;y+=46){
+  ctx.fillStyle="#f0e8d1";ctx.fillRect(74,y,5,23);ctx.fillStyle="#d88739";ctx.fillRect(74,y+23,5,23);
+  ctx.fillStyle="#f0e8d1";ctx.fillRect(281,y,5,23);ctx.fillStyle="#d88739";ctx.fillRect(281,y+23,5,23);
+ }
 }
 function drawCar(x,y,color,player=false,tilt=0){
  ctx.save();ctx.translate(x,y);ctx.rotate(tilt);
- // shadow and wheels
- ctx.fillStyle="rgba(4,12,18,.55)";ctx.fillRect(-17,-23,38,52);
- ctx.fillStyle="#101820";ctx.fillRect(-19,-19,6,14);ctx.fillRect(13,-19,6,14);ctx.fillRect(-19,8,6,14);ctx.fillRect(13,8,6,14);
- // detailed body silhouette
- ctx.fillStyle="#17232c";ctx.fillRect(-15,-28,30,57);ctx.fillRect(-18,-20,36,39);
- ctx.fillStyle=color;ctx.fillRect(-13,-27,26,53);ctx.fillRect(-16,-17,32,35);
- ctx.fillStyle=player?"#ffd18b":"#d6d9d2";ctx.fillRect(-10,-24,20,5);
- // windscreen and rear glass
- ctx.fillStyle="#243f50";ctx.fillRect(-10,-16,20,13);ctx.fillStyle="#80c8d1";ctx.fillRect(-8,-14,16,8);
- ctx.fillStyle="#203745";ctx.fillRect(-10,5,20,10);ctx.fillStyle="#5d8590";ctx.fillRect(-8,7,16,6);
- // roof stripe / hood details
- ctx.fillStyle=player?"#ffe1a0":"rgba(255,255,255,.55)";ctx.fillRect(-2,-25,4,7);ctx.fillRect(-2,16,4,6);
- ctx.fillStyle="#111c24";ctx.fillRect(-12,-1,24,4);
+ // soft contact shadow
+ ctx.fillStyle="rgba(7,13,18,.5)";ctx.beginPath();ctx.ellipse(1,4,20,32,0,0,Math.PI*2);ctx.fill();
+ // rubber tyres with tread and wheel wells
+ ctx.fillStyle="#10171d";
+ for(const side of [-1,1]){ctx.fillRect(side*13-3,-20,7,14);ctx.fillRect(side*13-3,7,7,14);
+  ctx.fillStyle="#59636a";ctx.fillRect(side*13-2,-17,5,2);ctx.fillRect(side*13-2,10,5,2);ctx.fillStyle="#10171d";}
+ // lower chassis and front/rear bumpers
+ ctx.fillStyle="#111b23";ctx.beginPath();ctx.moveTo(-12,-29);ctx.quadraticCurveTo(-17,-25,-17,-15);ctx.lineTo(-17,18);ctx.quadraticCurveTo(-16,29,-10,30);ctx.lineTo(10,30);ctx.quadraticCurveTo(16,28,17,18);ctx.lineTo(17,-15);ctx.quadraticCurveTo(16,-27,11,-29);ctx.closePath();ctx.fill();
+ // glossy painted car body
+ const body=ctx.createLinearGradient(-16,0,16,0);body.addColorStop(0,"#702d32");body.addColorStop(.22,color);body.addColorStop(.72,color);body.addColorStop(1,"#762e34");
+ ctx.fillStyle=body;ctx.beginPath();ctx.moveTo(-11,-28);ctx.quadraticCurveTo(-14,-27,-14,-17);ctx.lineTo(-15,15);ctx.quadraticCurveTo(-15,27,-9,28);ctx.lineTo(9,28);ctx.quadraticCurveTo(15,26,15,15);ctx.lineTo(14,-17);ctx.quadraticCurveTo(14,-27,10,-28);ctx.closePath();ctx.fill();
+ // fenders and hood highlights
+ ctx.fillStyle="rgba(255,255,255,.22)";ctx.fillRect(-12,-22,3,30);ctx.fillRect(9,-22,3,30);
+ ctx.fillStyle=player?"#f6d8a0":"#d6d8d0";ctx.fillRect(-10,-26,20,3);
+ // front windscreen, dashboard and seats
+ ctx.fillStyle="#152b39";ctx.fillRect(-10,-18,20,13);ctx.fillStyle="#5c8995";ctx.fillRect(-8,-17,16,9);
+ ctx.fillStyle="#b4c5bd";ctx.fillRect(-1,-17,2,9);ctx.fillStyle="#182b35";ctx.fillRect(-10,-4,20,3);
+ // roof panel and side windows
+ ctx.fillStyle=player?"#d9e1d5":"#263e4b";ctx.fillRect(-9,1,18,13);
+ ctx.fillStyle="#648b91";ctx.fillRect(-7,3,14,8);ctx.fillStyle="#182c37";ctx.fillRect(-9,14,18,3);
+ // rear glass and trunk
+ ctx.fillStyle="#203845";ctx.fillRect(-9,18,18,6);ctx.fillStyle="#527985";ctx.fillRect(-7,19,14,3);
+ ctx.fillStyle="#222d34";ctx.fillRect(-11,25,22,3);
+ // headlamps, tail lamps and tiny pixel details
+ glowRect(-11,-27,6,3,"#fff3bd",9);glowRect(5,-27,6,3,"#fff3bd",9);
+ glowRect(-12,24,6,3,"#ff4b52",7);glowRect(6,24,6,3,"#ff4b52",7);
+ ctx.fillStyle="#f7d78e";ctx.fillRect(-2,-25,4,2);
+ if(player){ctx.fillStyle="#fff0b0";ctx.fillRect(-2,-1,4,3);ctx.fillStyle="#a92f38";ctx.fillRect(-2,16,4,2);}
  ctx.restore();
- // glowing lamps are drawn after body for pixel shine
- glowRect(x-10,y-27,6,3,"#fff2b0",6);glowRect(x+4,y-27,6,3,"#fff2b0",6);
- if(player){glowRect(x-11,y+24,7,3,"#ff4d59",8);glowRect(x+4,y+24,7,3,"#ff4d59",8);}
 }
 function draw(){
  drawRoad();
