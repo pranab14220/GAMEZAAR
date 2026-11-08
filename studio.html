@@ -7,7 +7,7 @@
   <meta name="description" content="Build and customize a mobile game with GAMEZAAR.">
   <title>Game Builder — GAMEZAAR</title>
   <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="studio.css?v=uploaderror3">
+  <link rel="stylesheet" href="studio.css?v=livepreview1">
 </head>
 <body class="studio-page">
   <header class="site-header">
@@ -85,6 +85,15 @@
       </aside>
     </div>
   </main>
-  <script src="studio.js?v=uploaderror3"></script>
+
+  <button class="floating-preview-button" id="floatingPreviewButton" type="button" aria-haspopup="dialog" aria-controls="playablePreviewModal"><span aria-hidden="true">▶</span><span>Preview</span></button>
+  <div class="playable-preview-modal" id="playablePreviewModal" role="dialog" aria-modal="true" aria-labelledby="playablePreviewTitle" aria-hidden="true">
+    <div class="playable-preview-panel">
+      <div class="playable-preview-header"><div><span class="eyebrow">GAMEZAAR TEST MODE</span><h2 id="playablePreviewTitle">Play your game</h2></div><button class="playable-preview-close" id="closePlayablePreview" type="button" aria-label="Close game preview">×</button></div>
+      <iframe id="playablePreviewFrame" title="Playable Pixel Road game test" src="about:blank" loading="lazy" allow="autoplay; fullscreen"></iframe>
+      <p class="playable-preview-note">Playable template test. Your Builder-selected images, buttons and sounds will connect to this game after engine integration.</p>
+    </div>
+  </div>
+  <script src="studio.js?v=livepreview1"></script>
 </body>
 </html>
