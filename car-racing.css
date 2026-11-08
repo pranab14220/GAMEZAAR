@@ -29,3 +29,10 @@
 .race-shell.screen-shake{animation:raceImpactShake .42s cubic-bezier(.36,.07,.19,.97) both}
 @keyframes raceImpactShake{0%,100%{transform:translate3d(0,0,0)}15%{transform:translate3d(-7px,2px,0)}30%{transform:translate3d(7px,-2px,0)}45%{transform:translate3d(-6px,1px,0)}60%{transform:translate3d(5px,-1px,0)}75%{transform:translate3d(-3px,0,0)}}
 @media(prefers-reduced-motion:reduce){.race-shell.screen-shake{animation:none}}
+
+/* Compact race HUD: smaller icons and numerals for a cleaner mobile layout. */
+.race-hud{padding:2px 0 9px;gap:3px}
+.race-hud .hud-stat{gap:4px;flex:1}
+.race-hud .hud-icon{font-size:.88rem;filter:drop-shadow(0 1px 2px #101729)}
+.race-hud strong{font-size:.78rem;letter-spacing:0;text-shadow:0 1px 3px #101729}
+@media(max-width:380px){.race-hud .hud-icon{font-size:.78rem}.race-hud strong{font-size:.7rem}.race-hud{padding-bottom:7px}}
