@@ -36,7 +36,6 @@ function loop(now){if(!running)return;const dt=Math.min((now-last)/16.67||1,2);l
 function start(){reset();running=true;$("overlay").classList.add("hidden");raf=requestAnimationFrame(loop);}
 function move(d){if(running)playerLane=Math.max(0,Math.min(2,playerLane+d));}
 $("startBtn").addEventListener("click",start);$("leftBtn").addEventListener("pointerdown",e=>{e.preventDefault();move(-1);});$("rightBtn").addEventListener("pointerdown",e=>{e.preventDefault();move(1);});
-window.addEventListener("keydown",e=>{if(["ArrowLeft","a","A"].includes(e.key)){e.preventDefault();move(-1);}if(["ArrowRight","d","D"].includes(e.key)){e.preventDefault();move(1);}if((e.key===" "||e.key==="Enter")&&!running){e.preventDefault();start();}});
 let touchX=null;canvas.addEventListener("touchstart",e=>{touchX=e.changedTouches[0].clientX;},{passive:true});canvas.addEventListener("touchend",e=>{if(touchX===null)return;const dx=e.changedTouches[0].clientX-touchX;if(Math.abs(dx)>18)move(dx>0?1:-1);touchX=null;},{passive:true});
 draw(0);
 })();
