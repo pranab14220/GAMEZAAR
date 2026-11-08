@@ -43,7 +43,6 @@ const backgroundTypes = [
  {id:"bgTree",title:"Trees",desc:"Choose a climate, then select from five matching roadside tree and plant designs",limit:"100 KB · 128 × 128 px max",maxKB:100,maxW:128,maxH:128,count:5,options:treeOptions},
  {id:"bgRoad",title:"Road",desc:"Choose a climate, then select a matching road surface and style",limit:"500 KB · 1280 × 720 px max",maxKB:500,maxW:1280,maxH:720,count:25,options:roadClimateTypes.flatMap(group=>group.options)},
  {id:"bgLand",title:"Land / Ground",desc:"Choose a climate, then select matching roadside land and ground designs",limit:"300 KB · 1280 × 720 px max",maxKB:300,maxW:1280,maxH:720,count:25,options:landClimateTypes.flatMap(group=>group.options)},
- {id:"bgSky",title:"Sky",desc:"Sky and weather appearance",limit:"300 KB · 1280 × 720 px max",maxKB:300,maxW:1280,maxH:720,count:5,options:[["☀️","Sunny"],["🌤️","Cloudy"],["🌇","Sunset"],["🌌","Starry"],["🌧️","Rainy"]]},
  {id:"bgBuilding",title:"Buildings",desc:"City buildings and roadside structures",limit:"200 KB · 256 × 256 px max",maxKB:200,maxW:256,maxH:256,count:5,options:[["🏙️","Skyscrapers"],["🏢","Offices"],["🏘️","Houses"],["🏭","Factories"],["🏬","Shops"]]},
  {id:"bgDecor",title:"Roadside Details",desc:"Lights, signs, fences and other scenery",limit:"100 KB · 128 × 128 px max",maxKB:100,maxW:128,maxH:128,count:5,options:[["💡","Street Lights"],["🚦","Signals"],["🪧","Road Signs"],["🧱","Fence"],["⛰️","Hills"]]}
 ];
@@ -184,9 +183,7 @@ function render(){
  $("pixelScene").style.aspectRatio=$("orientation").value==="landscape"?"16 / 9":"9 / 16";$("pixelScene").style.height=$("orientation").value==="landscape"?"190px":"320px";
  const carValue=selectedAssets.vehicle||"preset:0",carRecord=carValue.startsWith("custom:")?customAssets.find(x=>x.id===carValue.slice(7)):null;
  setPreviewImage($("previewPlayer"),carRecord,"🏎️","contain");
- const bgRecordValue=selectedAssets.bgSky||"preset:0",bgRecord=bgRecordValue.startsWith("custom:")?customAssets.find(x=>x.id===bgRecordValue.slice(7)):null;
- if(bgRecord){const url=getObjectUrl(bgRecord);$("pixelScene").style.backgroundImage="url('"+url+"')";$("pixelScene").style.backgroundSize="cover";}else{$("pixelScene").style.backgroundImage="";}
- const summary=[["Car",assetLabel("vehicle")],["Road",assetLabel("bgRoad")],["Land",assetLabel("bgLand")],["Sky",assetLabel("bgSky")],["Tree",assetLabel("bgTree")],["Play",assetLabel("btnPlay")],["Pause",assetLabel("btnPause")]].map(x=>x.join(": ")).join(" · ");
+ const summary=[["Car",assetLabel("vehicle")],["Road",assetLabel("bgRoad")],["Land",assetLabel("bgLand")],["Tree",assetLabel("bgTree")],["Play",assetLabel("btnPlay")],["Pause",assetLabel("btnPause")]].map(x=>x.join(": ")).join(" · ");
  $("selectedSummary").textContent=summary;
  Object.entries(climateGroupsByType).forEach(([typeId,groups])=>{
   const optionsBox=document.querySelector('[data-climate-options="'+typeId+'"]');
