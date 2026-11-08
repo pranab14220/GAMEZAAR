@@ -142,7 +142,7 @@ async function handleImageUploads(typeId,files,input){
  if(typeId==="bgRoad"||typeId==="bgLand"){valid=dimensions.width<=1280&&dimensions.height<=720;}
  if(!valid){setStatus(file.name+" exceeds the recommended dimensions for "+type.title+".");input.value="";return;}
  const id=typeId+"-"+Date.now()+"-"+Math.random().toString(36).slice(2,7),record={id,type:typeId,kind:"image",name:file.name,size:file.size,width:dimensions.width,height:dimensions.height,blob:file};
- try{await dbPut(record);customAssets.push(record);selectedAssets[typeId]="custom:"+id;render();setStatus("Image uploaded. Preview it below. To replace it, tap × and confirm delete first.");}
+ try{await dbPut(record);customAssets.push(record);selectedAssets[typeId]="custom:"+id;render();setStatus("Image uploaded. Its preview is shown directly below the Upload button.");document.querySelector('[data-uploaded-list="'+typeId+'"]')?.scrollIntoView({behavior:"smooth",block:"nearest"});}
  catch{setStatus("Could not save this image in browser storage.");}
  input.value="";
 }
@@ -199,7 +199,8 @@ function render(){
  document.querySelectorAll(".asset-option").forEach(button=>{const type=typeFor(button.dataset.type);const current=selectedAssets[button.dataset.type]||(type?.multi?[]:"preset:0");const active=type?.multi?current.includes("preset:"+button.dataset.option):current==="preset:"+button.dataset.option;button.classList.toggle("active",active);button.classList.toggle("multi-selected",!!type?.multi&&active);button.setAttribute("aria-pressed",String(active));});
  allImageTypes().forEach(type=>{
   const list=document.querySelector('[data-uploaded-list="'+type.id+'"]');if(!list)return;
-  list.innerHTML=getAssets(type.id).map(item=>{const url=getObjectUrl(item);return `<div class="uploaded-image-preview"><img src="${url}" alt="Preview of ${escapeHTML(item.name)}"><button type="button" class="uploaded-image-remove" data-remove-asset="${item.id}" aria-label="Delete uploaded image" title="Delete image">×</button><div class="uploaded-image-caption">${escapeHTML(item.name)} · ${bytesLabel(item.size)} · ${item.width} × ${item.height}px</div></div>`;}).join("");
+  const uploads=getAssets(type.id);
+  list.innerHTML=uploads.length?'<div class="uploaded-preview-heading">YOUR UPLOADED IMAGE PREVIEW</div>'+uploads.map(item=>{const url=getObjectUrl(item);return `<div class="uploaded-image-preview"><img src="${url}" alt="Preview of ${escapeHTML(item.name)}"><button type="button" class="uploaded-image-remove" data-remove-asset="${item.id}" aria-label="Delete uploaded image" title="Delete image">×</button><div class="uploaded-image-caption">${escapeHTML(item.name)} · ${bytesLabel(item.size)} · ${item.width} × ${item.height}px</div></div>`;}).join(""):"";
  });
  document.querySelectorAll(".sound-option").forEach(button=>{const current=selectedSounds[button.dataset.soundType]||"preset:0";button.classList.toggle("active",current==="preset:"+button.dataset.soundOption);});
  soundTypes.forEach(type=>{
