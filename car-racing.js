@@ -3,6 +3,23 @@
 const canvas=document.getElementById("game"),ctx=canvas.getContext("2d");
 const $=id=>document.getElementById(id);
 const W=360,H=600,lanes=[112,180,248];
+const CAR_LIST=[
+ {id:"starter",name:"Street King",color:"#df454c",accent:"#ffe0a1",price:0},
+ {id:"ocean",name:"Ocean GT",color:"#238bd5",accent:"#9df0ff",price:30},
+ {id:"venom",name:"Venom X",color:"#73bd45",accent:"#e4ff9c",price:50},
+ {id:"royal",name:"Royal V8",color:"#8755d7",accent:"#e5c5ff",price:70},
+ {id:"sunfire",name:"Sunfire",color:"#ed9a28",accent:"#fff0a1",price:90},
+ {id:"neon",name:"Neon Bolt",color:"#20b8ae",accent:"#bafff3",price:120},
+ {id:"blaze",name:"Blaze R",color:"#ed5c9b",accent:"#ffd0e4",price:150},
+ {id:"phantom",name:"Phantom",color:"#d9e0e8",accent:"#7c9ab8",price:200}
+];
+function readJSON(key,fallback){try{const v=JSON.parse(localStorage.getItem(key));return Array.isArray(v)?v:fallback;}catch(e){return fallback;}}
+let coins=Math.max(0,Number(localStorage.getItem("gamezaar-race-coins")||0));
+let unlocked=readJSON("gamezaar-race-unlocked",["starter"]).filter(id=>CAR_LIST.some(c=>c.id===id));
+if(!unlocked.includes("starter"))unlocked.unshift("starter");
+let selectedCarId=localStorage.getItem("gamezaar-race-selected")||"starter";
+if(!unlocked.includes(selectedCarId))selectedCarId="starter";
+let selectedCar=CAR_LIST.find(c=>c.id===selectedCarId)||CAR_LIST[0];
 let playerLane=1,playerX=lanes[1],playerTilt=0,traffic=[],score=0,best=Number(localStorage.getItem("gamezaar-race-best")||0);
 let speed=1,running=false,crashing=false,crashStarted=0,last=0,spawn=0,world=0,raf=0,audio=null,explosion={x:180,y:500};
 const trafficColors=["#ff754f","#55d9ff","#c58cff","#ffd166","#65e6a8"];
@@ -13,6 +30,40 @@ for(let side=0;side<2;side++){
  buildings.push({side,y,h,w,seed:Math.random(),windows:Array.from({length:12},()=>Math.random())});y+=h+8;}
 }
 $("best").textContent=String(best).padStart(4,"0");
+$("coins").textContent=String(coins).padStart(4,"0");
+function saveGarage(){localStorage.setItem("gamezaar-race-coins",String(coins));localStorage.setItem("gamezaar-race-unlocked",JSON.stringify(unlocked));localStorage.setItem("gamezaar-race-selected",selectedCarId);}
+function renderPreview(){
+ const pc=$("carPreview"),pctx=pc.getContext("2d");pctx.clearRect(0,0,pc.width,pc.height);
+ pctx.fillStyle="#2b3853";pctx.fillRect(0,0,pc.width,pc.height);
+ pctx.fillStyle="#43516c";pctx.fillRect(20,15,140,120);
+ const old=ctx;ctx=pctx;drawCar(90,75,selectedCar.color,true,0,selectedCar.accent);ctx=old;
+}
+function renderGarage(){
+ $("garageCoins").textContent=String(coins);
+ $("coins").textContent=String(coins).padStart(4,"0");
+ $("selectedCarName").textContent=selectedCar.name;
+ const owned=unlocked.includes(selectedCar.id);
+ $("selectedCarStatus").textContent=owned?"OWNED • READY TO RACE":"LOCKED • "+selectedCar.price+" COINS";
+ $("garageList").innerHTML=CAR_LIST.map(car=>{
+  const isOwned=unlocked.includes(car.id),isSelected=car.id===selectedCar.id;
+  return '<button type="button" class="garage-car '+(isSelected?'selected ':'')+(!isOwned?'locked':'')+'" data-car="'+car.id+'" aria-label="'+car.name+(isOwned?', owned':', '+car.price+' coins')+'"><span class="car-swatch" style="background:'+car.color+'"></span><strong>'+car.name+'</strong><small>'+(isOwned?'OWNED':'🪙 '+car.price)+'</small></button>';
+ }).join("");
+ $("startBtn").textContent=owned?(score>0?"RACE AGAIN":"START RACE"):"BUY • 🪙 "+selectedCar.price;
+ $("startBtn").dataset.mode=owned?"start":"buy";
+ renderPreview();
+}
+function selectCar(id){
+ const car=CAR_LIST.find(c=>c.id===id);if(!car)return;
+ selectedCar=car;selectedCarId=id;localStorage.setItem("gamezaar-race-selected",id);
+ $("garageMessage").textContent="";
+ renderGarage();
+}
+$("garageList").addEventListener("click",e=>{const item=e.target.closest("[data-car]");if(item)selectCar(item.dataset.car);});
+$("startBtn").addEventListener("click",()=>{
+ if(unlocked.includes(selectedCar.id)){start();return;}
+ if(coins<selectedCar.price){$("garageMessage").textContent="Can't buy! Earn more coins.";sound(150,.12,"square",.025);return;}
+ coins-=selectedCar.price;unlocked.push(selectedCar.id);saveGarage();$("garageMessage").textContent=selectedCar.name+" unlocked!";renderGarage();sound(620,.12,"triangle",.04);
+});
 function sound(freq=440,duration=.08,type="sine",volume=.035){
  try{audio=audio||new (window.AudioContext||window.webkitAudioContext)();if(audio.state==="suspended")audio.resume();
  const o=audio.createOscillator(),g=audio.createGain();o.type=type;o.frequency.setValueAtTime(freq,audio.currentTime);
@@ -109,7 +160,7 @@ function drawRoad(){
   ctx.fillStyle="#f0e8d1";ctx.fillRect(281,y,5,23);ctx.fillStyle="#d88739";ctx.fillRect(281,y+23,5,23);
  }
 }
-function drawCar(x,y,color,player=false,tilt=0){
+function drawCar(x,y,color,player=false,tilt=0,accent="#ffe0a1"){
  ctx.save();ctx.translate(x,y);ctx.rotate(tilt);
  // soft contact shadow
  ctx.fillStyle="rgba(7,13,18,.5)";ctx.beginPath();ctx.ellipse(1,4,20,32,0,0,Math.PI*2);ctx.fill();
@@ -130,7 +181,7 @@ function drawCar(x,y,color,player=false,tilt=0){
  ctx.fillStyle="#b4c5bd";ctx.fillRect(-1,-17,2,9);ctx.fillStyle="#182b35";ctx.fillRect(-10,-4,20,3);
  // roof panel and side windows
  ctx.fillStyle=player?"#d9e1d5":"#263e4b";ctx.fillRect(-9,1,18,13);
- ctx.fillStyle="#648b91";ctx.fillRect(-7,3,14,8);ctx.fillStyle="#182c37";ctx.fillRect(-9,14,18,3);
+ ctx.fillStyle="#648b91";ctx.fillRect(-7,3,14,8);if(player){ctx.fillStyle=accent;ctx.fillRect(-2,3,4,8);}ctx.fillStyle="#182c37";ctx.fillRect(-9,14,18,3);
  // rear glass and trunk
  ctx.fillStyle="#203845";ctx.fillRect(-9,18,18,6);ctx.fillStyle="#527985";ctx.fillRect(-7,19,14,3);
  ctx.fillStyle="#222d34";ctx.fillRect(-11,25,22,3);
@@ -138,13 +189,13 @@ function drawCar(x,y,color,player=false,tilt=0){
  glowRect(-11,-27,6,3,"#fff3bd",9);glowRect(5,-27,6,3,"#fff3bd",9);
  glowRect(-12,24,6,3,"#ff4b52",7);glowRect(6,24,6,3,"#ff4b52",7);
  ctx.fillStyle="#f7d78e";ctx.fillRect(-2,-25,4,2);
- if(player){ctx.fillStyle="#fff0b0";ctx.fillRect(-2,-1,4,3);ctx.fillStyle="#a92f38";ctx.fillRect(-2,16,4,2);}
+ if(player){ctx.fillStyle=accent;ctx.fillRect(-3,-23,6,12);ctx.fillStyle="#fff0b0";ctx.fillRect(-2,-1,4,3);ctx.fillStyle=accent;ctx.fillRect(-2,16,4,2);}
  ctx.restore();
 }
 function draw(){
  drawRoad();
  traffic.forEach(v=>drawCar(lanes[v.lane],v.y,v.color,false));
- drawCar(playerX,500,"#df454c",true,playerTilt);
+ drawCar(playerX,500,selectedCar.color,true,playerTilt,selectedCar.accent);
 }
 function speedForScore(s){return Number((1+Math.floor(s/100)*0.1).toFixed(1));}
 function reset(){playerLane=1;playerX=lanes[1];playerTilt=0;traffic=[];score=0;speed=1;spawn=0;crashing=false;$("score").textContent="0000";$("speed").textContent="1.0x";}
@@ -168,8 +219,9 @@ function drawExplosion(now){
  ctx.restore();
  if(age>720){
   crashing=false;$("raceShell").classList.remove("screen-shake");
-  $("overlayTitle").textContent="Race over!";$("overlayText").textContent="You scored "+score+". Try again and beat your best score.";
-  $("startBtn").textContent="RACE AGAIN";$("overlay").classList.remove("hidden");
+  $("overlayTitle").textContent="Race over!";
+  $("overlayText").textContent="You scored "+score+". Earned "+Math.floor(score/10)+" coins this race. Choose your next ride!";
+  $("garageMessage").textContent="";renderGarage();$("overlay").classList.remove("hidden");
  }
 }
 function frame(now){
@@ -184,7 +236,7 @@ function frame(now){
   if(Math.abs(targetX-playerX)<.45){playerX=targetX;playerTilt*=.75;}
   spawn+=dt;
   if(spawn>Math.max(20,64-speed*8)){spawn=0;const lane=Math.floor(Math.random()*3);traffic.push({lane,y:-48,color:trafficColors[Math.floor(Math.random()*trafficColors.length)],passed:false});}
-  traffic.forEach(v=>{v.y+=(1.7+speed*2.85)*dt;if(!v.passed&&v.y>535){v.passed=true;score+=10;$("score").textContent=String(score).padStart(4,"0");sound(760,.045,"triangle",.018);}});
+  traffic.forEach(v=>{v.y+=(1.7+speed*2.85)*dt;if(!v.passed&&v.y>535){v.passed=true;score+=10;coins+=1;localStorage.setItem("gamezaar-race-coins",String(coins));$("coins").textContent=String(coins).padStart(4,"0");$("garageCoins").textContent=String(coins);$("score").textContent=String(score).padStart(4,"0");sound(760,.045,"triangle",.018);}});
   traffic=traffic.filter(v=>v.y<660);
   speed=speedForScore(score);$("speed").textContent=speed.toFixed(1)+"x";
   for(const v of traffic){
@@ -206,5 +258,5 @@ $("rightBtn").addEventListener("pointerdown",e=>{e.preventDefault();move(1);});
 let touchX=null;
 canvas.addEventListener("touchstart",e=>{touchX=e.changedTouches[0].clientX;},{passive:true});
 canvas.addEventListener("touchend",e=>{if(touchX===null)return;const dx=e.changedTouches[0].clientX-touchX;if(Math.abs(dx)>18)move(dx>0?1:-1);touchX=null;},{passive:true});
-draw();raf=requestAnimationFrame(frame);
+renderGarage();draw();raf=requestAnimationFrame(frame);
 })();
