@@ -58,3 +58,19 @@
 .uploaded-image-preview>img{height:180px;width:100%;object-fit:contain;background:#171b2e}
 
 .upload-error-message{display:block;width:100%;box-sizing:border-box;padding:11px 12px;margin:0;background:#4a2630;border:1px solid #ff7b83;border-radius:9px;color:#fff0f0;font-size:.75rem;font-weight:750;line-height:1.5;overflow-wrap:anywhere}
+
+
+/* Floating playable preview launcher and popup */
+.floating-preview-button{position:fixed;right:14px;bottom:18px;z-index:9000;display:flex;align-items:center;gap:7px;padding:10px 14px;border:1px solid #ffc18f;border-radius:999px;background:#ff9b54;color:#241629;font:800 .78rem/1 inherit;box-shadow:0 5px 20px #080b1670;cursor:pointer;touch-action:manipulation}
+.floating-preview-button span:first-child{font-size:.85rem}
+.floating-preview-button:active{transform:scale(.96)}
+.playable-preview-modal{position:fixed;inset:0;z-index:10000;display:none;align-items:center;justify-content:center;padding:12px;background:#080b16d9;backdrop-filter:blur(5px)}
+.playable-preview-modal.open{display:flex}
+.playable-preview-panel{display:flex;flex-direction:column;width:min(100%,560px);height:min(92dvh,900px);min-height:300px;overflow:hidden;background:#202840;border:1px solid #61708e;border-radius:18px;box-shadow:0 20px 70px #0009}
+.playable-preview-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;background:#171b2e;border-bottom:1px solid #46516d}
+.playable-preview-header .eyebrow{font-size:.62rem;letter-spacing:.1em;color:#ffbd8c}
+.playable-preview-header h2{font-size:1rem;margin:3px 0 0;color:#fff}
+.playable-preview-close{width:34px;height:34px;flex:0 0 auto;border:1px solid #61708e;border-radius:50%;background:#272f49;color:#fff;font-size:1.45rem;line-height:1;cursor:pointer}
+#playablePreviewFrame{display:block;flex:1;width:100%;min-height:0;border:0;background:#171b2e}
+.playable-preview-note{margin:0;padding:8px 12px;background:#171b2e;color:#b9c1d4;font-size:.68rem;line-height:1.4;text-align:center}
+@media(max-width:430px){.floating-preview-button{right:12px;bottom:14px;padding:9px 12px}.playable-preview-modal{padding:7px}.playable-preview-panel{width:100%;height:94dvh;border-radius:15px}}
