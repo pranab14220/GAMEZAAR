@@ -37,16 +37,20 @@
         </div>
 
         <div class="studio-card">
-          <div class="section-title"><span class="step-number">02</span><div><h2>Game theme</h2><p>Set the main colors and sound.</p></div></div>
+          <div class="section-title"><span class="step-number">02</span><div><h2>Game theme</h2><p>Set the main colors and visual mood.</p></div></div>
           <label for="accentColor">Main color</label>
           <div class="color-row"><input type="color" id="accentColor" value="#ff9b54"><span id="accentValue">#FF9B54</span></div>
           <label for="sceneColor">Scene color</label>
           <div class="color-row"><input type="color" id="sceneColor" value="#394563"><span id="sceneValue">#394563</span></div>
-          <label class="studio-check"><input type="checkbox" id="soundToggle" checked> Enable game sound</label>
+        </div>
+
+        <div class="studio-card sound-library-card" id="soundSection">
+          <div class="section-title"><span class="step-number">03</span><div><h2>Sound settings</h2><p>Choose or upload each game sound separately. Switch off any sound you do not want.</p></div></div>
+          <div id="soundGroups" class="sound-groups"></div>
         </div>
 
         <div class="studio-card asset-library-card">
-          <div class="section-title"><span class="step-number">03</span><div><h2>Choose your assets</h2><p>Pick a starter style or upload your own image.</p></div></div>
+          <div class="section-title"><span class="step-number">04</span><div><h2>Choose your assets</h2><p>Pick a starter style or upload your own image.</p></div></div>
           <div class="asset-budget">
             <div><span>YOUR CUSTOM ASSETS</span><strong id="assetTotal">0 KB <small>/ 2 MB</small></strong></div>
             <div class="budget-track"><i id="budgetFill"></i></div>
