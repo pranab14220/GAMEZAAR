@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#171B2E">
-  <meta name="description" content="Customize your GAMEZAAR game.">
-  <title>Game Studio — GAMEZAAR</title>
+  <meta name="description" content="Build and customize a mobile game with GAMEZAAR.">
+  <title>Game Builder — GAMEZAAR</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="studio.css">
 </head>
@@ -14,52 +14,70 @@
     <a class="brand" href="./"><span class="brand-mark">G</span> GAMEZAAR</a>
     <a class="studio-back" href="./">← Back to games</a>
   </header>
+
   <main class="studio-main">
     <div class="studio-heading">
       <span class="eyebrow">GAMEZAAR CREATOR</span>
-      <h1>Your Game Studio</h1>
-      <p>Customize your game identity and see changes instantly.</p>
+      <h1>Build your <span>own game.</span></h1>
+      <p>Choose a template, personalize its look, add your own assets and preview your creation.</p>
     </div>
-    <div class="studio-layout">
-      <section class="studio-controls">
+
+    <div class="builder-layout">
+      <section class="builder-controls">
         <div class="studio-card">
-          <h2>01. Game details</h2>
+          <div class="section-title"><span class="step-number">01</span><div><h2>Game details</h2><p>Give your game its identity.</p></div></div>
           <label for="gameTitle">Game title</label>
           <input id="gameTitle" maxlength="28" placeholder="My Awesome Game">
           <label for="gameSubtitle">Short tagline</label>
           <input id="gameSubtitle" maxlength="48" placeholder="A new adventure begins">
           <div class="studio-two">
             <div><label for="difficulty">Difficulty</label><select id="difficulty"><option>Easy</option><option selected>Normal</option><option>Hard</option></select></div>
-            <div><label for="orientation">Screen</label><select id="orientation"><option value="portrait">Portrait</option><option value="landscape">Landscape</option></select></div>
+            <div><label for="orientation">Screen orientation</label><select id="orientation"><option value="portrait">Portrait</option><option value="landscape">Landscape</option></select></div>
           </div>
         </div>
+
         <div class="studio-card">
-          <h2>02. Pixel theme</h2>
+          <div class="section-title"><span class="step-number">02</span><div><h2>Game theme</h2><p>Set the main colors and sound.</p></div></div>
           <label for="accentColor">Main color</label>
           <div class="color-row"><input type="color" id="accentColor" value="#ff9b54"><span id="accentValue">#FF9B54</span></div>
-          <label for="sceneColor">Background color</label>
-          <div class="color-row"><input type="color" id="sceneColor" value="#272f49"><span id="sceneValue">#272F49</span></div>
+          <label for="sceneColor">Scene color</label>
+          <div class="color-row"><input type="color" id="sceneColor" value="#394563"><span id="sceneValue">#394563</span></div>
           <label class="studio-check"><input type="checkbox" id="soundToggle" checked> Enable game sound</label>
         </div>
+
+        <div class="studio-card asset-library-card">
+          <div class="section-title"><span class="step-number">03</span><div><h2>Choose your assets</h2><p>Pick a starter style or upload your own image.</p></div></div>
+          <div class="asset-budget">
+            <div><span>YOUR CUSTOM ASSETS</span><strong id="assetTotal">0 KB <small>/ 2 MB</small></strong></div>
+            <div class="budget-track"><i id="budgetFill"></i></div>
+            <p id="assetBudgetNote">You can use up to 2 MB of your own images in one game.</p>
+          </div>
+          <div id="assetGroups" class="asset-groups"></div>
+          <p class="asset-footnote">Supported: PNG, JPG and WebP. Images are checked before they are added. Animated GIF uploads are not supported yet.</p>
+        </div>
+
         <div class="studio-actions">
-          <button class="button button-primary" id="saveGame" type="button">Save game settings</button>
+          <button class="button button-primary" id="saveGame" type="button">Save my game</button>
           <button class="button button-quiet" id="resetGame" type="button">Reset</button>
         </div>
-        <p class="studio-status" id="saveStatus" role="status">Changes are previewed instantly. Save to keep them on this device.</p>
+        <p class="studio-status" id="saveStatus" role="status">Your selections are previewed instantly. Save to keep your settings on this device.</p>
       </section>
-      <section class="studio-preview-wrap">
-        <div class="preview-heading"><span class="eyebrow">LIVE PREVIEW</span><span class="preview-live"><i></i> LIVE</span></div>
+
+      <aside class="studio-preview-wrap">
+        <div class="preview-heading"><span class="eyebrow">LIVE GAME PREVIEW</span><span class="preview-live"><i></i> LIVE</span></div>
         <div class="game-device" id="gameDevice">
-          <div class="device-top"><span>GAMEZAAR</span><span>♥  ♥  ♥</span></div>
+          <div class="device-top"><span>GAMEZAAR</span><span>♥ ♥ ♥</span></div>
           <div class="pixel-scene" id="pixelScene">
             <div class="pixel-sun"></div><div class="pixel-cloud cloud-a"></div><div class="pixel-cloud cloud-b"></div>
-            <div class="pixel-platform"></div><div class="pixel-player">◆</div><div class="pixel-star">✦</div>
+            <div class="pixel-platform"></div><div class="pixel-player" id="previewPlayer">◆</div><div class="pixel-star">✦</div>
+            <div class="preview-coin" id="previewCoin">●</div>
           </div>
-          <div class="device-game-info"><span class="eyebrow">NEW ADVENTURE</span><h2 id="previewTitle">My Awesome Game</h2><p id="previewSubtitle">A new adventure begins</p><button type="button" id="previewPlay">PLAY NOW</button></div>
+          <div class="device-game-info"><span class="eyebrow">YOUR NEW GAME</span><h2 id="previewTitle">My Awesome Game</h2><p id="previewSubtitle">A new adventure begins</p><button type="button" id="previewPlay">PLAY PREVIEW</button></div>
           <div class="device-footer">SCORE <b>0000</b><span>LEVEL 01</span></div>
         </div>
-        <p class="preview-caption">Preview artwork is a starter pixel-style mockup. The playable game engine and HD sprite assets are the next build stage.</p>
-      </section>
+        <div class="preview-selection"><span>SELECTED ASSETS</span><p id="selectedSummary">Starter character · Starter coin · Starter background</p></div>
+        <p class="preview-caption">This is a visual customization preview, not the final playable game. The selected assets will be connected to each game engine during the build/export stage.</p>
+      </aside>
     </div>
   </main>
   <script src="studio.js"></script>
