@@ -41,3 +41,12 @@
 .tree-climate-tab:hover,.tree-climate-tab:focus-visible{outline:none;border-color:#ffb47b}
 .tree-climate-tab.active{border-color:#ff9b54;background:#ff9b5425;color:#ffbd8c;box-shadow:inset 0 0 0 1px #ff9b5430}
 @media(max-width:430px){.tree-climate-tabs{gap:4px}.tree-climate-tab{padding:8px 2px;font-size:.61rem}}
+
+
+/* Single custom image upload preview */
+.uploaded-list:has(.uploaded-image-preview){display:block;margin-top:11px}
+.uploaded-image-preview{position:relative;width:min(100%,260px);padding:8px;background:#171b2e;border:1px solid #61708e;border-radius:12px;overflow:hidden}
+.uploaded-image-preview>img{display:block;width:100%;height:150px;object-fit:contain;background:#222b43;border-radius:8px}
+.uploaded-image-remove{position:absolute;top:13px;right:13px;width:30px;height:30px;display:grid;place-items:center;border:1px solid #ffb47b;border-radius:50%;background:#171b2eeb;color:#ffb47b;font-size:23px;line-height:1;cursor:pointer;box-shadow:0 2px 8px #0008}
+.uploaded-image-remove:hover,.uploaded-image-remove:focus-visible{background:#ff9b54;color:#241629;outline:2px solid #fff}
+.uploaded-image-caption{padding:7px 2px 1px;color:#c3cce0;font-size:.68rem;overflow-wrap:anywhere}
