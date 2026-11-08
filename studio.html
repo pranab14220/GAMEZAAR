@@ -50,16 +50,22 @@
         </div>
 
         <div class="studio-card asset-library-card">
-          <div class="section-title"><span class="step-number">04</span><div><h2>Choose your assets</h2><p>Pick a starter style or upload your own image.</p></div></div>
+          <div class="section-title"><span class="step-number">04</span><div><h2>Racing scene & controls</h2><p>Open each item to choose its own design or upload your own.</p></div></div>
           <div class="asset-budget">
             <div><span>YOUR CUSTOM ASSETS</span><strong id="assetTotal">0 KB <small>/ 2 MB</small></strong></div>
             <div class="budget-track"><i id="budgetFill"></i></div>
             <p id="assetBudgetNote">You can use up to 2 MB of your own images in one game.</p>
           </div>
-          <div id="assetGroups" class="asset-groups"></div>
-          <p class="asset-footnote">Supported: PNG, JPG and WebP. Images are checked before they are added. Animated GIF uploads are not supported yet.</p>
+          <h3 class="asset-subheading">Player & road objects</h3><div id="assetGroups" class="asset-groups"></div><h3 class="asset-subheading">Background elements</h3><div id="backgroundGroups" class="asset-groups"></div><h3 class="asset-subheading">Buttons & icons</h3><div id="buttonGroups" class="asset-groups"></div>
+          <p class="asset-footnote">Images: PNG, JPG or WebP. Every element has its own independent selection and upload list. Animated GIF uploads are not supported yet.</p>
         </div>
 
+
+        <div class="studio-card sound-studio-card">
+          <div class="section-title"><span class="step-number">04</span><div><h2>Sound Studio</h2><p>Choose or upload a sound for each racing-game action. Turn each one on or off independently.</p></div></div>
+          <div class="sound-groups" id="soundGroups"></div>
+          <p class="asset-footnote">Audio uploads: MP3, WAV, OGG or M4A · 500 KB max per file. Uploaded sounds are saved in this browser on this device.</p>
+        </div>
         <div class="studio-actions">
           <button class="button button-primary" id="saveGame" type="button">Save my game</button>
           <button class="button button-quiet" id="resetGame" type="button">Reset</button>
@@ -73,13 +79,13 @@
           <div class="device-top"><span>GAMEZAAR</span><span>♥ ♥ ♥</span></div>
           <div class="pixel-scene" id="pixelScene">
             <div class="pixel-sun"></div><div class="pixel-cloud cloud-a"></div><div class="pixel-cloud cloud-b"></div>
-            <div class="pixel-platform"></div><div class="pixel-player" id="previewPlayer">◆</div><div class="pixel-star">✦</div>
+            <div class="pixel-platform"></div><div class="pixel-player" id="previewPlayer">🏎️</div><div class="pixel-star">✦</div>
             <div class="preview-coin" id="previewCoin">●</div>
           </div>
           <div class="device-game-info"><span class="eyebrow">YOUR NEW GAME</span><h2 id="previewTitle">My Awesome Game</h2><p id="previewSubtitle">A new adventure begins</p><button type="button" id="previewPlay">PLAY PREVIEW</button></div>
           <div class="device-footer">SCORE <b>0000</b><span>LEVEL 01</span></div>
         </div>
-        <div class="preview-selection"><span>SELECTED ASSETS</span><p id="selectedSummary">Starter character · Starter coin · Starter background</p></div>
+        <div class="preview-selection"><span>SELECTED ASSETS</span><p id="selectedSummary">Starter car · Starter coin · Starter road</p></div>
         <p class="preview-caption">This is a visual customization preview, not the final playable game. The selected assets will be connected to each game engine during the build/export stage.</p>
       </aside>
     </div>
