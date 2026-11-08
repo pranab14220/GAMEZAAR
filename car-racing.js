@@ -22,7 +22,7 @@ if(!unlocked.includes(selectedCarId))selectedCarId="starter";
 let selectedCar=CAR_LIST.find(c=>c.id===selectedCarId)||CAR_LIST[0];
 let playerLane=1,playerX=lanes[1],playerTilt=0,traffic=[],score=0,best=Number(localStorage.getItem("gamezaar-race-best")||0);
 let speed=1,running=false,crashing=false,crashStarted=0,last=0,spawn=0,world=0,raf=0,audio=null,explosion={x:180,y:500};
-let roadCoins=[],coinSpawn=0,nextCoinSpawn=900+Math.random()*300,coinsThisRace=0;
+let roadCoins=[],coinSpawn=0,nextCoinSpawn=900+Math.random()*300,coinsThisRace=0,scorePopups=[];
 const trafficColors=["#ff754f","#55d9ff","#c58cff","#ffd166","#65e6a8"];
 const buildings=[];
 for(let side=0;side<2;side++){
@@ -208,10 +208,12 @@ function draw(){
  drawRoad();
  traffic.forEach(v=>drawCar(lanes[v.lane],v.y,v.color,false));
  roadCoins.forEach(c=>drawCoin(lanes[c.lane],c.y,performance.now()));
+ scorePopups=scorePopups.filter(p=>p.life>0);
+ scorePopups.forEach(p=>{ctx.save();ctx.globalAlpha=Math.min(1,p.life/18);ctx.font="bold 13px monospace";ctx.textAlign="center";ctx.fillStyle="#fff0a0";ctx.shadowColor="#ffb84d";ctx.shadowBlur=8;ctx.fillText("+10",p.x,p.y);ctx.restore();p.y-=.65;p.life-=1;});
  drawCar(playerX,500,selectedCar.color,true,playerTilt,selectedCar.accent);
 }
 function speedForScore(s){return Number((1+Math.floor(s/100)*0.1).toFixed(1));}
-function reset(){playerLane=1;playerX=lanes[1];playerTilt=0;traffic=[];roadCoins=[];coinSpawn=0;nextCoinSpawn=900+Math.random()*300;coinsThisRace=0;score=0;speed=1;spawn=0;crashing=false;$("score").textContent="0000";$("speed").textContent="1.0x";}
+function reset(){playerLane=1;playerX=lanes[1];playerTilt=0;traffic=[];roadCoins=[];scorePopups=[];coinSpawn=0;nextCoinSpawn=900+Math.random()*300;coinsThisRace=0;score=0;speed=1;spawn=0;crashing=false;$("score").textContent="0000";$("speed").textContent="1.0x";}
 function endGame(){
  if(crashing)return;
  running=false;crashing=true;crashStarted=performance.now();explosion={x:playerX,y:500};
@@ -249,7 +251,7 @@ function frame(now){
   if(Math.abs(targetX-playerX)<.45){playerX=targetX;playerTilt*=.75;}
   spawn+=dt;
   if(spawn>Math.max(20,64-speed*8)){spawn=0;const lane=Math.floor(Math.random()*3);traffic.push({lane,y:-48,color:trafficColors[Math.floor(Math.random()*trafficColors.length)],passed:false});}
-  traffic.forEach(v=>{v.y+=(1.7+speed*2.85)*dt;if(!v.passed&&v.y>535){v.passed=true;score+=10;$("score").textContent=String(score).padStart(4,"0");}});
+  traffic.forEach(v=>{v.y+=(1.7+speed*2.85)*dt;if(!v.passed&&v.y>535){v.passed=true;score+=10;scorePopups.push({x:lanes[v.lane],y:510,life:34});$("score").textContent=String(score).padStart(4,"0");}});
   // A road coin appears roughly every 15–20 seconds: only touching it adds to the wallet.
   coinSpawn+=dt;
   if(coinSpawn>=nextCoinSpawn){
