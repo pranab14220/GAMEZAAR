@@ -83,6 +83,11 @@ function typeFor(id){return allImageTypes().find(x=>x.id===id);}
 function getAssets(id){return customAssets.filter(x=>x.type===id);}
 function totalBytes(){return customAssets.reduce((sum,x)=>sum+x.size,0);}
 function setStatus(message){$("saveStatus").textContent=message;}
+function showImageUploadError(typeId,message){
+ setStatus(message);
+ const list=document.querySelector('[data-uploaded-list="'+typeId+'"]');
+ if(list){list.innerHTML='<div class="upload-error-message" role="alert">⚠️ '+escapeHTML(message)+'</div>';list.scrollIntoView({behavior:"smooth",block:"center"});}
+}
 function escapeHTML(value){return String(value).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 function groupMarkup(type){
  const climateGroups=climateGroupsByType[type.id];
@@ -133,14 +138,14 @@ function buildSoundGroups(){
 async function handleImageUploads(typeId,files,input){
  const type=typeFor(typeId),file=files[0];
  if(!file){input.value="";return;}
- if(getAssets(typeId).length>=1){setStatus("A design is already uploaded for "+type.title+". Tap × on its preview and confirm delete before uploading another.");input.value="";return;}
- if(!["image/png","image/jpeg","image/webp"].includes(file.type)){setStatus("Use PNG, JPG or WebP images only.");input.value="";return;}
- if(file.size>type.maxKB*1024){setStatus("Upload nahi ho sakta: "+file.name+" file bahut badi hai. "+type.title+" ke liye maximum size "+type.maxKB+" KB hai.");input.value="";return;}
- if(totalBytes()+file.size>MAX_TOTAL){setStatus("Upload nahi ho sakta: sabhi custom uploads ka total limit 2 MB hai. Pehle koi purani file delete karo.");input.value="";return;}
- const dimensions=await readDimensions(file);if(!dimensions){setStatus("Could not read "+file.name+".");input.value="";return;}
+ if(getAssets(typeId).length>=1){showImageUploadError(typeId,"A design is already uploaded for "+type.title+". Tap × on its preview and confirm delete before uploading another.");input.value="";return;}
+ if(!["image/png","image/jpeg","image/webp"].includes(file.type)){showImageUploadError(typeId,"Upload nahi ho sakta: sirf PNG, JPG ya WebP image select karo.");input.value="";return;}
+ if(file.size>type.maxKB*1024){showImageUploadError(typeId,"Upload nahi ho sakta: "+file.name+" file bahut badi hai. "+type.title+" ke liye maximum size "+type.maxKB+" KB hai.");input.value="";return;}
+ if(totalBytes()+file.size>MAX_TOTAL){showImageUploadError(typeId,"Upload nahi ho sakta: sabhi custom uploads ka total limit 2 MB hai. Pehle koi purani file delete karo.");input.value="";return;}
+ const dimensions=await readDimensions(file);if(!dimensions){showImageUploadError(typeId,"Upload nahi ho sakta: "+file.name+" image open nahi ho pa rahi.");input.value="";return;}
  let valid=dimensions.width<=type.maxW&&dimensions.height<=type.maxH;
  if(typeId==="bgRoad"||typeId==="bgLand"){valid=dimensions.width<=1280&&dimensions.height<=720;}
- if(!valid){setStatus(file.name+" exceeds the recommended dimensions for "+type.title+".");input.value="";return;}
+ if(!valid){showImageUploadError(typeId,"Upload nahi ho sakta: "+file.name+" ka image size "+type.title+" ke allowed dimensions se bada hai.");input.value="";return;}
  const id=typeId+"-"+Date.now()+"-"+Math.random().toString(36).slice(2,7),record={id,type:typeId,kind:"image",name:file.name,size:file.size,width:dimensions.width,height:dimensions.height,blob:file};
  try{await dbPut(record);customAssets.push(record);selectedAssets[typeId]="custom:"+id;render();setStatus("Image uploaded. Its preview is shown directly below the Upload button.");document.querySelector('[data-uploaded-list="'+typeId+'"]')?.scrollIntoView({behavior:"smooth",block:"nearest"});}
  catch{setStatus("Could not save this image in browser storage.");}
