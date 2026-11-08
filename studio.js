@@ -125,7 +125,7 @@ function render(){
  $("sceneValue").textContent=$("sceneColor").value.toUpperCase();
  $("gameDevice").classList.toggle("landscape-device",$("orientation").value==="landscape");
  $("pixelScene").style.aspectRatio=$("orientation").value==="landscape"?"16 / 9":"9 / 16";
- $("pixelScene").style.height=$("orientation").value==="landscape"?"190px":"250px";
+ $("pixelScene").style.height=$("orientation").value==="landscape"?"190px":"320px";
  const char=selectedAssets.character||"preset:0",coin=selectedAssets.coin||"preset:0",bg=selectedAssets.background||"preset:0";
  const charRecord=char.startsWith("custom:")?customAssets.find(x=>x.id===char.slice(7)):null;
  const coinRecord=coin.startsWith("custom:")?customAssets.find(x=>x.id===coin.slice(7)):null;
