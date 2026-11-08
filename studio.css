@@ -50,3 +50,9 @@
 .uploaded-image-remove{position:absolute;top:13px;right:13px;width:30px;height:30px;display:grid;place-items:center;border:1px solid #ffb47b;border-radius:50%;background:#171b2eeb;color:#ffb47b;font-size:23px;line-height:1;cursor:pointer;box-shadow:0 2px 8px #0008}
 .uploaded-image-remove:hover,.uploaded-image-remove:focus-visible{background:#ff9b54;color:#241629;outline:2px solid #fff}
 .uploaded-image-caption{padding:7px 2px 1px;color:#c3cce0;font-size:.68rem;overflow-wrap:anywhere}
+
+/* Clear, always-visible uploaded image preview */
+.uploaded-list:has(.uploaded-image-preview){display:block!important;width:100%;margin-top:12px;padding:10px;background:#171b2e;border:1px dashed #61708e;border-radius:12px;box-sizing:border-box}
+.uploaded-preview-heading{font-size:.67rem;font-weight:900;letter-spacing:.09em;color:#ffbd8c;margin:0 0 9px}
+.uploaded-image-preview{display:block;width:min(100%,300px);box-sizing:border-box;background:#272f49;border:1px solid #71809e}
+.uploaded-image-preview>img{height:180px;width:100%;object-fit:contain;background:#171b2e}
