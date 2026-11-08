@@ -94,6 +94,6 @@ categoryPanels.forEach((panel) => {
 document.querySelectorAll(".choose-game").forEach((button) => {
   button.addEventListener("click", () => {
     const gameName = button.dataset.game || "Game";
-    window.location.href = `studio.html?game=${encodeURIComponent(gameName)}`;
+    window.location.href = gameName === "Car Racing" ? "car-racing.html" : `studio.html?game=${encodeURIComponent(gameName)}`;
   });
 });
