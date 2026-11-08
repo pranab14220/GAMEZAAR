@@ -1,6 +1,6 @@
 (() => {
 "use strict";
-const canvas=document.getElementById("game"),ctx=canvas.getContext("2d");
+const canvas=document.getElementById("game");let ctx=canvas.getContext("2d");
 const $=id=>document.getElementById(id);
 const W=360,H=600,lanes=[112,180,248];
 const CAR_LIST=[
@@ -252,7 +252,6 @@ function start(){
  reset();running=true;$("overlay").classList.add("hidden");startSound();
 }
 function move(d){if(running){const next=Math.max(0,Math.min(2,playerLane+d));if(next!==playerLane){playerLane=next;steerSound();}}}
-$("startBtn").addEventListener("click",start);
 $("leftBtn").addEventListener("pointerdown",e=>{e.preventDefault();move(-1);});
 $("rightBtn").addEventListener("pointerdown",e=>{e.preventDefault();move(1);});
 let touchX=null;
