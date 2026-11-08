@@ -202,7 +202,7 @@ $("saveGame").addEventListener("click",()=>{
 });
 $("resetGame").addEventListener("click",()=>{
  if(!confirm("Reset racing game settings and remove all uploaded images and sounds from this device?"))return;
- localStorage.removeItem(settingsKey);Promise.all(customAssets.map(item=>dbDelete(item.id))).finally(()=>{objectUrls.forEach(url=>URL.revokeObjectURL(url));objectUrls.clear();customAssets=[];selectedAssets={};selectedSounds={};soundEnabled={};setValues(defaults);setStatus("Builder settings and all custom uploads have been reset.");});
+ localStorage.removeItem(settingsKey);Promise.all(customAssets.map(item=>dbDelete(item.id))).finally(()=>{objectUrls.forEach(url=>URL.revokeObjectURL(url));objectUrls.clear();customAssets=[];selectedAssets={};selectedSounds={};soundEnabled={};selectedTreeClimate="summer";setValues(defaults);setStatus("Builder settings and all custom uploads have been reset.");});
 });
 $("previewPlay").addEventListener("click",()=>setStatus("This is a customization preview. The playable racing engine and APK/AAB export are not connected yet."));
 async function init(){
