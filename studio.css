@@ -56,3 +56,5 @@
 .uploaded-preview-heading{font-size:.67rem;font-weight:900;letter-spacing:.09em;color:#ffbd8c;margin:0 0 9px}
 .uploaded-image-preview{display:block;width:min(100%,300px);box-sizing:border-box;background:#272f49;border:1px solid #71809e}
 .uploaded-image-preview>img{height:180px;width:100%;object-fit:contain;background:#171b2e}
+
+.upload-error-message{display:block;width:100%;box-sizing:border-box;padding:11px 12px;margin:0;background:#4a2630;border:1px solid #ff7b83;border-radius:9px;color:#fff0f0;font-size:.75rem;font-weight:750;line-height:1.5;overflow-wrap:anywhere}
