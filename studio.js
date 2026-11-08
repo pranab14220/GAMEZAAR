@@ -44,7 +44,8 @@ const backgroundTypes = [
  {id:"bgRoad",title:"Road",desc:"Choose a climate, then select a matching road surface and style",limit:"500 KB · 1280 × 720 px max",maxKB:500,maxW:1280,maxH:720,count:25,options:roadClimateTypes.flatMap(group=>group.options)},
  {id:"bgLand",title:"Land / Ground",desc:"Choose a climate, then select matching roadside land and ground designs",limit:"300 KB · 1280 × 720 px max",maxKB:300,maxW:1280,maxH:720,count:25,options:landClimateTypes.flatMap(group=>group.options)},
  {id:"bgBuilding",title:"Buildings",desc:"City buildings and roadside structures",limit:"200 KB · 256 × 256 px max",maxKB:200,maxW:256,maxH:256,count:5,options:[["🏙️","Skyscrapers"],["🏢","Offices"],["🏘️","Houses"],["🏭","Factories"],["🏬","Shops"]]},
- {id:"bgDecor",title:"Roadside Details",desc:"Lights, signs, fences and other scenery",limit:"100 KB · 128 × 128 px max",maxKB:100,maxW:128,maxH:128,count:5,options:[["💡","Street Lights"],["🚦","Signals"],["🪧","Road Signs"],["🧱","Fence"],["⛰️","Hills"]]}
+ {id:"bgDecor",title:"Roadside Details",desc:"Lights, fences and other roadside scenery",limit:"100 KB · 128 × 128 px max",maxKB:100,maxW:128,maxH:128,count:5,options:[["💡","Street Lights"],["🚦","Signals"],["🧱","Fence"],["⛰️","Hills"],["🌳","Shrubs"]]},
+ {id:"bgSigns",title:"Roadside Signs",desc:"Select up to five sign designs to place along the road",limit:"5 designs · select up to 5",maxKB:100,maxW:128,maxH:128,count:5,multi:true,options:[["🚸","School Zone"],["⚠️","Danger Warning"],["🚦","Traffic Signal"],["🛑","Stop Sign"],["🚧","Road Work"]]}
 ];
 const buttonTypes = [
  {id:"btnPlay",title:"Play Button",desc:"Main start/play control",limit:"30 KB · 128 × 64 px max",maxKB:30,maxW:128,maxH:64,count:5,options:[["▶️","Classic"],["🟠","Round"],["🟩","Pixel"],["⚡","Neon"],["🏁","Racing"]]},
@@ -92,9 +93,9 @@ function groupMarkup(type){
  return `<section class="asset-group" data-asset-group="${type.id}">
   <button type="button" class="asset-group-toggle" aria-expanded="false"><span><b>${type.title}</b><small>${type.desc}</small></span><span class="asset-chevron">＋</span></button>
   <div class="asset-group-panel" hidden>
-   <div class="asset-group-meta"><span>${type.limit}</span><span>${climateGroups?"5 climate categories · 5 designs each":"5 styles + your upload"}</span></div>
+   <div class="asset-group-meta"><span>${type.limit}</span><span>${type.multi?"Choose up to 5 designs":climateGroups?"5 climate categories · 5 designs each":"5 styles + your upload"}</span></div>
    ${climateMarkup}
-   <div class="asset-upload-row"><label class="asset-upload-button">＋ Upload your own<input type="file" accept="image/png,image/jpeg,image/webp" data-upload="${type.id}" multiple></label><span class="asset-upload-note">Up to 5 uploads · ${type.maxKB} KB each</span></div>
+   ${type.multi?"":`<div class="asset-upload-row"><label class="asset-upload-button">＋ Upload your own<input type="file" accept="image/png,image/jpeg,image/webp" data-upload="${type.id}" multiple></label><span class="asset-upload-note">Up to 5 uploads · ${type.maxKB} KB each</span></div>`}
    <div class="uploaded-list" data-uploaded-list="${type.id}"></div>
   </div>
  </section>`;
@@ -110,7 +111,7 @@ function buildAssetGroups(){
    const climate=event.target.closest("[data-climate-group]");
    if(climate){selectedClimateByGroup[climate.dataset.climateGroup]=climate.dataset.climate;render();return;}
    const option=event.target.closest(".asset-option");
-   if(option){selectedAssets[option.dataset.type]="preset:"+option.dataset.option;render();return;}
+   if(option){const type=typeFor(option.dataset.type);if(type?.multi){const key=option.dataset.type,values=Array.isArray(selectedAssets[key])?selectedAssets[key]:[];const value="preset:"+option.dataset.option;selectedAssets[key]=values.includes(value)?values.filter(item=>item!==value):values.length<5?[...values,value]:values;setStatus("Selected "+selectedAssets[key].length+" of 5 roadside signs.");}else{selectedAssets[option.dataset.type]="preset:"+option.dataset.option;}render();return;}
    const remove=event.target.closest("[data-remove-asset]");
    if(remove)removeAsset(remove.dataset.removeAsset);
   });
@@ -183,7 +184,8 @@ function render(){
  $("pixelScene").style.aspectRatio=$("orientation").value==="landscape"?"16 / 9":"9 / 16";$("pixelScene").style.height=$("orientation").value==="landscape"?"190px":"320px";
  const carValue=selectedAssets.vehicle||"preset:0",carRecord=carValue.startsWith("custom:")?customAssets.find(x=>x.id===carValue.slice(7)):null;
  setPreviewImage($("previewPlayer"),carRecord,"🏎️","contain");
- const summary=[["Car",assetLabel("vehicle")],["Road",assetLabel("bgRoad")],["Land",assetLabel("bgLand")],["Tree",assetLabel("bgTree")],["Play",assetLabel("btnPlay")],["Pause",assetLabel("btnPause")]].map(x=>x.join(": ")).join(" · ");
+ const signChoices=Array.isArray(selectedAssets.bgSigns)?selectedAssets.bgSigns.map(value=>backgroundTypes.find(type=>type.id==="bgSigns").options[Number(value.split(":")[1])]?.[1]).filter(Boolean):[];
+ const summary=[["Car",assetLabel("vehicle")],["Road",assetLabel("bgRoad")],["Land",assetLabel("bgLand")],["Tree",assetLabel("bgTree")],["Signs",signChoices.length?signChoices.join(", "):"None"],["Play",assetLabel("btnPlay")],["Pause",assetLabel("btnPause")]].map(x=>x.join(": ")).join(" · ");
  $("selectedSummary").textContent=summary;
  Object.entries(climateGroupsByType).forEach(([typeId,groups])=>{
   const optionsBox=document.querySelector('[data-climate-options="'+typeId+'"]');
@@ -193,7 +195,7 @@ function render(){
   optionsBox.innerHTML=climate.options.map((option,index)=>`<button type="button" class="asset-option" data-type="${typeId}" data-option="${offset+index}" aria-pressed="false"><span class="asset-glyph">${option[0]}</span><small>${option[1]}</small></button>`).join("");
  });
  document.querySelectorAll(".tree-climate-tab").forEach(button=>{const active=button.dataset.climate===selectedClimateByGroup[button.dataset.climateGroup];button.classList.toggle("active",active);button.setAttribute("aria-pressed",String(active));});
- document.querySelectorAll(".asset-option").forEach(button=>{const current=selectedAssets[button.dataset.type]||"preset:0",active=current==="preset:"+button.dataset.option;button.classList.toggle("active",active);button.setAttribute("aria-pressed",String(active));});
+ document.querySelectorAll(".asset-option").forEach(button=>{const type=typeFor(button.dataset.type);const current=selectedAssets[button.dataset.type]||(type?.multi?[]:"preset:0");const active=type?.multi?current.includes("preset:"+button.dataset.option):current==="preset:"+button.dataset.option;button.classList.toggle("active",active);button.classList.toggle("multi-selected",!!type?.multi&&active);button.setAttribute("aria-pressed",String(active));});
  allImageTypes().forEach(type=>{
   const list=document.querySelector('[data-uploaded-list="'+type.id+'"]');if(!list)return;
   list.innerHTML=getAssets(type.id).map(item=>{const url=getObjectUrl(item);return `<span class="uploaded-chip"><img src="${url}" alt=""><span>${escapeHTML(item.name)} · ${bytesLabel(item.size)}</span><button type="button" data-remove-asset="${item.id}" aria-label="Remove upload">×</button></span>`;}).join("");
