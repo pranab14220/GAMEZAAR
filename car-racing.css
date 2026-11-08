@@ -38,3 +38,8 @@
 @media(max-width:380px){.race-hud .hud-icon{font-size:.78rem}.race-hud strong{font-size:.7rem}.race-hud{padding-bottom:7px}}
 
 .race-hud .hud-stat:last-child{border-right:0}
+
+
+/* Clearly visible separators between the four race HUD counters. */
+.race-hud > .hud-stat:not(:last-child){border-right:1px solid #8793ad !important;padding-right:10px !important;}
+.race-hud > .hud-stat:last-child{border-right:0 !important;}
