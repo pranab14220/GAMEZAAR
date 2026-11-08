@@ -94,7 +94,7 @@ function groupMarkup(type){
   <div class="asset-group-panel" hidden>
    <div class="asset-group-meta"><span>${type.limit}</span><span>${type.multi?"Choose up to 5 designs":climateGroups?"5 climate categories · 5 designs each":"5 styles + your upload"}</span></div>
    ${climateMarkup}
-   ${type.multi?"":`<div class="asset-upload-row"><label class="asset-upload-button">＋ Upload your own<input type="file" accept="image/png,image/jpeg,image/webp" data-upload="${type.id}" multiple></label><span class="asset-upload-note">Up to 5 uploads · ${type.maxKB} KB each</span></div>`}
+   <div class="asset-upload-row"><label class="asset-upload-button">＋ Upload your own<input type="file" accept="image/png,image/jpeg,image/webp" data-upload="${type.id}"></label><span class="asset-upload-note">1 upload maximum · ${type.maxKB} KB</span></div>
    <div class="uploaded-list" data-uploaded-list="${type.id}"></div>
   </div>
  </section>`;
@@ -131,20 +131,20 @@ function buildSoundGroups(){
  });
 }
 async function handleImageUploads(typeId,files,input){
- const type=typeFor(typeId);let added=0;
- for(const file of files){
-  if(!["image/png","image/jpeg","image/webp"].includes(file.type)){setStatus("Use PNG, JPG or WebP images only.");continue;}
-  if(file.size>type.maxKB*1024){setStatus(file.name+" is too large. Maximum is "+type.maxKB+" KB.");continue;}
-  if(getAssets(typeId).length>=5){setStatus("You can save up to 5 custom uploads for "+type.title+".");break;}
-  if(totalBytes()+file.size>MAX_TOTAL){setStatus("Custom asset limit reached. One game can use up to 2 MB of uploaded assets.");break;}
-  const dimensions=await readDimensions(file);if(!dimensions){setStatus("Could not read "+file.name+".");continue;}
-  let valid=dimensions.width<=type.maxW&&dimensions.height<=type.maxH;
-  if(typeId==="bgRoad"||typeId==="bgLand"||typeId==="bgSky"){valid=dimensions.width<=1280&&dimensions.height<=720;}
-  if(!valid){setStatus(file.name+" exceeds the recommended dimensions for "+type.title+".");continue;}
-  const id=typeId+"-"+Date.now()+"-"+Math.random().toString(36).slice(2,7),record={id,type:typeId,kind:"image",name:file.name,size:file.size,width:dimensions.width,height:dimensions.height,blob:file};
-  try{await dbPut(record);customAssets.push(record);selectedAssets[typeId]="custom:"+id;added++;}catch{setStatus("Could not save this image in browser storage.");}
- }
- input.value="";render();if(added)setStatus(added+" custom image(s) added for "+type.title+".");
+ const type=typeFor(typeId),file=files[0];
+ if(!file){input.value="";return;}
+ if(getAssets(typeId).length>=1){setStatus("A design is already uploaded for "+type.title+". Tap × on its preview and confirm delete before uploading another.");input.value="";return;}
+ if(!["image/png","image/jpeg","image/webp"].includes(file.type)){setStatus("Use PNG, JPG or WebP images only.");input.value="";return;}
+ if(file.size>type.maxKB*1024){setStatus(file.name+" is too large. Maximum is "+type.maxKB+" KB.");input.value="";return;}
+ if(totalBytes()+file.size>MAX_TOTAL){setStatus("Custom asset limit reached. One game can use up to 2 MB of uploaded assets.");input.value="";return;}
+ const dimensions=await readDimensions(file);if(!dimensions){setStatus("Could not read "+file.name+".");input.value="";return;}
+ let valid=dimensions.width<=type.maxW&&dimensions.height<=type.maxH;
+ if(typeId==="bgRoad"||typeId==="bgLand"){valid=dimensions.width<=1280&&dimensions.height<=720;}
+ if(!valid){setStatus(file.name+" exceeds the recommended dimensions for "+type.title+".");input.value="";return;}
+ const id=typeId+"-"+Date.now()+"-"+Math.random().toString(36).slice(2,7),record={id,type:typeId,kind:"image",name:file.name,size:file.size,width:dimensions.width,height:dimensions.height,blob:file};
+ try{await dbPut(record);customAssets.push(record);selectedAssets[typeId]="custom:"+id;render();setStatus("Image uploaded. Preview it below. To replace it, tap × and confirm delete first.");}
+ catch{setStatus("Could not save this image in browser storage.");}
+ input.value="";
 }
 function readDimensions(file){return new Promise(resolve=>{const url=URL.createObjectURL(file),img=new Image();img.onload=()=>{const result={width:img.naturalWidth,height:img.naturalHeight};URL.revokeObjectURL(url);resolve(result);};img.onerror=()=>{URL.revokeObjectURL(url);resolve(null);};img.src=url;});}
 async function handleSoundUpload(typeId,file,input){
@@ -161,7 +161,9 @@ function playSoundPreview(typeId,index){
  try{const Ctx=window.AudioContext||window.webkitAudioContext;if(!Ctx)return;const ctx=new Ctx(),osc=ctx.createOscillator(),gain=ctx.createGain();const base=[440,660,520,780,330][index%5];osc.type=index%2?"square":"sine";osc.frequency.setValueAtTime(base,ctx.currentTime);osc.frequency.exponentialRampToValueAtTime(Math.max(90,base/2),ctx.currentTime+.16);gain.gain.setValueAtTime(.08,ctx.currentTime);gain.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.2);osc.connect(gain);gain.connect(ctx.destination);osc.start();osc.stop(ctx.currentTime+.21);osc.onended=()=>ctx.close();}catch{}
 }
 async function removeAsset(id){
- const item=customAssets.find(x=>x.id===id);if(!item)return;try{await dbDelete(id);}catch{}
+ const item=customAssets.find(x=>x.id===id);if(!item)return;
+ if(item.kind==="image"&&!confirm("Delete this uploaded image? You must delete it before uploading a different design."))return;
+ try{await dbDelete(id);}catch{}
  customAssets=customAssets.filter(x=>x.id!==id);
  if(item.kind==="audio"){if(selectedSounds[item.type]==="custom:"+id)delete selectedSounds[item.type];}
  else if(selectedAssets[item.type]==="custom:"+id)delete selectedAssets[item.type];
@@ -197,7 +199,7 @@ function render(){
  document.querySelectorAll(".asset-option").forEach(button=>{const type=typeFor(button.dataset.type);const current=selectedAssets[button.dataset.type]||(type?.multi?[]:"preset:0");const active=type?.multi?current.includes("preset:"+button.dataset.option):current==="preset:"+button.dataset.option;button.classList.toggle("active",active);button.classList.toggle("multi-selected",!!type?.multi&&active);button.setAttribute("aria-pressed",String(active));});
  allImageTypes().forEach(type=>{
   const list=document.querySelector('[data-uploaded-list="'+type.id+'"]');if(!list)return;
-  list.innerHTML=getAssets(type.id).map(item=>{const url=getObjectUrl(item);return `<span class="uploaded-chip"><img src="${url}" alt=""><span>${escapeHTML(item.name)} · ${bytesLabel(item.size)}</span><button type="button" data-remove-asset="${item.id}" aria-label="Remove upload">×</button></span>`;}).join("");
+  list.innerHTML=getAssets(type.id).map(item=>{const url=getObjectUrl(item);return `<div class="uploaded-image-preview"><img src="${url}" alt="Preview of ${escapeHTML(item.name)}"><button type="button" class="uploaded-image-remove" data-remove-asset="${item.id}" aria-label="Delete uploaded image" title="Delete image">×</button><div class="uploaded-image-caption">${escapeHTML(item.name)} · ${bytesLabel(item.size)} · ${item.width} × ${item.height}px</div></div>`;}).join("");
  });
  document.querySelectorAll(".sound-option").forEach(button=>{const current=selectedSounds[button.dataset.soundType]||"preset:0";button.classList.toggle("active",current==="preset:"+button.dataset.soundOption);});
  soundTypes.forEach(type=>{
