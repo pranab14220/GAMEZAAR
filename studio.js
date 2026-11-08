@@ -34,6 +34,7 @@ const soundTypes = [
  {id:"soundCollision",title:"Collision / Crash",desc:"Impact and crash sound effect",options:["Crash Hit","Metal Impact","Arcade Explosion","Heavy Smash","Retro Blast"]},
  {id:"soundCoin",title:"Coin Collection",desc:"Play when a coin or reward is collected",options:["Coin Chime","Cash Ring","Bright Sparkle","Retro Pickup","Gem Collect"]},
  {id:"soundMusic",title:"Background Music",desc:"Looping music during the race",options:["Energetic Race","Retro Racing","Synth Drive","Chill Highway","Epic Chase"]},
+ {id:"soundGameOver",title:"Game Over Sound",desc:"Play when the player crashes or the run ends",options:["Arcade Game Over","Low Fail Tone","Crash Finish","Retro Lose","Short Sad Jingle"]},
 ];
 let saved = {};
 try { saved = JSON.parse(localStorage.getItem(settingsKey) || "{}"); } catch {}
