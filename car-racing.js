@@ -98,7 +98,10 @@ function frame(now){
   traffic.forEach(v=>{v.y+=(3.2+speed*1.35)*dt;if(!v.passed&&v.y>535){v.passed=true;score+=10;$("score").textContent=String(score).padStart(4,"0");sound(760,.045,"triangle",.018);}});
   traffic=traffic.filter(v=>v.y<660);
   speed=speedForScore(score);$("speed").textContent=speed.toFixed(1)+"x";
-  for(const v of traffic){if(v.lane===playerLane&&v.y+24>474&&v.y-24<556){draw();endGame();break;}}
+  for(const v of traffic){
+   // Forgiving hitbox: 28x44px inside each 40x58px car sprite.
+   if(v.lane===playerLane && Math.abs(v.y-500)<44){draw();endGame();break;}
+  }
  }
  draw();raf=requestAnimationFrame(frame);
 }
