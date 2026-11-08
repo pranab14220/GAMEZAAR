@@ -9,7 +9,9 @@ const DB_STORE = "uploads";
 const MAX_TOTAL = 2 * 1024 * 1024;
 const imageTypes = [
  {id:"vehicle",title:"Player Car",desc:"Choose the car controlled by the player",limit:"150 KB · 256 × 256 px max",maxKB:150,maxW:256,maxH:256,count:5,options:[["🏎️","Street Racer"],["🚗","Sport Coupe"],["🚙","Rally SUV"],["🏁","Formula"],["🚘","Supercar"]]},
- {id:"enemy",title:"Traffic & Obstacles",desc:"Cars, barriers and hazards on the road",limit:"100 KB · 128 × 128 px max",maxKB:100,maxW:128,maxH:128,count:5,options:[["🚕","Taxi"],["🚚","Truck"],["🚧","Barrier"],["🛻","Pickup"],["🚓","Police Car"]]},
+ {id:"trafficCars",title:"Traffic Cars",desc:"Choose one type of car for the other vehicles on the road",limit:"100 KB · 128 × 128 px max",maxKB:100,maxW:128,maxH:128,count:5,options:[["🚕","Taxi"],["🚙","SUV"],["🚚","Truck"],["🚓","Police Car"],["🚗","Sedan"]]},
+ {id:"roadBarriers",title:"Road Barriers",desc:"Choose one barrier style for road obstacles",limit:"100 KB · 128 × 128 px max",maxKB:100,maxW:128,maxH:128,count:5,options:[["🚧","Construction"],["🛑","Stop Block"],["🪵","Wood Barrier"],["🧱","Brick Block"],["⛔","Road Block"]]},
+ {id:"roadHazards",title:"Road Hazards",desc:"Choose one hazard style to avoid while driving",limit:"100 KB · 128 × 128 px max",maxKB:100,maxW:128,maxH:128,count:5,options:[["🛢️","Oil Drum"],["🪨","Rock"],["🕳️","Pothole"],["🔥","Fire"],["⚠️","Warning Cone"]]},
  {id:"coin",title:"Coins & Collectibles",desc:"Objects the player can collect on the road",limit:"50 KB · 64 × 64 px max",maxKB:50,maxW:64,maxH:64,count:5,options:[["🪙","Gold Coin"],["💎","Gem"],["⭐","Star"],["💰","Bonus"],["🏅","Medal"]]},
  {id:"logo",title:"Game Logo",desc:"Artwork for your racing game's title",limit:"100 KB · 256 × 256 px max",maxKB:100,maxW:256,maxH:256,count:5,options:[["🏆","Champion"],["⚡","Turbo"],["🔥","Blaze"],["🏎️","Racer"],["🌟","Legend"]]}
 ];
