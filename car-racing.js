@@ -3,8 +3,8 @@
 const canvas=document.getElementById("game"),ctx=canvas.getContext("2d");
 const $=id=>document.getElementById(id);
 const W=360,H=600,lanes=[96,180,264];
-let playerLane=1,traffic=[],score=0,best=Number(localStorage.getItem("gamezaar-race-best")||0);
-let speed=1,running=false,last=0,spawn=0,world=0,raf=0,audio=null;
+let playerLane=1,playerX=lanes[1],playerTilt=0,traffic=[],score=0,best=Number(localStorage.getItem("gamezaar-race-best")||0);
+let speed=1,running=false,crashing=false,crashStarted=0,last=0,spawn=0,world=0,raf=0,audio=null,explosion={x:180,y:500};
 const trafficColors=["#ff754f","#55d9ff","#c58cff","#ffd166","#65e6a8"];
 const buildings=[];
 for(let side=0;side<2;side++){
@@ -78,32 +78,57 @@ function drawCar(x,y,color,player=false){
 function draw(){
  drawRoad();
  traffic.forEach(v=>drawCar(lanes[v.lane],v.y,v.color));
- drawCar(lanes[playerLane],500,"#ff9851",true);
+ drawCar(playerX,500,"#ff9851",true,playerTilt);
 }
 function speedForScore(s){return s<1000?1:Math.min(3,1+Math.floor((s-500)/500)*.1);}
-function reset(){playerLane=1;traffic=[];score=0;speed=1;spawn=0;$("score").textContent="0000";$("speed").textContent="1.0x";}
+function reset(){playerLane=1;playerX=lanes[1];playerTilt=0;traffic=[];score=0;speed=1;spawn=0;crashing=false;$("score").textContent="0000";$("speed").textContent="1.0x";}
 function endGame(){
- running=false;if(score>best){best=score;localStorage.setItem("gamezaar-race-best",best);$("best").textContent=String(best).padStart(4,"0");}
- sound(125,.32,"sawtooth",.06);if(navigator.vibrate)navigator.vibrate([90,45,140]);
- $("overlayTitle").textContent="Race over!";$("overlayText").textContent="You scored "+score+". Try again and beat your best score.";
- $("startBtn").textContent="RACE AGAIN";$("overlay").classList.remove("hidden");
+ if(crashing)return;
+ running=false;crashing=true;crashStarted=performance.now();explosion={x:playerX,y:500};
+ if(score>best){best=score;localStorage.setItem("gamezaar-race-best",best);$("best").textContent=String(best).padStart(4,"0");}
+ sound(105,.42,"sawtooth",.075);sound(62,.5,"triangle",.055);
+ if(navigator.vibrate)navigator.vibrate([120,55,180,60,260]);
+ $("raceShell").classList.remove("screen-shake");void $("raceShell").offsetWidth;$("raceShell").classList.add("screen-shake");
+}
+function drawExplosion(now){
+ const age=now-crashStarted,progress=Math.min(age/650,1),radius=12+progress*58;
+ ctx.save();ctx.globalAlpha=1-progress*.55;
+ for(let i=0;i<12;i++){const a=i*Math.PI/6+progress*1.8,dist=radius*(.55+(i%3)*.18);
+  const x=explosion.x+Math.cos(a)*dist,y=explosion.y+Math.sin(a)*dist;
+  glowRect(x-4,y-4,8,8,i%3===0?"#fff4a3":i%3===1?"#ff9b45":"#ff4d65",16);
+ }
+ ctx.beginPath();ctx.arc(explosion.x,explosion.y,Math.max(2,radius*.48),0,Math.PI*2);
+ ctx.fillStyle="rgba(255,135,55,"+(1-progress)+")";ctx.shadowColor="#ff743c";ctx.shadowBlur=28;ctx.fill();
+ ctx.restore();
+ if(age>720){
+  crashing=false;$("raceShell").classList.remove("screen-shake");
+  $("overlayTitle").textContent="Race over!";$("overlayText").textContent="You scored "+score+". Try again and beat your best score.";
+  $("startBtn").textContent="RACE AGAIN";$("overlay").classList.remove("hidden");
+ }
 }
 function frame(now){
  const dt=Math.min((now-last)/16.67||1,2);last=now;
- // Always move the exact same scene, including behind the Ready overlay.
  world+=(running?3.1+speed*.8:2.2)*dt;
  if(running){
+  // Smoothly steer toward the selected lane and lean the car into the turn.
+  const targetX=lanes[playerLane],previousX=playerX;
+  playerX+=(targetX-playerX)*Math.min(1,.19*dt);
+  const horizontalVelocity=playerX-previousX;
+  playerTilt+=(Math.max(-.18,Math.min(.18,horizontalVelocity*.045))-playerTilt)*Math.min(1,.22*dt);
+  if(Math.abs(targetX-playerX)<.45){playerX=targetX;playerTilt*=.75;}
   spawn+=dt;
   if(spawn>Math.max(24,68-speed*8)){spawn=0;const lane=Math.floor(Math.random()*3);traffic.push({lane,y:-48,color:trafficColors[Math.floor(Math.random()*trafficColors.length)],passed:false});}
   traffic.forEach(v=>{v.y+=(3.2+speed*1.35)*dt;if(!v.passed&&v.y>535){v.passed=true;score+=10;$("score").textContent=String(score).padStart(4,"0");sound(760,.045,"triangle",.018);}});
   traffic=traffic.filter(v=>v.y<660);
   speed=speedForScore(score);$("speed").textContent=speed.toFixed(1)+"x";
   for(const v of traffic){
-   // Forgiving hitbox: 28x44px inside each 40x58px car sprite.
-   if(v.lane===playerLane && Math.abs(v.y-500)<44){draw();endGame();break;}
+   // Check actual horizontal overlap while the player's car is changing lanes.
+   if(Math.abs(lanes[v.lane]-playerX)<27 && Math.abs(v.y-500)<43){endGame();break;}
   }
  }
- draw();raf=requestAnimationFrame(frame);
+ draw();
+ if(crashing)drawExplosion(now);
+ raf=requestAnimationFrame(frame);
 }
 function start(){
  reset();running=true;$("overlay").classList.add("hidden");sound(520,.1,"square",.035);setTimeout(()=>sound(780,.12,"square",.025),90);
