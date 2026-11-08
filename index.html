@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#171B2E">
+  <meta name="description" content="GAMEZAAR — Create, customize and play your own mobile games.">
+  <title>GAMEZAAR — Game Studio</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="./" aria-label="GAMEZAAR home"><span class="brand-mark">G</span> GAMEZAAR</a>
+    <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
+    <nav class="nav" id="mainNav">
+      <a href="#games">Explore Games</a>
+      <a href="#how">How it works</a>
+      <a href="#pricing">Pricing</a>
+      <a class="nav-cta" href="#games">Start Creating</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <span class="eyebrow">YOUR IDEAS. YOUR GAMES.</span>
+        <h1>Build your own<br><span>mobile game.</span></h1>
+        <p>Choose a ready-made game, customize its look and gameplay, add your own ads, and prepare it for Android.</p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="#games">Explore game templates</a>
+          <a class="button button-quiet" href="#how">See how it works</a>
+        </div>
+        <p class="hero-note">No coding experience needed to get started.</p>
+      </div>
+      <div class="hero-art" aria-label="Game creation preview">
+        <div class="preview-window">
+          <div class="preview-top"><i></i><i></i><i></i><span>GAME PREVIEW</span></div>
+          <div class="preview-scene">
+            <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
+            <div class="game-cube">G</div>
+            <div class="preview-label">YOUR NEXT GAME</div>
+            <div class="preview-sub">READY TO CREATE</div>
+          </div>
+          <div class="preview-bottom"><span>● CUSTOMIZABLE TEMPLATE</span><span>01 / 20</span></div>
+        </div>
+        <div class="floating-chip chip-top">20 GAME TEMPLATES</div>
+        <div class="floating-chip chip-bottom">APK + AAB EXPORT*</div>
+      </div>
+    </section>
+
+    <section class="section" id="games">
+      <div class="section-heading">
+        <div><span class="eyebrow">PICK YOUR STARTING POINT</span><h2>Explore game templates</h2></div>
+        <p>Start with a game you love. Make it yours.</p>
+      </div>
+      <div class="category-grid">
+        <article class="category-card"><div class="category-icon">🏎️</div><h3>Racing</h3><p>Fast-paced driving challenges.</p><span>4 templates</span></article>
+        <article class="category-card"><div class="category-icon">🧩</div><h3>Puzzle</h3><p>Brain games and clever puzzles.</p><span>4 templates</span></article>
+        <article class="category-card"><div class="category-icon">👾</div><h3>Arcade</h3><p>Classic pick-up-and-play fun.</p><span>4 templates</span></article>
+        <article class="category-card"><div class="category-icon">🏀</div><h3>Sports</h3><p>Quick sports challenges.</p><span>4 templates</span></article>
+        <article class="category-card"><div class="category-icon">🎯</div><h3>Casual & Strategy</h3><p>Relaxing and strategic games.</p><span>4 templates</span></article>
+      </div>
+      <p class="section-footnote">*Android export will be enabled after the build system is connected.</p>
+    </section>
+
+    <section class="section how-section" id="how">
+      <span class="eyebrow">SIMPLE CREATION FLOW</span>
+      <h2>From template to your game</h2>
+      <div class="steps">
+        <div class="step"><b>01</b><h3>Choose</h3><p>Select one of the ready-made game templates.</p></div>
+        <div class="step"><b>02</b><h3>Customize</h3><p>Change the title, colors, icon and game settings.</p></div>
+        <div class="step"><b>03</b><h3>Preview</h3><p>Test your game before preparing an Android build.</p></div>
+        <div class="step"><b>04</b><h3>Export</h3><p>Prepare an APK or AAB when Android build services are connected.</p></div>
+      </div>
+    </section>
+
+    <section class="section pricing-section" id="pricing">
+      <div><span class="eyebrow">START FREE</span><h2>Free to explore.<br><span>More power with Premium.</span></h2></div>
+      <p>Build the first version with free tools. Premium features and export limits will be introduced with secure account and payment checks.</p>
+    </section>
+  </main>
+
+  <footer class="site-footer"><a class="brand" href="./"><span class="brand-mark">G</span> GAMEZAAR</a><span>Create. Customize. Play.</span><span>© <span id="year"></span> GAMEZAAR</span></footer>
+  <script src="app.js"></script>
+</body>
+</html>
