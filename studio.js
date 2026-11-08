@@ -94,7 +94,7 @@ function buildSoundGroups(){
   <div class="sound-upload-row"><label class="asset-upload-button">＋ Upload sound<input type="file" accept="audio/mpeg,audio/wav,audio/ogg,audio/mp4,audio/x-m4a" data-sound-upload="${type.id}"></label><span class="sound-selected" data-sound-selected="${type.id}">Selected: ${type.options[0]}</span></div>
   <div class="uploaded-list" data-sound-file="${type.id}"></div>
  </section>`).join("");
- $("soundGroups").addEventListener("click",event=>{const option=event.target.closest(".sound-option");if(option){selectedSounds[option.dataset.soundType]="preset:"+option.dataset.soundOption;render();playSoundPreview(option.dataset.soundType,Number(option.dataset.soundOption));return;}const remove=event.target.closest("[data-remove-asset]");if(remove)removeAsset(remove.dataset.removeAsset);});
+ $("soundGroups").addEventListener("click",event=>{const option=event.target.closest(".sound-option");if(option){selectedSounds[option.dataset.soundType]="preset:"+option.dataset.soundOption;render();playSoundPreview(option.dataset.soundType,Number(option.dataset.soundOption));return;}const play=event.target.closest("[data-play-audio]");if(play){const item=customAssets.find(x=>x.id===play.dataset.playAudio);if(item){const audio=new Audio(getObjectUrl(item));audio.play().catch(()=>setStatus("Could not play this audio file."));}return;}const remove=event.target.closest("[data-remove-asset]");if(remove)removeAsset(remove.dataset.removeAsset);});
  $("soundGroups").addEventListener("change",event=>{
   const toggle=event.target.closest("[data-sound-toggle]");if(toggle){soundEnabled[toggle.dataset.soundToggle]=toggle.checked;toggle.nextElementSibling.textContent=toggle.checked?"ON":"OFF";return;}
   const input=event.target.closest("input[data-sound-upload]");if(input&&input.files?.[0])handleSoundUpload(input.dataset.soundUpload,input.files[0],input);
@@ -166,7 +166,7 @@ function render(){
  soundTypes.forEach(type=>{
   const selected=$('[data-sound-selected="'+type.id+'"]');if(selected)selected.textContent="Selected: "+soundLabel(type.id);
   const toggle=$('[data-sound-toggle="'+type.id+'"]');if(toggle){toggle.checked=soundEnabled[type.id]!==false;toggle.nextElementSibling.textContent=toggle.checked?"ON":"OFF";}
-  const list=$('[data-sound-file="'+type.id+'"]');if(list)list.innerHTML=getAssets(type.id).map(item=>`<span class="uploaded-chip"><span>♪ ${escapeHTML(item.name)} · ${bytesLabel(item.size)}</span><button type="button" data-remove-asset="${item.id}" aria-label="Remove sound">×</button></span>`).join("");
+  const list=$('[data-sound-file="'+type.id+'"]');if(list)list.innerHTML=getAssets(type.id).map(item=>`<span class="uploaded-chip"><span>♪ ${escapeHTML(item.name)} · ${bytesLabel(item.size)}</span><button type="button" data-play-audio="${item.id}" aria-label="Play uploaded sound">▶</button><button type="button" data-remove-asset="${item.id}" aria-label="Remove sound">×</button></span>`).join("");
  });
  const total=totalBytes();$("assetTotal").innerHTML=bytesLabel(total)+' <small>/ 2 MB</small>';$("budgetFill").style.width=Math.min(100,total/MAX_TOTAL*100)+"%";$("assetBudgetNote").textContent=bytesLabel(MAX_TOTAL-total)+" upload space remaining across images and sounds.";
 }
