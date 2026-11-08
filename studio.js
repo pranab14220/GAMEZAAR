@@ -164,9 +164,9 @@ function render(){
  });
  document.querySelectorAll(".sound-option").forEach(button=>{const current=selectedSounds[button.dataset.soundType]||"preset:0";button.classList.toggle("active",current==="preset:"+button.dataset.soundOption);});
  soundTypes.forEach(type=>{
-  const selected=$('[data-sound-selected="'+type.id+'"]');if(selected)selected.textContent="Selected: "+soundLabel(type.id);
-  const toggle=$('[data-sound-toggle="'+type.id+'"]');if(toggle){toggle.checked=soundEnabled[type.id]!==false;toggle.nextElementSibling.textContent=toggle.checked?"ON":"OFF";}
-  const list=$('[data-sound-file="'+type.id+'"]');if(list)list.innerHTML=getAssets(type.id).map(item=>`<span class="uploaded-chip"><span>♪ ${escapeHTML(item.name)} · ${bytesLabel(item.size)}</span><button type="button" data-play-audio="${item.id}" aria-label="Play uploaded sound">▶</button><button type="button" data-remove-asset="${item.id}" aria-label="Remove sound">×</button></span>`).join("");
+  const selected=document.querySelector('[data-sound-selected="'+type.id+'"]');if(selected)selected.textContent="Selected: "+soundLabel(type.id);
+  const toggle=document.querySelector('[data-sound-toggle="'+type.id+'"]');if(toggle){toggle.checked=soundEnabled[type.id]!==false;toggle.nextElementSibling.textContent=toggle.checked?"ON":"OFF";}
+  const list=document.querySelector('[data-sound-file="'+type.id+'"]');if(list)list.innerHTML=getAssets(type.id).map(item=>`<span class="uploaded-chip"><span>♪ ${escapeHTML(item.name)} · ${bytesLabel(item.size)}</span><button type="button" data-play-audio="${item.id}" aria-label="Play uploaded sound">▶</button><button type="button" data-remove-asset="${item.id}" aria-label="Remove sound">×</button></span>`).join("");
  });
  const total=totalBytes();$("assetTotal").innerHTML=bytesLabel(total)+' <small>/ 2 MB</small>';$("budgetFill").style.width=Math.min(100,total/MAX_TOTAL*100)+"%";$("assetBudgetNote").textContent=bytesLabel(MAX_TOTAL-total)+" upload space remaining across images and sounds.";
 }
