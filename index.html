@@ -53,13 +53,40 @@
         <div><span class="eyebrow">PICK YOUR STARTING POINT</span><h2>Explore game templates</h2></div>
         <p>Start with a game you love. Make it yours.</p>
       </div>
-      <div class="category-grid">
-        <article class="category-card"><div class="category-icon">🏎️</div><h3>Racing</h3><p>Fast-paced driving challenges.</p><span>4 templates</span></article>
-        <article class="category-card"><div class="category-icon">🧩</div><h3>Puzzle</h3><p>Brain games and clever puzzles.</p><span>4 templates</span></article>
-        <article class="category-card"><div class="category-icon">👾</div><h3>Arcade</h3><p>Classic pick-up-and-play fun.</p><span>4 templates</span></article>
-        <article class="category-card"><div class="category-icon">🏀</div><h3>Sports</h3><p>Quick sports challenges.</p><span>4 templates</span></article>
-        <article class="category-card"><div class="category-icon">🎯</div><h3>Casual & Strategy</h3><p>Relaxing and strategic games.</p><span>4 templates</span></article>
+      <div class="game-tools">
+        <input id="gameSearch" type="search" placeholder="Search games..." aria-label="Search game templates">
+        <div class="filter-row" id="gameFilters">
+          <button class="filter-chip active" data-filter="All">All Games</button>
+          <button class="filter-chip" data-filter="Racing">Racing</button>
+          <button class="filter-chip" data-filter="Puzzle">Puzzle</button>
+          <button class="filter-chip" data-filter="Arcade">Arcade</button>
+          <button class="filter-chip" data-filter="Sports">Sports</button>
+          <button class="filter-chip" data-filter="Casual & Strategy">Casual & Strategy</button>
+        </div>
       </div>
+      <div class="game-grid" id="gameGrid">
+        <article class="game-card" data-category="Racing"><div class="game-art racing">🏎️</div><div class="game-info"><span>RACING</span><h3>Car Racing</h3><p>Dodge traffic and beat your best score.</p><button class="choose-game">Choose Game</button></div></article>
+        <article class="game-card" data-category="Racing"><div class="game-art racing">🏍️</div><div class="game-info"><span>RACING</span><h3>Bike Racing</h3><p>Race through challenging tracks.</p><button class="choose-game">Choose Game</button></div></article>
+        <article class="game-card" data-category="Racing"><div class="game-art racing">🛣️</div><div class="game-info"><span>RACING</span><h3>Highway Racer</h3><p>Weave through fast-moving highway traffic.</p><button class="choose-game">Choose Game</button></div></article>
+        <article class="game-card" data-category="Racing"><div class="game-art racing">🚙</div><div class="game-info"><span>RACING</span><h3>Monster Truck</h3><p>Drive over obstacles and rough terrain.</p><button class="choose-game">Choose Game</button></div></article>
+        <article class="game-card" data-category="Puzzle"><div class="game-art puzzle">🔢</div><div class="game-info"><span>PUZZLE</span><h3>2048</h3><p>Combine tiles to reach the 2048 tile.</p><button class="choose-game">Choose Game</button></div></article>
+        <article class="game-card" data-category="Puzzle"><div class="game-art puzzle">🍬</div><div class="game-info"><span>PUZZLE</span><h3>Match 3</h3><p>Match colorful pieces and clear the board.</p><button class="choose-game">Choose Game</button></div></article>
+        <article class="game-card" data-category="Puzzle"><div class="game-art puzzle">🧱</div><div class="game-info"><span>PUZZLE</span><h3>Block Puzzle</h3><p>Fit blocks together and complete lines.</p><button class="choose-game">Choose Game</button></div></article>
+        <article class="game-card" data-category="Puzzle"><div class="game-art puzzle">🧩</div><div class="game-info"><span>PUZZLE</span><h3>Sudoku</h3><p>Fill the grid with logic and patience.</p><button class="choose-game">Choose Game</button></div></article>
+        <article class="game-card" data-category="Arcade"><div class="game-art arcade">🐍</div><div class="game-info"><span>ARCADE</span><h3>Snake</h3><p>Grow your snake without hitting obstacles.</p><button class="choose-game">Choose Game</button></div></article>
+        <article class="game-card" data-category="Arcade"><div class="game-art arcade">🧱</div><div class="game-info"><span>ARCADE</span><h3>Brick Breaker</h3><p>Bounce the ball and break every brick.</p><button class="choose-game">Choose Game</button></div></article>
+        <article class="game-card" data-category="Arcade"><div class="game-art arcade">🚀</div><div class="game-info"><span>ARCADE</span><h3>Space Shooter</h3><p>Defend your ship against waves of enemies.</p><button class="choose-game">Choose Game</button></div></article>
+        <article class="game-card" data-category="Arcade"><div class="game-art arcade">🪽</div><div class="game-info"><span>ARCADE</span><h3>Flying Challenge</h3><p>Fly through gaps and avoid obstacles.</p><button class="choose-game">Choose Game</button></div></article>
+        <article class="game-card" data-category="Sports"><div class="game-art sports">🏏</div><div class="game-info"><span>SPORTS</span><h3>Cricket</h3><p>Time your shots and score big runs.</p><button class="choose-game">Choose Game</button></div></article>
+        <article class="game-card" data-category="Sports"><div class="game-art sports">⚽</div><div class="game-info"><span>SPORTS</span><h3>Penalty Shootout</h3><p>Aim, shoot and beat the goalkeeper.</p><button class="choose-game">Choose Game</button></div></article>
+        <article class="game-card" data-category="Sports"><div class="game-art sports">🏀</div><div class="game-info"><span>SPORTS</span><h3>Basketball</h3><p>Make baskets before the timer runs out.</p><button class="choose-game">Choose Game</button></div></article>
+        <article class="game-card" data-category="Sports"><div class="game-art sports">🏓</div><div class="game-info"><span>SPORTS</span><h3>Table Tennis</h3><p>Return the ball and win the rally.</p><button class="choose-game">Choose Game</button></div></article>
+        <article class="game-card" data-category="Casual & Strategy"><div class="game-art casual">⭕</div><div class="game-info"><span>CASUAL & STRATEGY</span><h3>Tic Tac Toe</h3><p>Outsmart your opponent in a classic grid.</p><button class="choose-game">Choose Game</button></div></article>
+        <article class="game-card" data-category="Casual & Strategy"><div class="game-art casual">💣</div><div class="game-info"><span>CASUAL & STRATEGY</span><h3>Minesweeper</h3><p>Reveal safe tiles and avoid hidden mines.</p><button class="choose-game">Choose Game</button></div></article>
+        <article class="game-card" data-category="Casual & Strategy"><div class="game-art casual">🧠</div><div class="game-info"><span>CASUAL & STRATEGY</span><h3>Memory Match</h3><p>Flip cards and find matching pairs.</p><button class="choose-game">Choose Game</button></div></article>
+        <article class="game-card" data-category="Casual & Strategy"><div class="game-art casual">🃏</div><div class="game-info"><span>CASUAL & STRATEGY</span><h3>Solitaire</h3><p>Arrange cards in the classic solo challenge.</p><button class="choose-game">Choose Game</button></div></article>
+      </div>
+      <p class="game-count" id="gameCount">Showing 20 game templates</p>
       <p class="section-footnote">*Android export will be enabled after the build system is connected.</p>
     </section>
 
