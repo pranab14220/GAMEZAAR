@@ -32,14 +32,10 @@
 
 /* Compact race HUD: smaller icons and numerals for a cleaner mobile layout. */
 .race-hud{padding:2px 0 9px;gap:3px}
-.race-hud .hud-stat{gap:4px;flex:1;border-right:1px solid rgba(174,187,211,.28);padding:0 7px;box-sizing:border-box}
+.race-hud .hud-stat{gap:4px;flex:1;padding:0 7px;box-sizing:border-box}
 .race-hud .hud-icon{font-size:.88rem;filter:drop-shadow(0 1px 2px #101729)}
 .race-hud strong{font-size:.78rem;letter-spacing:0;text-shadow:0 1px 3px #101729}
 @media(max-width:380px){.race-hud .hud-icon{font-size:.78rem}.race-hud strong{font-size:.7rem}.race-hud{padding-bottom:7px}}
 
 .race-hud .hud-stat:last-child{border-right:0}
 
-
-/* Clearly visible separators between the four race HUD counters. */
-.race-hud > .hud-stat:not(:last-child){border-right:1px solid #8793ad !important;padding-right:10px !important;}
-.race-hud > .hud-stat:last-child{border-right:0 !important;}
