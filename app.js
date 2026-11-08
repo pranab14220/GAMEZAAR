@@ -56,17 +56,6 @@ if (gameFilters) {
   });
 }
 
-if (gameGrid) {
-  gameGrid.addEventListener("click", (event) => {
-    const button = event.target.closest(".choose-game");
-    if (!button) return;
-    const card = button.closest(".game-card");
-    const gameName = card.querySelector("h3")?.textContent || "Game";
-    alert(`${gameName} selected! The Game Studio editor is the next development step.`);
-  });
-}
-
-
 // Expand one category at a time; each panel contains its four game choices.
 const categoryGrid = document.getElementById("categoryGrid");
 const categoryPanels = [...document.querySelectorAll("[data-category-panel]")];
@@ -105,6 +94,6 @@ categoryPanels.forEach((panel) => {
 document.querySelectorAll(".choose-game").forEach((button) => {
   button.addEventListener("click", () => {
     const gameName = button.dataset.game || "Game";
-    alert(`${gameName} selected! The Game Studio editor is the next development step.`);
+    window.location.href = `studio.html?game=${encodeURIComponent(gameName)}`;
   });
 });
