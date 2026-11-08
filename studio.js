@@ -15,8 +15,17 @@ const imageTypes = [
  {id:"coin",title:"Coins & Collectibles",desc:"Objects the player can collect on the road",limit:"50 KB · 64 × 64 px max",maxKB:50,maxW:64,maxH:64,count:5,options:[["🪙","Gold Coin"],["💎","Gem"],["⭐","Star"],["💰","Bonus"],["🏅","Medal"]]},
  {id:"logo",title:"Game Logo",desc:"Artwork for your racing game's title",limit:"100 KB · 256 × 256 px max",maxKB:100,maxW:256,maxH:256,count:5,options:[["🏆","Champion"],["⚡","Turbo"],["🔥","Blaze"],["🏎️","Racer"],["🌟","Legend"]]}
 ];
+const treeClimateTypes = [
+ {id:"summer",title:"Summer",options:[["🌳","Mango Tree"],["🌴","Palm Tree"],["🌿","Neem Tree"],["🌳","Banyan Tree"],["🌼","Flowering Tree"]]},
+ {id:"winter",title:"Winter",options:[["🌲","Pine Tree"],["🌲","Fir Tree"],["🌳","Birch Tree"],["🍂","Bare Winter Tree"],["🌲","Spruce Tree"]]},
+ {id:"desert",title:"Desert",options:[["🌵","Saguaro Cactus"],["🌴","Date Palm"],["🌵","Barrel Cactus"],["🌿","Desert Shrub"],["🌳","Acacia Tree"]]},
+ {id:"tropical",title:"Tropical",options:[["🌴","Coconut Palm"],["🌴","Banana Plant"],["🌳","Rainforest Tree"],["🌺","Hibiscus Tree"],["🌴","Tropical Fern"]]},
+ {id:"autumn",title:"Autumn",options:[["🍁","Red Maple"],["🍂","Golden Birch"],["🍁","Orange Oak"],["🌳","Autumn Elm"],["🍂","Falling Leaves Tree"]]}
+];
+const treeOptions = treeClimateTypes.flatMap(group=>group.options);
+let selectedTreeClimate = "summer";
 const backgroundTypes = [
- {id:"bgTree",title:"Trees",desc:"Roadside trees and plants",limit:"100 KB · 128 × 128 px max",maxKB:100,maxW:128,maxH:128,count:5,options:[["🌲","Pine"],["🌳","Oak"],["🌴","Palm"],["🌵","Cactus"],["🍁","Autumn"]]},
+ {id:"bgTree",title:"Trees",desc:"Choose a climate, then select from five matching roadside tree and plant designs",limit:"100 KB · 128 × 128 px max",maxKB:100,maxW:128,maxH:128,count:5,options:treeOptions},
  {id:"bgRoad",title:"Road",desc:"The road surface and lane markings",limit:"500 KB · 1280 × 720 px max",maxKB:500,maxW:1280,maxH:720,count:5,options:[["🛣️","Highway"],["🌆","City Road"],["🏁","Race Track"],["🌧️","Wet Road"],["🌙","Night Road"]]},
  {id:"bgLand",title:"Land / Ground",desc:"Grass, sand, snow and roadside ground",limit:"300 KB · 1280 × 720 px max",maxKB:300,maxW:1280,maxH:720,count:5,options:[["🌱","Green Grass"],["🏜️","Desert"],["❄️","Snow"],["🟫","Dirt"],["🌾","Countryside"]]},
  {id:"bgSky",title:"Sky",desc:"Sky and weather appearance",limit:"300 KB · 1280 × 720 px max",maxKB:300,maxW:1280,maxH:720,count:5,options:[["☀️","Sunny"],["🌤️","Cloudy"],["🌇","Sunset"],["🌌","Starry"],["🌧️","Rainy"]]},
@@ -62,11 +71,14 @@ function totalBytes(){return customAssets.reduce((sum,x)=>sum+x.size,0);}
 function setStatus(message){$("saveStatus").textContent=message;}
 function escapeHTML(value){return String(value).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 function groupMarkup(type){
+ const treeMarkup=type.id==="bgTree"
+  ? `<div class="tree-climate-tabs">${treeClimateTypes.map(group=>`<button type="button" class="tree-climate-tab" data-tree-climate="${group.id}" aria-pressed="false">${group.title}</button>`).join("")}</div><div class="asset-options" data-tree-options></div>`
+  : `<div class="asset-options">${type.options.map((option,index)=>`<button type="button" class="asset-option" data-type="${type.id}" data-option="${index}" aria-pressed="false"><span class="asset-glyph">${option[0]}</span><small>${option[1]}</small></button>`).join("")}</div>`;
  return `<section class="asset-group" data-asset-group="${type.id}">
   <button type="button" class="asset-group-toggle" aria-expanded="false"><span><b>${type.title}</b><small>${type.desc}</small></span><span class="asset-chevron">＋</span></button>
   <div class="asset-group-panel" hidden>
-   <div class="asset-group-meta"><span>${type.limit}</span><span>5 styles + your upload</span></div>
-   <div class="asset-options">${type.options.map((option,index)=>`<button type="button" class="asset-option" data-type="${type.id}" data-option="${index}" aria-pressed="false"><span class="asset-glyph">${option[0]}</span><small>${option[1]}</small></button>`).join("")}</div>
+   <div class="asset-group-meta"><span>${type.limit}</span><span>${type.id==="bgTree"?"5 climate categories · 5 designs each":"5 styles + your upload"}</span></div>
+   ${treeMarkup}
    <div class="asset-upload-row"><label class="asset-upload-button">＋ Upload your own<input type="file" accept="image/png,image/jpeg,image/webp" data-upload="${type.id}" multiple></label><span class="asset-upload-note">Up to 5 uploads · ${type.maxKB} KB each</span></div>
    <div class="uploaded-list" data-uploaded-list="${type.id}"></div>
   </div>
@@ -80,6 +92,8 @@ function buildAssetGroups(){
   root.addEventListener("click",event=>{
    const toggle=event.target.closest(".asset-group-toggle");
    if(toggle){const panel=toggle.parentElement.querySelector(".asset-group-panel"),open=panel.hidden;panel.hidden=!open;toggle.setAttribute("aria-expanded",String(open));toggle.querySelector(".asset-chevron").textContent=open?"−":"＋";return;}
+   const climate=event.target.closest("[data-tree-climate]");
+   if(climate){selectedTreeClimate=climate.dataset.treeClimate;render();return;}
    const option=event.target.closest(".asset-option");
    if(option){selectedAssets[option.dataset.type]="preset:"+option.dataset.option;render();return;}
    const remove=event.target.closest("[data-remove-asset]");
@@ -158,6 +172,12 @@ function render(){
  if(bgRecord){const url=getObjectUrl(bgRecord);$("pixelScene").style.backgroundImage="url('"+url+"')";$("pixelScene").style.backgroundSize="cover";}else{$("pixelScene").style.backgroundImage="";}
  const summary=[["Car",assetLabel("vehicle")],["Road",assetLabel("bgRoad")],["Land",assetLabel("bgLand")],["Sky",assetLabel("bgSky")],["Tree",assetLabel("bgTree")],["Play",assetLabel("btnPlay")],["Pause",assetLabel("btnPause")]].map(x=>x.join(": ")).join(" · ");
  $("selectedSummary").textContent=summary;
+ const treeOptions=document.querySelector("[data-tree-options]");
+ if(treeOptions){
+  const climate=treeClimateTypes.find(group=>group.id===selectedTreeClimate)||treeClimateTypes[0];
+  treeOptions.innerHTML=climate.options.map((option,index)=>{const globalIndex=treeClimateTypes.slice(0,treeClimateTypes.indexOf(climate)).reduce((sum,group)=>sum+group.options.length,0)+index;return `<button type="button" class="asset-option" data-type="bgTree" data-option="${globalIndex}" aria-pressed="false"><span class="asset-glyph">${option[0]}</span><small>${option[1]}</small></button>`;}).join("");
+ }
+ document.querySelectorAll(".tree-climate-tab").forEach(button=>{const active=button.dataset.treeClimate===selectedTreeClimate;button.classList.toggle("active",active);button.setAttribute("aria-pressed",String(active));});
  document.querySelectorAll(".asset-option").forEach(button=>{const current=selectedAssets[button.dataset.type]||"preset:0",active=current==="preset:"+button.dataset.option;button.classList.toggle("active",active);button.setAttribute("aria-pressed",String(active));});
  allImageTypes().forEach(type=>{
   const list=document.querySelector('[data-uploaded-list="'+type.id+'"]');if(!list)return;
@@ -177,7 +197,7 @@ function setValues(data){fields.forEach(id=>{if(data[id]!==undefined)$(id).value
 fields.forEach(id=>$(id).addEventListener("input",render));
 $("orientation").addEventListener("change",()=>{render();setStatus("Orientation changed. Choose background images matching your scene.");});
 $("saveGame").addEventListener("click",()=>{
- const data={};fields.forEach(id=>data[id]=$(id).value);data.selectedAssets=selectedAssets;data.selectedSounds=selectedSounds;data.soundEnabled=soundEnabled;data.savedAt=new Date().toISOString();
+ const data={};fields.forEach(id=>data[id]=$(id).value);data.selectedAssets=selectedAssets;data.selectedSounds=selectedSounds;data.soundEnabled=soundEnabled;data.treeClimate=selectedTreeClimate;data.savedAt=new Date().toISOString();
  try{localStorage.setItem(settingsKey,JSON.stringify(data));setStatus("Racing game settings saved on this device. Uploaded files remain in this browser.");}catch{setStatus("Browser storage is full. Remove some uploads and try again.");}
 });
 $("resetGame").addEventListener("click",()=>{
@@ -188,6 +208,6 @@ $("previewPlay").addEventListener("click",()=>setStatus("This is a customization
 async function init(){
  buildAssetGroups();buildSoundGroups();
  try{customAssets=await dbAll();customAssets.forEach(item=>{if(item.blob&&!objectUrls.has(item.id))objectUrls.set(item.id,URL.createObjectURL(item.blob));});}catch{setStatus("Browser storage is unavailable. You can still select preset designs.");}
- setValues({...defaults,...saved});selectedAssets=saved.selectedAssets||{};selectedSounds=saved.selectedSounds||{};soundEnabled=saved.soundEnabled||{};render();
+ setValues({...defaults,...saved});selectedAssets=saved.selectedAssets||{};selectedSounds=saved.selectedSounds||{};soundEnabled=saved.soundEnabled||{};selectedTreeClimate=saved.treeClimate||"summer";render();
 }
 init();
