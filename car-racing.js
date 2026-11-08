@@ -80,7 +80,7 @@ function draw(){
  traffic.forEach(v=>drawCar(lanes[v.lane],v.y,v.color));
  drawCar(lanes[playerLane],500,"#ff9851",true);
 }
-function speedForScore(s){return Math.min(3,1+Math.floor(s/500)*.1);}
+function speedForScore(s){return s<1000?1:Math.min(3,1+Math.floor((s-500)/500)*.1);}
 function reset(){playerLane=1;traffic=[];score=0;speed=1;spawn=0;$("score").textContent="0000";$("speed").textContent="1.0x";}
 function endGame(){
  running=false;if(score>best){best=score;localStorage.setItem("gamezaar-race-best",best);$("best").textContent=String(best).padStart(4,"0");}
