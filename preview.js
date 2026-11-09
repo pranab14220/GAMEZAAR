@@ -43,6 +43,7 @@ function apply(){cfg=readConfig();if(!cfg.gameTitle){try{cfg=JSON.parse(localSto
 function loadAssets(){records.forEach(rec=>{if(rec.kind==="image"&&rec.blob){const url=URL.createObjectURL(rec.blob),img=new Image();img.onload=()=>draw();img.src=url;images[rec.id]=img}})}
 $("startButton").addEventListener("click",start);$("leftButton").addEventListener("pointerdown",e=>{e.preventDefault();move(-1)});$("rightButton").addEventListener("pointerdown",e=>{e.preventDefault();move(1)});$("exitButton").addEventListener("click",()=>parent.postMessage({type:"GAMEZAAR_PREVIEW_CLOSE"},"*"));
 let touchX=null;canvas.addEventListener("touchstart",e=>{touchX=e.touches[0].clientX},{passive:true});canvas.addEventListener("touchend",e=>{if(touchX===null)return;const dx=e.changedTouches[0].clientX-touchX;if(Math.abs(dx)>24)move(dx>0?1:-1);touchX=null},{passive:true});
-window.addEventListener("message",e=>{if(e.data?.type==="GAMEZAAR_PREVIEW_REFRESH"){apply();reset()}});
-async function init(){cfg=readConfig();records=await readDB();loadAssets();apply();reset()}init();
+async function refresh(){cfg=readConfig();records=await readDB();images={};loadAssets();apply();reset()}
+window.addEventListener("message",e=>{if(e.data?.type==="GAMEZAAR_PREVIEW_REFRESH")refresh()});
+async function init(){await refresh()}init();
 })();
