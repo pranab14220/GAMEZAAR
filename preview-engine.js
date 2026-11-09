@@ -209,7 +209,7 @@ function draw(){
  traffic.forEach(v=>{drawCar(lanes[v.lane],v.y,v.color,false);const choices=Array.isArray(CFG.selectedAssets?.trafficCars)?CFG.selectedAssets.trafficCars:[];const choice=choices.filter(x=>typeof x==="string"&&x.startsWith("preset:"))[traffic.indexOf(v)%Math.max(1,choices.length)];const src=choice?window.GAMEZAAR_TRAFFIC_CARS?.[Number(choice.split(":")[1])||0]?.src:null;const upload=customAsset("trafficCars");if(upload?.complete)ctx.drawImage(upload,lanes[v.lane]-20,v.y-30,40,60);else if(src){const idx=Number(choice.split(":")[1])||0;let img=presetImages[10+idx];if(!img){img=new Image();img.src=src;presetImages[10+idx]=img;}if(img.complete)ctx.drawImage(img,lanes[v.lane]-20,v.y-30,40,60);}});
  roadCoins.forEach(c=>drawCoin(lanes[c.lane],c.y,performance.now()));
  scorePopups=scorePopups.filter(p=>p.life>0);
- scorePopups.forEach(p=>{ctx.save();ctx.globalAlpha=Math.min(1,p.life/18);ctx.font="bold 13px monospace";ctx.textAlign="center";ctx.fillStyle="#fff0a0";ctx.shadowColor="#ffb84d";ctx.shadowBlur=8;ctx.fillText("+10",p.x,p.y);ctx.restore();p.y-=.65;p.life-=1;});
+ scorePopups.forEach(p=>{ctx.save();ctx.globalAlpha=Math.min(1,p.life/18);ctx.font="bold 13px monospace";ctx.textAlign="center";ctx.fillStyle="#fff0a0";ctx.shadowColor="#ffb84d";ctx.shadowBlur=8;ctx.fillText("+"+(p.value??10),p.x,p.y);ctx.restore();p.y-=.65;p.life-=1;});
  drawCar(playerX,500,selectedCar.color,true,playerTilt,selectedCar.accent);const playerUpload=selectedCar.id==="starter"?customAsset("vehicle"):customImages[(CFG.garageCars?.[CAR_LIST.findIndex(c=>c.id===selectedCar.id)]||{}).uploadId];if(playerUpload?.complete){ctx.save();ctx.translate(playerX,500);ctx.rotate(playerTilt);ctx.drawImage(playerUpload,-22,-32,44,64);ctx.restore();}else{const src=presetAsset("vehicle",0);if(src&&selectedCar.id==="starter"){if(!presetImages[0]){presetImages[0]=new Image();presetImages[0].src=src;}if(presetImages[0].complete)ctx.drawImage(presetImages[0],playerX-22,468,44,64);}}
 }
 function speedForScore(s){return Number((1+Math.floor(s/100)*0.1).toFixed(1));}
@@ -252,7 +252,7 @@ function frame(now){
   survivalClock+=dt;if(survivalClock>=60){const seconds=Math.floor(survivalClock/60);survivalClock-=seconds*60;if(SCORE_RULES.survival?.enabled!==false)score+=seconds*Math.max(0,Math.floor(Number(SCORE_RULES.survival?.points)||0));$("score").textContent=String(score).padStart(4,"0");}
   spawn+=dt;
   if(spawn>Math.max(20,64-speed*8)){spawn=0;const lane=Math.floor(Math.random()*3);traffic.push({lane,y:-48,color:trafficColors[Math.floor(Math.random()*trafficColors.length)],passed:false});}
-  traffic.forEach(v=>{v.y+=(1.7+speed*2.85)*dt;if(!v.passed&&v.y>535){v.passed=true;if(SCORE_RULES.overtake?.enabled!==false)score+=Math.max(0,Math.floor(Number(SCORE_RULES.overtake?.points)||0));scorePopups.push({x:lanes[v.lane],y:510,life:34});$("score").textContent=String(score).padStart(4,"0");}});
+  traffic.forEach(v=>{v.y+=(1.7+speed*2.85)*dt;if(!v.passed&&v.y>535){v.passed=true;if(SCORE_RULES.overtake?.enabled!==false)score+=Math.max(0,Math.floor(Number(SCORE_RULES.overtake?.points)||0));scorePopups.push({x:lanes[v.lane],y:510,life:34,value:Math.max(0,Math.floor(Number(SCORE_RULES.overtake?.points)||0))});$("score").textContent=String(score).padStart(4,"0");}});
   // A road coin appears roughly every 15–20 seconds: only touching it adds to the wallet.
   coinSpawn+=dt;
   if(coinSpawn>=nextCoinSpawn){
