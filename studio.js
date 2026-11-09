@@ -15,6 +15,9 @@ const imageTypes = [
  {id:"coin",title:"Coins & Collectibles",desc:"Objects the player can collect on the road",limit:"50 KB · 64 × 64 px max",maxKB:50,maxW:64,maxH:64,count:5,options:[["🪙","Gold Coin"],["💎","Gem"],["⭐","Star"],["💰","Bonus"],["🏅","Medal"]]},
  {id:"logo",title:"Game Logo",desc:"Artwork for your racing game's title",limit:"100 KB · 256 × 256 px max",maxKB:100,maxW:256,maxH:256,count:5,options:[["🏆","Champion"],["⚡","Turbo"],["🔥","Blaze"],["🏎️","Racer"],["🌟","Legend"]]}
 ];
+const garageUploadTypes=Array.from({length:8},(_,i)=>({id:"garageCar"+i,title:"Garage Car "+(i+1),desc:"Optional custom image for garage car "+(i+1),limit:"150 KB · 256 × 256 px max",maxKB:150,maxW:256,maxH:256,count:1,options:[]}));
+const defaultGaragePrices=[30,50,70,90,120,150,180,220];
+let garagePrices=[...defaultGaragePrices];
 const treeClimateTypes = [
  {id:"summer",title:"Summer",options:[["🌳","Mango Tree"],["🌴","Palm Tree"],["🌿","Neem Tree"],["🌳","Banyan Tree"],["🌼","Flowering Tree"]]},
  {id:"winter",title:"Winter",options:[["🌲","Pine Tree"],["🌲","Fir Tree"],["🌳","Birch Tree"],["🍂","Bare Winter Tree"],["🌲","Spruce Tree"]]},
@@ -76,7 +79,7 @@ async function dbPut(record){const db=await openAssetDB();return new Promise((re
 async function dbDelete(id){const db=await openAssetDB();return new Promise((resolve,reject)=>{const tx=db.transaction(DB_STORE,"readwrite");tx.objectStore(DB_STORE).delete(id);tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);});}
 async function dbAll(){const db=await openAssetDB();return new Promise((resolve,reject)=>{const tx=db.transaction(DB_STORE,"readonly");const req=tx.objectStore(DB_STORE).getAll();req.onsuccess=()=>resolve(req.result||[]);req.onerror=()=>reject(req.error);});}
 function bytesLabel(bytes){return bytes<1024?bytes+" B":(bytes/1024).toFixed(bytes<10240?1:0)+" KB";}
-function allImageTypes(){return [...imageTypes,...backgroundTypes,...buttonTypes];}
+function allImageTypes(){return [...imageTypes,...garageUploadTypes,...backgroundTypes,...buttonTypes];}
 function typeFor(id){return allImageTypes().find(x=>x.id===id);}
 function getAssets(id){return customAssets.filter(x=>x.type===id);}
 function totalBytes(){return customAssets.reduce((sum,x)=>sum+x.size,0);}
@@ -87,6 +90,7 @@ function showImageUploadError(typeId,message){
  if(list){list.innerHTML='<div class="upload-error-message" role="alert">⚠️ '+escapeHTML(message)+'</div>';list.scrollIntoView({behavior:"smooth",block:"center"});}
 }
 function escapeHTML(value){return String(value).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function garageMarkup(){return `<section class="garage-studio-section"><div class="garage-studio-heading"><b>🏁 Garage Cars</b><small>8 stylish cars stay locked in the game Garage until players buy them with coins.</small></div><div class="garage-studio-grid">${(window.GAMEZAAR_GARAGE_CARS||[]).map((car,i)=>`<article class="garage-studio-car"><div class="garage-studio-art"><img src="${car.src}" alt="${car.name}"></div><strong>${car.name}</strong><label>Price (coins)<input type="number" min="0" step="1" data-garage-price="${i}" value="${garagePrices[i]??defaultGaragePrices[i]}"></label><label class="garage-upload-label">＋ Upload car ${i+1}<input type="file" accept="image/png,image/jpeg,image/webp" data-upload="garageCar${i}"></label><small>150 KB max · optional</small><div class="uploaded-list" data-uploaded-list="garageCar${i}"></div></article>`).join("")}</div></section>`;}
 function groupMarkup(type){
  const climateGroups=climateGroupsByType[type.id];
  const climateMarkup=climateGroups
@@ -103,7 +107,7 @@ function groupMarkup(type){
  </section>`;
 }
 function buildAssetGroups(){
- $("assetGroups").innerHTML=imageTypes.map(groupMarkup).join("");
+ const groups=imageTypes.map(groupMarkup);groups.splice(1,0,garageMarkup());$("assetGroups").innerHTML=groups.join("");
  $("backgroundGroups").innerHTML=backgroundTypes.map(groupMarkup).join("");
  $("buttonGroups").innerHTML=buttonTypes.map(groupMarkup).join("");
  document.querySelectorAll(".asset-groups").forEach(root=>{
@@ -181,7 +185,7 @@ function soundLabel(typeId){
  const type=soundTypes.find(x=>x.id===typeId);return type.options[Number(value.split(":")[1]||0)]||type.options[0];
 }
 function syncLivePreviewData(){
- const data={};fields.forEach(id=>data[id]=$(id).value);data.selectedAssets=selectedAssets;data.selectedSounds=selectedSounds;data.soundEnabled=soundEnabled;data.climateSelections=selectedClimateByGroup;data.assetOptions=Object.fromEntries(allImageTypes().map(type=>[type.id,type.options]));data.updatedAt=Date.now();
+ const data={};fields.forEach(id=>data[id]=$(id).value);data.selectedAssets=selectedAssets;data.garagePrices=garagePrices;data.garageCars=(window.GAMEZAAR_GARAGE_CARS||[]).map((car,i)=>({name:car.name,price:garagePrices[i]??defaultGaragePrices[i],uploadId:(selectedAssets["garageCar"+i]||"").startsWith("custom:")?selectedAssets["garageCar"+i].slice(7):null}));data.selectedSounds=selectedSounds;data.soundEnabled=soundEnabled;data.climateSelections=selectedClimateByGroup;data.assetOptions=Object.fromEntries(allImageTypes().map(type=>[type.id,type.options]));data.updatedAt=Date.now();
  try{sessionStorage.setItem("gamezaar-live-preview-v1",JSON.stringify(data));}catch{}
  if(playablePreviewFrame&&playablePreviewFrame.contentWindow&&playablePreviewFrame.getAttribute("src")!=="about:blank")playablePreviewFrame.contentWindow.postMessage({type:"GAMEZAAR_PREVIEW_REFRESH"},"*");
 }
@@ -224,18 +228,18 @@ function setValues(data){fields.forEach(id=>{if(data[id]!==undefined)$(id).value
 fields.forEach(id=>$(id).addEventListener("input",render));
 $("orientation").addEventListener("change",()=>{render();setStatus("Orientation changed. Choose background images matching your scene.");});
 $("saveGame").addEventListener("click",()=>{
- const data={};fields.forEach(id=>data[id]=$(id).value);data.selectedAssets=selectedAssets;data.selectedSounds=selectedSounds;data.soundEnabled=soundEnabled;data.climateSelections=selectedClimateByGroup;data.assetOptions=Object.fromEntries(allImageTypes().map(type=>[type.id,type.options]));data.savedAt=new Date().toISOString();
+ const data={};fields.forEach(id=>data[id]=$(id).value);data.selectedAssets=selectedAssets;data.garagePrices=garagePrices;data.garageCars=(window.GAMEZAAR_GARAGE_CARS||[]).map((car,i)=>({name:car.name,price:garagePrices[i]??defaultGaragePrices[i],uploadId:(selectedAssets["garageCar"+i]||"").startsWith("custom:")?selectedAssets["garageCar"+i].slice(7):null}));data.selectedSounds=selectedSounds;data.soundEnabled=soundEnabled;data.climateSelections=selectedClimateByGroup;data.assetOptions=Object.fromEntries(allImageTypes().map(type=>[type.id,type.options]));data.savedAt=new Date().toISOString();
  try{localStorage.setItem(settingsKey,JSON.stringify(data));setStatus("Racing game settings saved on this device. Uploaded files remain in this browser.");}catch{setStatus("Browser storage is full. Remove some uploads and try again.");}
 });
 $("resetGame").addEventListener("click",()=>{
  if(!confirm("Reset racing game settings and remove all uploaded images and sounds from this device?"))return;
- localStorage.removeItem(settingsKey);Promise.all(customAssets.map(item=>dbDelete(item.id))).finally(()=>{objectUrls.forEach(url=>URL.revokeObjectURL(url));objectUrls.clear();customAssets=[];selectedAssets={bgBuilding:"preset:0",trafficCars:["preset:0","preset:1","preset:2","preset:3","preset:4"]};selectedSounds={};soundEnabled={};selectedClimateByGroup={bgTree:"summer",bgRoad:"summer",bgLand:"summer"};setValues(defaults);setStatus("Builder settings and all custom uploads have been reset.");});
+ localStorage.removeItem(settingsKey);Promise.all(customAssets.map(item=>dbDelete(item.id))).finally(()=>{objectUrls.forEach(url=>URL.revokeObjectURL(url));objectUrls.clear();customAssets=[];selectedAssets={bgBuilding:"preset:0",trafficCars:["preset:0","preset:1","preset:2","preset:3","preset:4"]};garagePrices=[...defaultGaragePrices];selectedSounds={};soundEnabled={};selectedClimateByGroup={bgTree:"summer",bgRoad:"summer",bgLand:"summer"};setValues(defaults);setStatus("Builder settings and all custom uploads have been reset.");});
 });
 $("previewPlay").addEventListener("click",()=>setStatus("This is a customization preview. The playable racing engine and APK/AAB export are not connected yet."));
 async function init(){
  buildAssetGroups();buildSoundGroups();
  try{customAssets=await dbAll();customAssets.forEach(item=>{if(item.blob&&!objectUrls.has(item.id))objectUrls.set(item.id,URL.createObjectURL(item.blob));});}catch{setStatus("Browser storage is unavailable. You can still select preset designs.");}
- setValues({...defaults,...saved});selectedAssets={bgBuilding:"preset:0",trafficCars:["preset:0","preset:1","preset:2","preset:3","preset:4"],...(saved.selectedAssets||{})};if(typeof selectedAssets.trafficCars==="string")selectedAssets.trafficCars=[selectedAssets.trafficCars];selectedSounds=saved.selectedSounds||{};soundEnabled=saved.soundEnabled||{};selectedClimateByGroup={bgTree:"summer",bgRoad:"summer",bgLand:"summer",...(saved.climateSelections||{}),...(saved.treeClimate?{bgTree:saved.treeClimate}:{})};render();
+ setValues({...defaults,...saved});selectedAssets={bgBuilding:"preset:0",trafficCars:["preset:0","preset:1","preset:2","preset:3","preset:4"],...(saved.selectedAssets||{})};if(typeof selectedAssets.trafficCars==="string")selectedAssets.trafficCars=[selectedAssets.trafficCars];garagePrices=defaultGaragePrices.map((v,i)=>Math.max(0,Math.floor(Number(saved.garagePrices?.[i]??v)||0)));selectedSounds=saved.selectedSounds||{};soundEnabled=saved.soundEnabled||{};selectedClimateByGroup={bgTree:"summer",bgRoad:"summer",bgLand:"summer",...(saved.climateSelections||{}),...(saved.treeClimate?{bgTree:saved.treeClimate}:{})};render();
 }
 init();
 
