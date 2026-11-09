@@ -131,7 +131,7 @@ function buildSoundGroups(){
  </section>`).join("");
  $("soundGroups").addEventListener("click",event=>{const option=event.target.closest(".sound-option");if(option){selectedSounds[option.dataset.soundType]="preset:"+option.dataset.soundOption;render();playSoundPreview(option.dataset.soundType,Number(option.dataset.soundOption));return;}const play=event.target.closest("[data-play-audio]");if(play){const item=customAssets.find(x=>x.id===play.dataset.playAudio);if(item){const audio=new Audio(getObjectUrl(item));audio.play().catch(()=>setStatus("Could not play this audio file."));}return;}const remove=event.target.closest("[data-remove-asset]");if(remove)removeAsset(remove.dataset.removeAsset);});
  $("soundGroups").addEventListener("change",event=>{
-  const toggle=event.target.closest("[data-sound-toggle]");if(toggle){soundEnabled[toggle.dataset.soundToggle]=toggle.checked;toggle.nextElementSibling.textContent=toggle.checked?"ON":"OFF";return;}
+  const toggle=event.target.closest("[data-sound-toggle]");if(toggle){soundEnabled[toggle.dataset.soundToggle]=toggle.checked;toggle.nextElementSibling.textContent=toggle.checked?"ON":"OFF";syncLivePreviewData();return;}
   const input=event.target.closest("input[data-sound-upload]");if(input&&input.files?.[0])handleSoundUpload(input.dataset.soundUpload,input.files[0],input);
  });
 }
@@ -185,7 +185,7 @@ function soundLabel(typeId){
 function syncLivePreviewData(){
  const data={};fields.forEach(id=>data[id]=$(id).value);data.selectedAssets=selectedAssets;data.scoreSystem=readScoreSystem();data.garagePrices=garagePrices;data.garageCars=(window.GAMEZAAR_GARAGE_CARS||[]).map((car,i)=>({name:car.name,price:garagePrices[i]??defaultGaragePrices[i],uploadId:(selectedAssets["garageCar"+i]||"").startsWith("custom:")?selectedAssets["garageCar"+i].slice(7):null}));data.selectedSounds=selectedSounds;data.soundEnabled=soundEnabled;data.climateSelections=selectedClimateByGroup;data.assetOptions=Object.fromEntries(allImageTypes().map(type=>[type.id,type.options]));data.updatedAt=Date.now();
  try{sessionStorage.setItem("gamezaar-live-preview-v1",JSON.stringify(data));}catch{}
- if(playablePreviewFrame&&playablePreviewFrame.contentWindow&&playablePreviewFrame.getAttribute("src")!=="about:blank")playablePreviewFrame.contentWindow.postMessage({type:"GAMEZAAR_PREVIEW_REFRESH"},"*");
+ postLivePreviewData();
 }
 function render(){
  syncLivePreviewData();
@@ -247,6 +247,14 @@ const floatingPreviewButton=$("floatingPreviewButton");
 const playablePreviewModal=$("playablePreviewModal");
 const playablePreviewFrame=$("playablePreviewFrame");
 const closePlayablePreview=$("closePlayablePreview");
+function postLivePreviewData(){
+ if(!playablePreviewFrame||!playablePreviewFrame.contentWindow||playablePreviewFrame.getAttribute("src")==="about:blank")return;
+ try{
+  const config=JSON.parse(sessionStorage.getItem("gamezaar-live-preview-v1")||"{}");
+  playablePreviewFrame.contentWindow.postMessage({type:"GAMEZAAR_PREVIEW_REFRESH",config},"*");
+ }catch{}
+}
+playablePreviewFrame.addEventListener("load",()=>{if(playablePreviewFrame.getAttribute("src")!=="about:blank")postLivePreviewData();});
 function openPlayablePreview(){
  playablePreviewModal.classList.add("open");
  playablePreviewModal.setAttribute("aria-hidden","false");
