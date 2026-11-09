@@ -235,7 +235,7 @@ $("previewPlay").addEventListener("click",()=>setStatus("This is a customization
 async function init(){
  buildAssetGroups();buildSoundGroups();
  try{customAssets=await dbAll();customAssets.forEach(item=>{if(item.blob&&!objectUrls.has(item.id))objectUrls.set(item.id,URL.createObjectURL(item.blob));});}catch{setStatus("Browser storage is unavailable. You can still select preset designs.");}
- setValues({...defaults,...saved});selectedAssets={bgBuilding:"preset:0",trafficCars:["preset:0","preset:1","preset:2","preset:3","preset:4"],...(saved.selectedAssets||{})};selectedSounds=saved.selectedSounds||{};soundEnabled=saved.soundEnabled||{};selectedClimateByGroup={bgTree:"summer",bgRoad:"summer",bgLand:"summer",...(saved.climateSelections||{}),...(saved.treeClimate?{bgTree:saved.treeClimate}:{})};render();
+ setValues({...defaults,...saved});selectedAssets={bgBuilding:"preset:0",trafficCars:["preset:0","preset:1","preset:2","preset:3","preset:4"],...(saved.selectedAssets||{})};if(typeof selectedAssets.trafficCars==="string")selectedAssets.trafficCars=[selectedAssets.trafficCars];selectedSounds=saved.selectedSounds||{};soundEnabled=saved.soundEnabled||{};selectedClimateByGroup={bgTree:"summer",bgRoad:"summer",bgLand:"summer",...(saved.climateSelections||{}),...(saved.treeClimate?{bgTree:saved.treeClimate}:{})};render();
 }
 init();
 
