@@ -1,6 +1,6 @@
 (()=> {
 const designs=[
-["V12 Striker","#f02f42","#ffd9df","wedge"],["Royale 16","#1675d5","#b8e8ff","lux"],["Rosso Sprint","#e83c32","#fff0d8","sport"],["Prancing GT","#f3aa24","#fff2b7","classic"],["Emerald Beast","#12a86b","#b7ffe0","wide"],["Shadow X","#30394e","#a8b8d5","stealth"],["Neon Hyper","#a34ce0","#f0caff","neon"],["Aero Phantom","#d9e4ee","#80c7ed","future"]
+["Lambo V12","#f02f42","#ffd9df","wedge"],["Bugatti Royale","#1675d5","#b8e8ff","lux"],["Ferrari Rosso","#e83c32","#fff0d8","sport"],["McLaren Aero","#f3aa24","#fff2b7","classic"],["Porsche GT","#12a86b","#b7ffe0","wide"],["Dodge Viper","#30394e","#a8b8d5","stealth"],["Koenigsegg X","#a34ce0","#f0caff","neon"],["Pagani Phantom","#d9e4ee","#80c7ed","future"]
 ];
 function svg(name,body,glass,style,i){
  const stripe=i%2?'<path d="M60 8h8v42h-8z M60 78h8v42h-8z" fill="'+glass+'"/>':'';
