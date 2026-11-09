@@ -9,7 +9,7 @@ const DB_STORE = "uploads";
 const MAX_TOTAL = 2 * 1024 * 1024;
 const imageTypes = [
  {id:"vehicle",title:"Player Car",desc:"Choose one of the five custom top-down cars from your example racing game",limit:"150 KB · 256 × 256 px max",maxKB:150,maxW:256,maxH:256,count:5,options:[["🔴","Red Racing"],["🔵","Blue Flame"],["🟡","Yellow Checker"],["🟢","Green Arrow"],["⚪","White Blue Stripe"]]},
- {id:"trafficCars",title:"Traffic Cars",desc:"Choose one type of car for the other vehicles on the road",limit:"100 KB · 128 × 128 px max",maxKB:100,maxW:128,maxH:128,count:5,options:[["🚕","Taxi"],["🚙","SUV"],["🚚","Truck"],["🚓","Police Car"],["🚗","Sedan"]]},
+ {id:"trafficCars",title:"Traffic Cars",desc:"Choose the vehicles approaching from the opposite direction",limit:"100 KB · 128 × 128 px max",maxKB:100,maxW:128,maxH:128,count:5,options:[["🚗","Red Sedan"],["🚚","Cargo Truck"],["🏎️","Green Sports"],["🚌","Yellow Bus"],["🚑","Ambulance"]]},
  {id:"roadBarriers",title:"Road Barriers",desc:"Choose one barrier style for road obstacles",limit:"100 KB · 128 × 128 px max",maxKB:100,maxW:128,maxH:128,count:5,options:[["🚧","Construction"],["🛑","Stop Block"],["🪵","Wood Barrier"],["🧱","Brick Block"],["⛔","Road Block"]]},
  {id:"roadHazards",title:"Road Hazards",desc:"Choose one hazard style to avoid while driving",limit:"100 KB · 128 × 128 px max",maxKB:100,maxW:128,maxH:128,count:5,options:[["🛢️","Oil Drum"],["🪨","Rock"],["🕳️","Pothole"],["🔥","Fire"],["⚠️","Warning Cone"]]},
  {id:"coin",title:"Coins & Collectibles",desc:"Objects the player can collect on the road",limit:"50 KB · 64 × 64 px max",maxKB:50,maxW:64,maxH:64,count:5,options:[["🪙","Gold Coin"],["💎","Gem"],["⭐","Star"],["💰","Bonus"],["🏅","Medal"]]},
@@ -91,7 +91,7 @@ function groupMarkup(type){
  const climateGroups=climateGroupsByType[type.id];
  const climateMarkup=climateGroups
   ? `<div class="tree-climate-tabs">${climateGroups.map(group=>`<button type="button" class="tree-climate-tab" data-climate-group="${type.id}" data-climate="${group.id}" aria-pressed="false">${group.title}</button>`).join("")}</div><div class="asset-options" data-climate-options="${type.id}"></div>`
-  : `<div class="asset-options">${type.options.map((option,index)=>`<button type="button" class="asset-option" data-type="${type.id}" data-option="${index}" aria-pressed="false">${type.id==="vehicle"&&window.GAMEZAAR_PLAYER_CARS?.[index]?`<img class="player-car-option-image" src="${window.GAMEZAAR_PLAYER_CARS[index].src}" alt="${option[1]}">`:`<span class="asset-glyph">${option[0]}</span>`}<small>${option[1]}</small></button>`).join("")}</div>`;
+  : `<div class="asset-options">${type.options.map((option,index)=>`<button type="button" class="asset-option" data-type="${type.id}" data-option="${index}" aria-pressed="false">${type.id==="vehicle"&&window.GAMEZAAR_PLAYER_CARS?.[index]?`<img class="player-car-option-image" src="${window.GAMEZAAR_PLAYER_CARS[index].src}" alt="${option[1]}">`:type.id==="trafficCars"&&window.GAMEZAAR_TRAFFIC_CARS?.[index]?`<img class="traffic-car-option-image" src="${window.GAMEZAAR_TRAFFIC_CARS[index].src}" alt="${option[1]}">`:`<span class="asset-glyph">${option[0]}</span>`}<small>${option[1]}</small></button>`).join("")}</div>`;
  return `<section class="asset-group" data-asset-group="${type.id}">
   <button type="button" class="asset-group-toggle" aria-expanded="false"><span><b>${type.title}</b><small>${type.desc}</small></span><span class="asset-chevron">＋</span></button>
   <div class="asset-group-panel" hidden>
