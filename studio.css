@@ -76,3 +76,8 @@
 @media(max-width:430px){.floating-preview-button{right:12px;bottom:14px;padding:9px 12px}.playable-preview-modal{padding:7px}.playable-preview-panel{width:100%;height:94dvh;border-radius:15px}}
 
 .player-car-option-image{display:block;width:100%;height:92px;object-fit:contain;margin:2px auto 7px;filter:drop-shadow(0 4px 5px #0007)}[data-asset-group="vehicle"] .asset-option{min-height:132px;}
+
+/* Compact player-car choice cards */
+.player-car-option-image{height:54px;width:100%;margin:0 auto 2px;object-fit:contain}
+.asset-option:has(.player-car-option-image){min-height:0;padding:5px 2px 6px;gap:3px}
+@media(max-width:430px){.player-car-option-image{height:48px}.asset-option:has(.player-car-option-image){padding:4px 1px 5px;gap:2px}}
