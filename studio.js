@@ -61,7 +61,7 @@ const soundTypes = [
 ];
 let saved = {};
 try { saved = JSON.parse(localStorage.getItem(settingsKey) || "{}"); } catch {}
-let selectedAssets = {bgBuilding:"preset:0",...(saved.selectedAssets || {})};
+let selectedAssets = {bgBuilding:"preset:0",trafficCars:["preset:0","preset:1","preset:2","preset:3","preset:4"],...(saved.selectedAssets || {})};
 let selectedSounds = saved.selectedSounds || {};
 let soundEnabled = saved.soundEnabled || {};
 let customAssets = [];
@@ -113,7 +113,7 @@ function buildAssetGroups(){
    const climate=event.target.closest("[data-climate-group]");
    if(climate){selectedClimateByGroup[climate.dataset.climateGroup]=climate.dataset.climate;render();return;}
    const option=event.target.closest(".asset-option");
-   if(option){const type=typeFor(option.dataset.type);if(type?.multi){const key=option.dataset.type,values=Array.isArray(selectedAssets[key])?selectedAssets[key]:[];const value="preset:"+option.dataset.option;selectedAssets[key]=values.includes(value)?values.filter(item=>item!==value):values.length<5?[...values,value]:values;setStatus("Selected "+selectedAssets[key].length+" of 5 roadside signs.");}else{selectedAssets[option.dataset.type]="preset:"+option.dataset.option;}render();return;}
+   if(option){const type=typeFor(option.dataset.type);if(type?.multi){const key=option.dataset.type,values=Array.isArray(selectedAssets[key])?selectedAssets[key]:[];const value="preset:"+option.dataset.option;selectedAssets[key]=values.includes(value)?values.filter(item=>item!==value):values.length<5?[...values,value]:values;setStatus("Selected "+selectedAssets[key].length+" of 5 traffic vehicles.");}else{selectedAssets[option.dataset.type]="preset:"+option.dataset.option;}render();return;}
    const remove=event.target.closest("[data-remove-asset]");
    if(remove)removeAsset(remove.dataset.removeAsset);
   });
@@ -229,13 +229,13 @@ $("saveGame").addEventListener("click",()=>{
 });
 $("resetGame").addEventListener("click",()=>{
  if(!confirm("Reset racing game settings and remove all uploaded images and sounds from this device?"))return;
- localStorage.removeItem(settingsKey);Promise.all(customAssets.map(item=>dbDelete(item.id))).finally(()=>{objectUrls.forEach(url=>URL.revokeObjectURL(url));objectUrls.clear();customAssets=[];selectedAssets={};selectedSounds={};soundEnabled={};selectedClimateByGroup={bgTree:"summer",bgRoad:"summer",bgLand:"summer"};setValues(defaults);setStatus("Builder settings and all custom uploads have been reset.");});
+ localStorage.removeItem(settingsKey);Promise.all(customAssets.map(item=>dbDelete(item.id))).finally(()=>{objectUrls.forEach(url=>URL.revokeObjectURL(url));objectUrls.clear();customAssets=[];selectedAssets={bgBuilding:"preset:0",trafficCars:["preset:0","preset:1","preset:2","preset:3","preset:4"]};selectedSounds={};soundEnabled={};selectedClimateByGroup={bgTree:"summer",bgRoad:"summer",bgLand:"summer"};setValues(defaults);setStatus("Builder settings and all custom uploads have been reset.");});
 });
 $("previewPlay").addEventListener("click",()=>setStatus("This is a customization preview. The playable racing engine and APK/AAB export are not connected yet."));
 async function init(){
  buildAssetGroups();buildSoundGroups();
  try{customAssets=await dbAll();customAssets.forEach(item=>{if(item.blob&&!objectUrls.has(item.id))objectUrls.set(item.id,URL.createObjectURL(item.blob));});}catch{setStatus("Browser storage is unavailable. You can still select preset designs.");}
- setValues({...defaults,...saved});selectedAssets={bgBuilding:"preset:0",...(saved.selectedAssets||{})};selectedSounds=saved.selectedSounds||{};soundEnabled=saved.soundEnabled||{};selectedClimateByGroup={bgTree:"summer",bgRoad:"summer",bgLand:"summer",...(saved.climateSelections||{}),...(saved.treeClimate?{bgTree:saved.treeClimate}:{})};render();
+ setValues({...defaults,...saved});selectedAssets={bgBuilding:"preset:0",trafficCars:["preset:0","preset:1","preset:2","preset:3","preset:4"],...(saved.selectedAssets||{})};selectedSounds=saved.selectedSounds||{};soundEnabled=saved.soundEnabled||{};selectedClimateByGroup={bgTree:"summer",bgRoad:"summer",bgLand:"summer",...(saved.climateSelections||{}),...(saved.treeClimate?{bgTree:saved.treeClimate}:{})};render();
 }
 init();
 
