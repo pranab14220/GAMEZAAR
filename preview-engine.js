@@ -4,6 +4,7 @@ const canvas=document.getElementById("game");let ctx=canvas.getContext("2d");
 const $=id=>document.getElementById(id);
 const W=360,H=600,lanes=[112,180,248];
 const CFG=(()=>{try{return JSON.parse(sessionStorage.getItem("gamezaar-live-preview-v1")||"{}")}catch{return{}}})();
+window.__GAMEZAAR_PREVIEW_CONFIG_VERSION=CFG.updatedAt||0;
 const SCORE_RULES=CFG.scoreSystem||{overtake:{enabled:true,points:10},coin:{enabled:true,points:5},survival:{enabled:true,points:1}};
 const PREVIEW_KEYS={coins:"gamezaar-preview-coins-v2",unlocked:"gamezaar-preview-unlocked-v2",selected:"gamezaar-preview-selected-v2",best:"gamezaar-preview-best-v2"};
 let survivalClock=0,customImages={},presetImages=[];
@@ -305,4 +306,12 @@ canvas.addEventListener("touchstart",e=>{touchX=e.changedTouches[0].clientX;},{p
 canvas.addEventListener("touchend",e=>{if(touchX===null)return;const dx=e.changedTouches[0].clientX-touchX;if(Math.abs(dx)>18)move(dx>0?1:-1);touchX=null;},{passive:true});
 renderGarage();draw();loadCustomImages();last=performance.now();raf=requestAnimationFrame(frame);
 })();
-window.addEventListener("message",event=>{if(event.data?.type==="GAMEZAAR_PREVIEW_REFRESH")location.reload();});
+window.addEventListener("message",event=>{
+ if(event.data?.type!=="GAMEZAAR_PREVIEW_REFRESH")return;
+ const incoming=event.data.config;
+ if(!incoming)return;
+ const version=incoming.updatedAt||0;
+ if(version===window.__GAMEZAAR_PREVIEW_CONFIG_VERSION)return;
+ try{sessionStorage.setItem("gamezaar-live-preview-v1",JSON.stringify(incoming));}catch(e){}
+ location.reload();
+});
