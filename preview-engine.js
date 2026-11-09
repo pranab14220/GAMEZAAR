@@ -101,7 +101,7 @@ function drawSky(){
  }
 }
 function drawBuilding(b){
- const x=b.side===0?0:304,y=b.y,w=56,h=b.h;
+ const x=b.side===0?0:304,y=b.y,w=56,h=b.h;const custom=customAsset("bgBuilding");if(custom?.complete){ctx.drawImage(custom,x,y,w,h);return;}
  // deep shadow, facade and roof ledge
  ctx.fillStyle="#263b42";ctx.fillRect(x+2,y+3,w,h);
  ctx.fillStyle=b.seed>.5?"#9a9078":"#697e79";ctx.fillRect(x,y,w-2,h-2);
@@ -124,7 +124,7 @@ function drawBuilding(b){
  ctx.fillStyle="#fff0ae";ctx.fillRect(x+22,y+h-12,3,3);
 }
 function drawRoad(){
- drawSky();
+ drawSky();const land=customAsset("bgLand");if(land?.complete)ctx.drawImage(land,0,0,W,H);
  // moving city blocks on either side of the road
  buildings.forEach(b=>{const yy=((b.y+world*.78)%(H+190))-90;drawBuilding({...b,y:yy});});
  // sidewalks with paving slabs and drain covers
@@ -138,7 +138,7 @@ function drawRoad(){
   for(const x of [62,286]){
    ctx.fillStyle="#75533e";ctx.fillRect(x+2,y+24,14,13);
    ctx.fillStyle="#294b3b";ctx.fillRect(x,y+5,18,22);ctx.fillRect(x+3,y,12,8);
-   ctx.fillStyle="#689451";ctx.fillRect(x+4,y+5,5,5);ctx.fillRect(x+11,y+12,4,5);
+   const tree=customAsset("bgTree");if(tree?.complete)ctx.drawImage(tree,x-6,y-5,30,34);else{ctx.fillStyle="#689451";ctx.fillRect(x+4,y+5,5,5);ctx.fillRect(x+11,y+12,4,5);}
    ctx.fillStyle="#59696a";ctx.fillRect(x+8,y+37,2,19);ctx.fillRect(x+8,y+37,12,2);
    glowRect(x+17,y+34,4,4,"#ffe1a0",7);
   }
@@ -193,6 +193,7 @@ function drawCar(x,y,color,player=false,tilt=0,accent="#ffe0a1"){
  ctx.restore();
 }
 function drawCoin(x,y,now){
+ const custom=customAsset("coin");if(custom?.complete){ctx.drawImage(custom,x-12,y-12,24,24);return;}
  const pulse=1+Math.sin(now/115)*.09;
  ctx.save();ctx.translate(x,y);ctx.scale(pulse,1);
  ctx.shadowColor="#ffd34e";ctx.shadowBlur=15;
@@ -205,7 +206,7 @@ function drawCoin(x,y,now){
 }
 function draw(){
  drawRoad();
- traffic.forEach(v=>drawCar(lanes[v.lane],v.y,v.color,false));
+ traffic.forEach(v=>{drawCar(lanes[v.lane],v.y,v.color,false);const choices=Array.isArray(CFG.selectedAssets?.trafficCars)?CFG.selectedAssets.trafficCars:[];const choice=choices.filter(x=>typeof x==="string"&&x.startsWith("preset:"))[traffic.indexOf(v)%Math.max(1,choices.length)];const src=choice?window.GAMEZAAR_TRAFFIC_CARS?.[Number(choice.split(":")[1])||0]?.src:null;const upload=customAsset("trafficCars");if(upload?.complete)ctx.drawImage(upload,lanes[v.lane]-20,v.y-30,40,60);else if(src){const idx=Number(choice.split(":")[1])||0;let img=presetImages[10+idx];if(!img){img=new Image();img.src=src;presetImages[10+idx]=img;}if(img.complete)ctx.drawImage(img,lanes[v.lane]-20,v.y-30,40,60);}});
  roadCoins.forEach(c=>drawCoin(lanes[c.lane],c.y,performance.now()));
  scorePopups=scorePopups.filter(p=>p.life>0);
  scorePopups.forEach(p=>{ctx.save();ctx.globalAlpha=Math.min(1,p.life/18);ctx.font="bold 13px monospace";ctx.textAlign="center";ctx.fillStyle="#fff0a0";ctx.shadowColor="#ffb84d";ctx.shadowBlur=8;ctx.fillText("+10",p.x,p.y);ctx.restore();p.y-=.65;p.life-=1;});
