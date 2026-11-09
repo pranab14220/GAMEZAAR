@@ -5,10 +5,10 @@
 .garage-preview-card h2{font-size:19px;margin:2px 0}.garage-preview-card>p{font-size:11px;margin:0 0 5px}
 .garage-preview-showcase{height:90px;background:#171b2e;border:1px solid #52607e;border-radius:10px;display:grid;place-items:center;align-content:center;gap:3px}
 .garage-preview-showcase img{height:58px;max-width:80%;object-fit:contain}.garage-preview-showcase b{font-size:11px}.garage-preview-showcase small{font-size:9px;color:#ffbd8c}
-.garage-preview-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;max-height:180px;overflow-y:auto}
-.garage-preview-item{min-width:0;background:#303b58;border:1px solid #65718c;border-radius:8px;color:#fff;padding:4px 2px;display:grid;justify-items:center;gap:2px}
+.garage-preview-grid{width:100%;display:flex;flex-wrap:nowrap;gap:7px;max-height:none;overflow-x:auto;overflow-y:hidden;padding:6px 3px 9px;scroll-snap-type:x mandatory;scrollbar-width:thin;scrollbar-color:#ff9b54 #202940;-webkit-overflow-scrolling:touch;touch-action:pan-x}
+.garage-preview-item{flex:0 0 76px;min-width:76px;min-height:78px;background:#35415f;border:1px solid #687694;border-radius:9px;color:#fff;padding:5px 3px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;scroll-snap-align:center}
 .garage-preview-item img{width:100%;height:38px;object-fit:contain}.garage-preview-item .garage-thumb{font-size:25px;height:38px;display:grid;place-items:center}
 .garage-preview-item b{font-size:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}.garage-preview-item small{font-size:8px;color:#ffd18d}
-.garage-preview-item.selected{border:2px solid #ff9b54;background:#ff9b5425}.garage-preview-item.locked img{filter:brightness(.55)}
+.garage-preview-item.selected{border:2px solid #ffad69;background:#ff9b5425;box-shadow:0 0 0 2px #ffad6940,0 0 12px #ff9b5460}.garage-preview-item.locked img{filter:brightness(.55)}
 .garage-preview-message{min-height:14px;color:#ffbd8c!important;font-weight:800;text-align:center}
-@media(max-height:650px){.garage-preview-card{gap:3px;padding:8px}.garage-preview-showcase{height:72px}.garage-preview-showcase img{height:45px}.garage-preview-grid{max-height:145px}}
+@media(max-height:650px){.garage-preview-card{gap:3px;padding:8px}.garage-preview-showcase{height:72px}.garage-preview-showcase img{height:45px}.garage-preview-item{min-height:70px}}
