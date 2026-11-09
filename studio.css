@@ -74,3 +74,5 @@
 #playablePreviewFrame{display:block;flex:1;width:100%;min-height:0;border:0;background:#171b2e}
 .playable-preview-note{margin:0;padding:8px 12px;background:#171b2e;color:#b9c1d4;font-size:.68rem;line-height:1.4;text-align:center}
 @media(max-width:430px){.floating-preview-button{right:12px;bottom:14px;padding:9px 12px}.playable-preview-modal{padding:7px}.playable-preview-panel{width:100%;height:94dvh;border-radius:15px}}
+
+.player-car-option-image{display:block;width:100%;height:92px;object-fit:contain;margin:2px auto 7px;filter:drop-shadow(0 4px 5px #0007)}[data-asset-group="vehicle"] .asset-option{min-height:132px;}
