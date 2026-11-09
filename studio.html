@@ -61,7 +61,17 @@
         </div>
 
 
-        <div class="studio-actions">
+
+        <div class="studio-card score-system-card" id="scoreSystemSection">
+          <div class="section-title"><span class="step-number">05</span><div><h2>Score System</h2><p>Choose which actions give score points and set the exact points for each action.</p></div></div>
+          <div class="score-system-list">
+            <div class="score-rule" data-score-rule="overtake"><label class="score-rule-toggle"><input type="checkbox" id="scoreOvertakeEnabled" checked><span><b>🚗 Traffic car ko paar karne par</b><small>Give points when the player successfully passes a traffic car.</small></span></label><label class="score-points-label" for="scoreOvertakePoints">Points</label><input class="score-points-input" id="scoreOvertakePoints" type="number" min="0" max="999999" step="1" value="10"></div>
+            <div class="score-rule" data-score-rule="coin"><label class="score-rule-toggle"><input type="checkbox" id="scoreCoinEnabled" checked><span><b>🪙 Coin collect karne par</b><small>Give points when the player touches and collects a road coin.</small></span></label><label class="score-points-label" for="scoreCoinPoints">Points</label><input class="score-points-input" id="scoreCoinPoints" type="number" min="0" max="999999" step="1" value="5"></div>
+            <div class="score-rule" data-score-rule="survival"><label class="score-rule-toggle"><input type="checkbox" id="scoreSurvivalEnabled" checked><span><b>⏱️ Har 1 second survival par</b><small>Give points for every full second the player stays alive.</small></span></label><label class="score-points-label" for="scoreSurvivalPoints">Points / second</label><input class="score-points-input" id="scoreSurvivalPoints" type="number" min="0" max="999999" step="1" value="1"></div>
+          </div>
+          <p class="score-system-note">Kisi bhi option ko ON/OFF karo. Points 0 rakhne par bhi event enabled rahega, lekin score add nahi hoga.</p>
+        </div>
+\n        <div class="studio-actions">
           <button class="button button-primary" id="saveGame" type="button">Save my game</button>
           <button class="button button-quiet" id="resetGame" type="button">Reset</button>
         </div>
