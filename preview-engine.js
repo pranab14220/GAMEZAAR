@@ -22,7 +22,7 @@ if(!unlocked.includes(selectedCarId))selectedCarId="starter";
 let selectedCar=CAR_LIST.find(c=>c.id===selectedCarId)||CAR_LIST[0];
 let playerLane=1,playerX=lanes[1],playerTilt=0,traffic=[],score=0,best=Number(localStorage.getItem(PREVIEW_KEYS.best)||0);
 let speed=1,running=false,crashing=false,crashStarted=0,last=0,spawn=0,world=0,raf=0,audio=null,explosion={x:180,y:500};
-let roadCoins=[],coinSpawn=0,nextCoinSpawn=900+Math.random()*300,coinsThisRace=0,scorePopups=[];
+let roadCoins=[],coinSpawn=0,nextCoinSpawn=900+Math.random()*300,coinsThisRace=0,scorePopups=[],trafficSpawnIndex=0;
 const trafficColors=["#ff754f","#55d9ff","#c58cff","#ffd166","#65e6a8"];
 const buildings=[];
 for(let side=0;side<2;side++){
@@ -207,14 +207,14 @@ function drawCoin(x,y,now){
 }
 function draw(){
  drawRoad();
- traffic.forEach(v=>{drawCar(lanes[v.lane],v.y,v.color,false);const choices=Array.isArray(CFG.selectedAssets?.trafficCars)?CFG.selectedAssets.trafficCars:[];const choice=choices.filter(x=>typeof x==="string"&&x.startsWith("preset:"))[traffic.indexOf(v)%Math.max(1,choices.length)];const src=choice?window.GAMEZAAR_TRAFFIC_CARS?.[Number(choice.split(":")[1])||0]?.src:null;const upload=customAsset("trafficCars");if(upload?.complete)ctx.drawImage(upload,lanes[v.lane]-20,v.y-30,40,60);else if(src){const idx=Number(choice.split(":")[1])||0;let img=presetImages[10+idx];if(!img){img=new Image();img.src=src;presetImages[10+idx]=img;}if(img.complete)ctx.drawImage(img,lanes[v.lane]-20,v.y-30,40,60);}});
+ traffic.forEach(v=>{const upload=customAsset("trafficCars");if(upload?.complete&&upload.naturalWidth){ctx.drawImage(upload,lanes[v.lane]-20,v.y-30,40,60);return;}const design=v.design||"preset:0";const idx=Math.max(0,Math.min(4,Number(String(design).split(":")[1])||0));const car=window.GAMEZAAR_TRAFFIC_CARS?.[idx];if(car?.src){let img=presetImages[10+idx];if(!img){img=new Image();img.src=car.src;presetImages[10+idx]=img;}if(img.complete&&img.naturalWidth){ctx.drawImage(img,lanes[v.lane]-20,v.y-30,40,60);return;}}drawCar(lanes[v.lane],v.y,["#ef343d","#f28b19","#18b94e","#ffbd18","#f4f6f8"][idx],false);});
  roadCoins.forEach(c=>drawCoin(lanes[c.lane],c.y,performance.now()));
  scorePopups=scorePopups.filter(p=>p.life>0);
  scorePopups.forEach(p=>{ctx.save();ctx.globalAlpha=Math.min(1,p.life/18);ctx.font="bold 13px monospace";ctx.textAlign="center";ctx.fillStyle="#fff0a0";ctx.shadowColor="#ffb84d";ctx.shadowBlur=8;ctx.fillText("+"+(p.value??10),p.x,p.y);ctx.restore();p.y-=.65;p.life-=1;});
  drawCar(playerX,500,selectedCar.color,true,playerTilt,selectedCar.accent);const playerUpload=selectedCar.id==="starter"?customAsset("vehicle"):customImages[(CFG.garageCars?.[CAR_LIST.findIndex(c=>c.id===selectedCar.id)]||{}).uploadId];if(playerUpload?.complete){ctx.save();ctx.translate(playerX,500);ctx.rotate(playerTilt);ctx.drawImage(playerUpload,-22,-32,44,64);ctx.restore();}else{const src=presetAsset("vehicle",0);if(src&&selectedCar.id==="starter"){if(!presetImages[0]){presetImages[0]=new Image();presetImages[0].src=src;}if(presetImages[0].complete)ctx.drawImage(presetImages[0],playerX-22,468,44,64);}}
 }
 function speedForScore(s){return Number((1+Math.floor(s/100)*0.1).toFixed(1));}
-function reset(){survivalClock=0;playerLane=1;playerX=lanes[1];playerTilt=0;traffic=[];roadCoins=[];scorePopups=[];coinSpawn=0;nextCoinSpawn=900+Math.random()*300;coinsThisRace=0;score=0;speed=1;spawn=0;crashing=false;last=performance.now();$("score").textContent="0000";$("speed").textContent="1.0x";if(raf)cancelAnimationFrame(raf);}
+function reset(){survivalClock=0;playerLane=1;playerX=lanes[1];playerTilt=0;traffic=[];trafficSpawnIndex=0;roadCoins=[];scorePopups=[];coinSpawn=0;nextCoinSpawn=900+Math.random()*300;coinsThisRace=0;score=0;speed=1;spawn=0;crashing=false;last=performance.now();$("score").textContent="0000";$("speed").textContent="1.0x";if(raf)cancelAnimationFrame(raf);}
 function endGame(){
  if(crashing)return;
  running=false;crashing=true;crashStarted=performance.now();explosion={x:playerX,y:500};
@@ -261,7 +261,7 @@ function frame(now){
     const safe=available.filter(l=>!(nearPlayerBand.includes(l)&&nearPlayerBand.length>=2));
     const choices=safe.length?safe:available;
     const lane=choices[Math.floor(Math.random()*choices.length)];
-    traffic.push({lane,y:-58,color:trafficColors[Math.floor(Math.random()*trafficColors.length)],passed:false});
+    const designs=Array.isArray(CFG.selectedAssets?.trafficCars)?CFG.selectedAssets.trafficCars.filter(x=>typeof x==="string"&&/^preset:[0-4]$/.test(x)):[];const design=designs.length?designs[trafficSpawnIndex++%designs.length]:"preset:0";traffic.push({lane,y:-58,design,passed:false});
    }
   }
   traffic.forEach(v=>{v.y+=(1.7+speed*2.45)*dt;if(!v.passed&&v.y>535){v.passed=true;if(SCORE_RULES.overtake?.enabled!==false)score+=Math.max(0,Math.floor(Number(SCORE_RULES.overtake?.points)||0));scorePopups.push({x:lanes[v.lane],y:510,life:34,value:Math.max(0,Math.floor(Number(SCORE_RULES.overtake?.points)||0))});$("score").textContent=String(score).padStart(4,"0");}});
