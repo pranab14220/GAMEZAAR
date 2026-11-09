@@ -182,7 +182,13 @@ function soundLabel(typeId){
  const value=selectedSounds[typeId]||"preset:0";if(value.startsWith("custom:"))return customAssets.find(x=>x.id===value.slice(7))?.name||"Uploaded sound";
  const type=soundTypes.find(x=>x.id===typeId);return type.options[Number(value.split(":")[1]||0)]||type.options[0];
 }
+function syncLivePreviewData(){
+ const data={};fields.forEach(id=>data[id]=$(id).value);data.selectedAssets=selectedAssets;data.selectedSounds=selectedSounds;data.soundEnabled=soundEnabled;data.climateSelections=selectedClimateByGroup;data.updatedAt=Date.now();
+ try{sessionStorage.setItem("gamezaar-live-preview-v1",JSON.stringify(data));}catch{}
+ if(playablePreviewFrame&&playablePreviewFrame.contentWindow&&playablePreviewFrame.getAttribute("src")!=="about:blank")playablePreviewFrame.contentWindow.postMessage({type:"GAMEZAAR_PREVIEW_REFRESH"},"*");
+}
 function render(){
+ syncLivePreviewData();
  const title=$("gameTitle").value.trim()||"My Awesome Game",subtitle=$("gameSubtitle").value.trim()||"A new adventure begins";
  $("previewTitle").textContent=title;$("previewSubtitle").textContent=subtitle;$("pixelScene").style.background=$("sceneColor").value;$("previewPlay").style.background=$("accentColor").value;
  $("accentValue").textContent=$("accentColor").value.toUpperCase();$("sceneValue").textContent=$("sceneColor").value.toUpperCase();
@@ -244,7 +250,7 @@ const closePlayablePreview=$("closePlayablePreview");
 function openPlayablePreview(){
  playablePreviewModal.classList.add("open");
  playablePreviewModal.setAttribute("aria-hidden","false");
- if(playablePreviewFrame.getAttribute("src")==="about:blank")playablePreviewFrame.src="./car-racing.html?preview=1";
+ if(playablePreviewFrame.getAttribute("src")==="about:blank")syncLivePreviewData();playablePreviewFrame.src="./preview.html?game="+encodeURIComponent(params.get("game")||"Car Racing");
  document.body.style.overflow="hidden";
  closePlayablePreview.focus();
 }
@@ -257,5 +263,6 @@ function closePlayablePreviewModal(){
 }
 floatingPreviewButton.addEventListener("click",openPlayablePreview);
 closePlayablePreview.addEventListener("click",closePlayablePreviewModal);
+window.addEventListener("message",event=>{if(event.data?.type==="GAMEZAAR_PREVIEW_CLOSE"&&playablePreviewModal.classList.contains("open"))closePlayablePreviewModal();});
 playablePreviewModal.addEventListener("click",event=>{if(event.target===playablePreviewModal)closePlayablePreviewModal();});
 document.addEventListener("keydown",event=>{if(event.key==="Escape"&&playablePreviewModal.classList.contains("open"))closePlayablePreviewModal();});
