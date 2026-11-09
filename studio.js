@@ -53,13 +53,6 @@ const backgroundTypes = [
  {id:"bgLand",title:"Land / Ground",desc:"Choose a climate, then select matching roadside land and ground designs",limit:"300 KB · 1280 × 720 px max",maxKB:300,maxW:1280,maxH:720,count:25,options:landClimateTypes.flatMap(group=>group.options)},
  {id:"bgBuilding",title:"Houses",desc:"Choose the houses shown along the outer edges of the scene",limit:"200 KB · 256 × 256 px max",maxKB:200,maxW:256,maxH:256,count:5,options:[["🏘️","Houses"],["🏡","Small Homes"],["🏢","City Buildings"],["🏠","Modern Homes"],["🏚️","Old Houses"]]}
 ];
-const buttonTypes = [
- {id:"btnPlay",title:"Play Button",desc:"Main start/play control",limit:"30 KB · 128 × 64 px max",maxKB:30,maxW:128,maxH:64,count:5,options:[["▶️","Classic"],["🟠","Round"],["🟩","Pixel"],["⚡","Neon"],["🏁","Racing"]]},
- {id:"btnPause",title:"Pause Button",desc:"Pause the race",limit:"30 KB · 64 × 64 px max",maxKB:30,maxW:64,maxH:64,count:5,options:[["⏸️","Classic"],["Ⅱ","Slim"],["🟧","Round"],["▥","Pixel"],["⏯️","Modern"]]},
- {id:"btnResume",title:"Resume Button",desc:"Continue a paused race",limit:"30 KB · 128 × 64 px max",maxKB:30,maxW:128,maxH:64,count:5,options:[["▶️","Classic"],["⏵","Modern"],["🟢","Round"],["⚡","Neon"],["🏎️","Turbo"]]},
- {id:"btnRestart",title:"Restart Button",desc:"Restart the current race",limit:"30 KB · 64 × 64 px max",maxKB:30,maxW:64,maxH:64,count:5,options:[["🔄","Classic"],["↻","Minimal"],["🟠","Round"],["⟲","Pixel"],["⚡","Neon"]]},
- {id:"btnSettings",title:"Settings Button",desc:"Open game settings",limit:"30 KB · 64 × 64 px max",maxKB:30,maxW:64,maxH:64,count:5,options:[["⚙️","Classic"],["🔧","Tools"],["☷","Minimal"],["🟠","Round"],["🎛️","Control"]]}
-];
 const soundTypes = [
  {id:"soundButton",title:"Button Sounds",desc:"Tap, play, pause and menu button feedback",options:["Soft Click","Arcade Pop","Retro Beep","Digital Tap","Classic UI"]},
  {id:"soundCollision",title:"Collision / Crash",desc:"Impact and crash sound effect",options:["Crash Hit","Metal Impact","Arcade Explosion","Heavy Smash","Retro Blast"]},
@@ -84,7 +77,7 @@ async function dbPut(record){const db=await openAssetDB();return new Promise((re
 async function dbDelete(id){const db=await openAssetDB();return new Promise((resolve,reject)=>{const tx=db.transaction(DB_STORE,"readwrite");tx.objectStore(DB_STORE).delete(id);tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);});}
 async function dbAll(){const db=await openAssetDB();return new Promise((resolve,reject)=>{const tx=db.transaction(DB_STORE,"readonly");const req=tx.objectStore(DB_STORE).getAll();req.onsuccess=()=>resolve(req.result||[]);req.onerror=()=>reject(req.error);});}
 function bytesLabel(bytes){return bytes<1024?bytes+" B":(bytes/1024).toFixed(bytes<10240?1:0)+" KB";}
-function allImageTypes(){return [...imageTypes,...garageUploadTypes,...backgroundTypes,...buttonTypes];}
+function allImageTypes(){return [...imageTypes,...garageUploadTypes,...backgroundTypes];}
 function typeFor(id){return allImageTypes().find(x=>x.id===id);}
 function getAssets(id){return customAssets.filter(x=>x.type===id);}
 function totalBytes(){return customAssets.reduce((sum,x)=>sum+x.size,0);}
@@ -114,7 +107,6 @@ function groupMarkup(type){
 function buildAssetGroups(){
  const groups=imageTypes.map(groupMarkup);groups.splice(1,0,garageMarkup());$("assetGroups").innerHTML=groups.join("");
  $("backgroundGroups").innerHTML=backgroundTypes.map(groupMarkup).join("");
- $("buttonGroups").innerHTML=buttonTypes.map(groupMarkup).join("");
  document.querySelectorAll(".asset-groups").forEach(root=>{
   root.addEventListener("click",event=>{
    const toggle=event.target.closest(".asset-group-toggle");
@@ -204,7 +196,7 @@ function render(){
  $("pixelScene").style.aspectRatio=$("orientation").value==="landscape"?"16 / 9":"9 / 16";$("pixelScene").style.height=$("orientation").value==="landscape"?"190px":"320px";
  const carValue=selectedAssets.vehicle||"preset:0",carRecord=carValue.startsWith("custom:")?customAssets.find(x=>x.id===carValue.slice(7)):null;
  if(carRecord){setPreviewImage($("previewPlayer"),carRecord,"🏎️","contain");}else{const car=window.GAMEZAAR_PLAYER_CARS?.[Number((carValue.split(":")[1]||0))]||window.GAMEZAAR_PLAYER_CARS?.[0];$("previewPlayer").textContent="";$("previewPlayer").style.backgroundImage=car?"url(\""+car.src+"\")":"";$("previewPlayer").style.backgroundRepeat="no-repeat";$("previewPlayer").style.backgroundPosition="center";$("previewPlayer").style.backgroundSize="contain";}
-  const summary=[["Car",assetLabel("vehicle")],["Houses",assetLabel("bgBuilding")],["Road",assetLabel("bgRoad")],["Ground",assetLabel("bgLand")],["Trees",assetLabel("bgTree")],["Play",assetLabel("btnPlay")],["Pause",assetLabel("btnPause")]].map(x=>x.join(": ")).join(" · ");
+  const summary=[["Car",assetLabel("vehicle")],["Houses",assetLabel("bgBuilding")],["Road",assetLabel("bgRoad")],["Ground",assetLabel("bgLand")],["Trees",assetLabel("bgTree")]].map(x=>x.join(": ")).join(" · ");
  $("selectedSummary").textContent=summary;
  Object.entries(climateGroupsByType).forEach(([typeId,groups])=>{
   const optionsBox=document.querySelector('[data-climate-options="'+typeId+'"]');
