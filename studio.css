@@ -96,3 +96,6 @@
 .garage-upload-label input{display:none}
 .garage-studio-car>small{font-size:.58rem;color:#8f9bb5}
 .garage-studio-car .uploaded-list{margin-top:0}
+
+/* Custom score rules */
+.score-system-list{display:grid;gap:10px}.score-rule{display:grid;grid-template-columns:minmax(0,1fr) 92px;align-items:center;gap:8px;padding:12px;background:#222b43;border:1px solid #46516d;border-radius:12px}.score-rule-toggle{display:flex;align-items:flex-start;gap:9px;min-width:0;cursor:pointer}.score-rule-toggle input{accent-color:#ff9b54;width:18px;height:18px;flex:0 0 auto;margin:2px 0 0}.score-rule-toggle span{display:grid;gap:4px}.score-rule-toggle b{font-size:.8rem;color:#f4f6fc}.score-rule-toggle small{font-size:.67rem;color:#aeb8ce;line-height:1.4}.score-points-label{grid-column:2;grid-row:1;font-size:.64rem;color:#ffbd8c;font-weight:800}.score-points-input{grid-column:2;grid-row:1;align-self:end;width:100%;box-sizing:border-box;background:#171b2e;border:1px solid #52607e;border-radius:8px;color:#fff;padding:8px;font:inherit;font-size:.8rem;min-width:0;margin-top:21px}.score-system-note{font-size:.7rem;color:#aeb8ce;line-height:1.5;margin:11px 0 0}@media(max-width:430px){.score-rule{grid-template-columns:minmax(0,1fr) 82px;padding:10px}.score-rule-toggle b{font-size:.74rem}}
