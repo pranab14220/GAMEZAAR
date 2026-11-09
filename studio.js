@@ -1,7 +1,7 @@
 const $ = (id) => document.getElementById(id);
 const params = new URLSearchParams(location.search);
 const selectedGame = params.get("game") || "My Awesome Game";
-const fields = ["gameTitle","gameSubtitle","difficulty","orientation","accentColor","sceneColor"];
+const fields = ["gameTitle","gameSubtitle","difficulty","orientation","accentColor","sceneColor"];\nconst scoreFieldIds=["scoreOvertakeEnabled","scoreOvertakePoints","scoreCoinEnabled","scoreCoinPoints","scoreSurvivalEnabled","scoreSurvivalPoints"];\nconst defaultScoreSystem={overtake:{enabled:true,points:10},coin:{enabled:true,points:5},survival:{enabled:true,points:1}};\nlet scoreSystem=JSON.parse(JSON.stringify(defaultScoreSystem));\nfunction readScoreSystem(){return {overtake:{enabled:$("scoreOvertakeEnabled").checked,points:Math.max(0,Math.min(999999,Math.floor(Number($("scoreOvertakePoints").value)||0)))},coin:{enabled:$("scoreCoinEnabled").checked,points:Math.max(0,Math.min(999999,Math.floor(Number($("scoreCoinPoints").value)||0)))},survival:{enabled:$("scoreSurvivalEnabled").checked,points:Math.max(0,Math.min(999999,Math.floor(Number($("scoreSurvivalPoints").value)||0)))}}}\nfunction setScoreSystem(data){scoreSystem={...defaultScoreSystem,...(data||{})};for(const key of Object.keys(defaultScoreSystem)){scoreSystem[key]={...defaultScoreSystem[key],...(data?.[key]||{})};$("score"+key[0].toUpperCase()+key.slice(1)+"Enabled").checked=scoreSystem[key].enabled!==false;$("score"+key[0].toUpperCase()+key.slice(1)+"Points").value=scoreSystem[key].points;}}
 const defaults = {gameTitle:selectedGame,gameSubtitle:"A new adventure begins",difficulty:"Normal",orientation:"landscape",accentColor:"#ff9b54",sceneColor:"#394563"};
 const settingsKey = "gamezaar-builder-v3";
 const DB_NAME = "gamezaar-custom-assets";
@@ -186,7 +186,7 @@ function soundLabel(typeId){
  const type=soundTypes.find(x=>x.id===typeId);return type.options[Number(value.split(":")[1]||0)]||type.options[0];
 }
 function syncLivePreviewData(){
- const data={};fields.forEach(id=>data[id]=$(id).value);data.selectedAssets=selectedAssets;data.garagePrices=garagePrices;data.garageCars=(window.GAMEZAAR_GARAGE_CARS||[]).map((car,i)=>({name:car.name,price:garagePrices[i]??defaultGaragePrices[i],uploadId:(selectedAssets["garageCar"+i]||"").startsWith("custom:")?selectedAssets["garageCar"+i].slice(7):null}));data.selectedSounds=selectedSounds;data.soundEnabled=soundEnabled;data.climateSelections=selectedClimateByGroup;data.assetOptions=Object.fromEntries(allImageTypes().map(type=>[type.id,type.options]));data.updatedAt=Date.now();
+ const data={};fields.forEach(id=>data[id]=$(id).value);data.selectedAssets=selectedAssets;data.scoreSystem=readScoreSystem();data.garagePrices=garagePrices;data.garageCars=(window.GAMEZAAR_GARAGE_CARS||[]).map((car,i)=>({name:car.name,price:garagePrices[i]??defaultGaragePrices[i],uploadId:(selectedAssets["garageCar"+i]||"").startsWith("custom:")?selectedAssets["garageCar"+i].slice(7):null}));data.selectedSounds=selectedSounds;data.soundEnabled=soundEnabled;data.climateSelections=selectedClimateByGroup;data.assetOptions=Object.fromEntries(allImageTypes().map(type=>[type.id,type.options]));data.updatedAt=Date.now();
  try{sessionStorage.setItem("gamezaar-live-preview-v1",JSON.stringify(data));}catch{}
  if(playablePreviewFrame&&playablePreviewFrame.contentWindow&&playablePreviewFrame.getAttribute("src")!=="about:blank")playablePreviewFrame.contentWindow.postMessage({type:"GAMEZAAR_PREVIEW_REFRESH"},"*");
 }
@@ -226,7 +226,7 @@ function render(){
 function getObjectUrl(item){let url=objectUrls.get(item.id);if(!url){url=URL.createObjectURL(item.blob);objectUrls.set(item.id,url);}return url;}
 function setPreviewImage(element,record,fallback,fit){if(record){element.textContent="";element.style.backgroundImage="url('"+getObjectUrl(record)+"')";element.style.backgroundRepeat="no-repeat";element.style.backgroundPosition="center";element.style.backgroundSize=fit;}else{element.textContent=fallback;element.style.backgroundImage="";}}
 function setValues(data){fields.forEach(id=>{if(data[id]!==undefined)$(id).value=data[id];});render();}
-fields.forEach(id=>$(id).addEventListener("input",render));
+fields.forEach(id=>$(id).addEventListener("input",render));\nscoreFieldIds.forEach(id=>$(id).addEventListener("input",()=>{scoreSystem=readScoreSystem();syncLivePreviewData();}));
 $("orientation").addEventListener("change",()=>{render();setStatus("Orientation changed. Choose background images matching your scene.");});
 $("saveGame").addEventListener("click",()=>{
  const data={};fields.forEach(id=>data[id]=$(id).value);data.selectedAssets=selectedAssets;data.garagePrices=garagePrices;data.garageCars=(window.GAMEZAAR_GARAGE_CARS||[]).map((car,i)=>({name:car.name,price:garagePrices[i]??defaultGaragePrices[i],uploadId:(selectedAssets["garageCar"+i]||"").startsWith("custom:")?selectedAssets["garageCar"+i].slice(7):null}));data.selectedSounds=selectedSounds;data.soundEnabled=soundEnabled;data.climateSelections=selectedClimateByGroup;data.assetOptions=Object.fromEntries(allImageTypes().map(type=>[type.id,type.options]));data.savedAt=new Date().toISOString();
@@ -240,7 +240,7 @@ $("previewPlay").addEventListener("click",()=>setStatus("This is a customization
 async function init(){
  buildAssetGroups();buildSoundGroups();
  try{customAssets=await dbAll();customAssets.forEach(item=>{if(item.blob&&!objectUrls.has(item.id))objectUrls.set(item.id,URL.createObjectURL(item.blob));});}catch{setStatus("Browser storage is unavailable. You can still select preset designs.");}
- setValues({...defaults,...saved});selectedAssets={bgBuilding:"preset:0",trafficCars:["preset:0","preset:1","preset:2","preset:3","preset:4"],...(saved.selectedAssets||{})};if(typeof selectedAssets.trafficCars==="string")selectedAssets.trafficCars=[selectedAssets.trafficCars];garagePrices=defaultGaragePrices.map((v,i)=>Math.max(0,Math.floor(Number(saved.garagePrices?.[i]??v)||0)));selectedSounds=saved.selectedSounds||{};soundEnabled=saved.soundEnabled||{};selectedClimateByGroup={bgTree:"summer",bgRoad:"summer",bgLand:"summer",...(saved.climateSelections||{}),...(saved.treeClimate?{bgTree:saved.treeClimate}:{})};render();
+ setValues({...defaults,...saved});setScoreSystem(saved.scoreSystem);selectedAssets={bgBuilding:"preset:0",trafficCars:["preset:0","preset:1","preset:2","preset:3","preset:4"],...(saved.selectedAssets||{})};if(typeof selectedAssets.trafficCars==="string")selectedAssets.trafficCars=[selectedAssets.trafficCars];garagePrices=defaultGaragePrices.map((v,i)=>Math.max(0,Math.floor(Number(saved.garagePrices?.[i]??v)||0)));selectedSounds=saved.selectedSounds||{};soundEnabled=saved.soundEnabled||{};selectedClimateByGroup={bgTree:"summer",bgRoad:"summer",bgLand:"summer",...(saved.climateSelections||{}),...(saved.treeClimate?{bgTree:saved.treeClimate}:{})};render();
 }
 init();
 
