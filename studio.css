@@ -83,3 +83,16 @@
 @media(max-width:430px){.player-car-option-image{height:48px}.asset-option:has(.player-car-option-image){padding:4px 1px 5px;gap:2px}}
 
 .traffic-car-option-image{display:block;width:100%;height:52px;object-fit:contain;margin:0 auto 2px;filter:drop-shadow(0 3px 4px #0007)}.asset-option:has(.traffic-car-option-image){min-height:0;padding:5px 2px 6px;gap:3px}@media(max-width:430px){.traffic-car-option-image{height:46px}.asset-option:has(.traffic-car-option-image){padding:4px 1px 5px;gap:2px}}
+
+.garage-studio-section{grid-column:1/-1;border:1px solid #65718c;border-radius:13px;background:#202840;padding:12px;margin:2px 0}
+.garage-studio-heading{display:grid;gap:4px;margin-bottom:10px}.garage-studio-heading b{font-size:.9rem;color:#ffbd8c}.garage-studio-heading small{font-size:.68rem;color:#aeb8ce;line-height:1.4}
+.garage-studio-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.garage-studio-car{min-width:0;background:#171b2e;border:1px solid #46516d;border-radius:10px;padding:8px;display:grid;gap:5px}
+.garage-studio-art{height:78px;display:grid;place-items:center;background:#222b43;border-radius:8px}.garage-studio-art img{width:100%;height:76px;object-fit:contain;filter:drop-shadow(0 3px 5px #0008)}
+.garage-studio-car>strong{font-size:.72rem;color:#fff}
+.garage-studio-car>label{display:grid;gap:4px;font-size:.64rem;color:#aeb8ce}
+.garage-studio-car input[type=number]{width:100%;min-width:0;background:#272f49;border:1px solid #52607e;border-radius:7px;padding:7px;color:#fff;font:inherit}
+.garage-upload-label{display:block!important;text-align:center;background:#394563;border:1px solid #61708e;border-radius:7px;padding:7px;color:#fff!important;font-size:.65rem!important;font-weight:800;cursor:pointer}
+.garage-upload-label input{display:none}
+.garage-studio-car>small{font-size:.58rem;color:#8f9bb5}
+.garage-studio-car .uploaded-list{margin-top:0}
