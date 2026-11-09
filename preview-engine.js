@@ -254,7 +254,7 @@ function frame(now){
   spawn+=dt;
   // When multiple enemy designs are selected, bring them in as a staggered stream so all selected cars become visible together, never side-by-side.
   const selectedTrafficDesigns=Array.isArray(CFG.selectedAssets?.trafficCars)?CFG.selectedAssets.trafficCars.filter(x=>typeof x==="string"&&/^preset:[0-4]$/.test(x)):[];
-  const trafficSpawnInterval=selectedTrafficDesigns.length>1?34:Math.max(78,96-speed*2);
+  const trafficSpawnInterval=selectedTrafficDesigns.length>1?18:Math.max(78,96-speed*2);
   if(spawn>trafficSpawnInterval){
    spawn=0;
    const available=[0,1,2].filter(lane=>!traffic.some(v=>v.lane===lane&&v.y<145&&v.y>-190));
