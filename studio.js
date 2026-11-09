@@ -121,6 +121,7 @@ function buildAssetGroups(){
    const remove=event.target.closest("[data-remove-asset]");
    if(remove)removeAsset(remove.dataset.removeAsset);
   });
+  root.addEventListener("input",event=>{const price=event.target.closest("[data-garage-price]");if(price){const i=Number(price.dataset.garagePrice);garagePrices[i]=Math.max(0,Math.floor(Number(price.value)||0));syncLivePreviewData();}});
   root.addEventListener("change",event=>{const input=event.target.closest("input[data-upload]");if(input&&input.files?.length)handleImageUploads(input.dataset.upload,[...input.files],input);});
  });
 }
