@@ -43,9 +43,7 @@ const backgroundTypes = [
  {id:"bgTree",title:"Trees",desc:"Choose a climate, then select from five matching roadside tree and plant designs",limit:"100 KB · 128 × 128 px max",maxKB:100,maxW:128,maxH:128,count:5,options:treeOptions},
  {id:"bgRoad",title:"Road",desc:"Choose a climate, then select a matching road surface and style",limit:"500 KB · 1280 × 720 px max",maxKB:500,maxW:1280,maxH:720,count:25,options:roadClimateTypes.flatMap(group=>group.options)},
  {id:"bgLand",title:"Land / Ground",desc:"Choose a climate, then select matching roadside land and ground designs",limit:"300 KB · 1280 × 720 px max",maxKB:300,maxW:1280,maxH:720,count:25,options:landClimateTypes.flatMap(group=>group.options)},
- {id:"bgBuilding",title:"Buildings",desc:"City buildings and roadside structures",limit:"200 KB · 256 × 256 px max",maxKB:200,maxW:256,maxH:256,count:5,options:[["🏙️","Skyscrapers"],["🏢","Offices"],["🏘️","Houses"],["🏭","Factories"],["🏬","Shops"]]},
- {id:"bgDecor",title:"Roadside Details",desc:"Lights, fences and other roadside scenery",limit:"100 KB · 128 × 128 px max",maxKB:100,maxW:128,maxH:128,count:5,options:[["💡","Street Lights"],["🚦","Signals"],["🧱","Fence"],["⛰️","Hills"],["🌳","Shrubs"]]},
- {id:"bgSigns",title:"Roadside Signs",desc:"Select up to five sign designs to place along the road",limit:"5 designs · select up to 5",maxKB:100,maxW:128,maxH:128,count:5,multi:true,options:[["🚸","School Zone"],["⚠️","Danger Warning"],["🚦","Traffic Signal"],["🛑","Stop Sign"],["🚧","Road Work"]]}
+ {id:"bgBuilding",title:"Houses",desc:"Choose the houses shown along the outer edges of the scene",limit:"200 KB · 256 × 256 px max",maxKB:200,maxW:256,maxH:256,count:5,options:[["🏘️","Houses"],["🏡","Small Homes"],["🏢","City Buildings"],["🏠","Modern Homes"],["🏚️","Old Houses"]]}
 ];
 const buttonTypes = [
  {id:"btnPlay",title:"Play Button",desc:"Main start/play control",limit:"30 KB · 128 × 64 px max",maxKB:30,maxW:128,maxH:64,count:5,options:[["▶️","Classic"],["🟠","Round"],["🟩","Pixel"],["⚡","Neon"],["🏁","Racing"]]},
@@ -63,7 +61,7 @@ const soundTypes = [
 ];
 let saved = {};
 try { saved = JSON.parse(localStorage.getItem(settingsKey) || "{}"); } catch {}
-let selectedAssets = saved.selectedAssets || {};
+let selectedAssets = {bgBuilding:"preset:0",...(saved.selectedAssets || {})};
 let selectedSounds = saved.selectedSounds || {};
 let soundEnabled = saved.soundEnabled || {};
 let customAssets = [];
@@ -183,7 +181,7 @@ function soundLabel(typeId){
  const type=soundTypes.find(x=>x.id===typeId);return type.options[Number(value.split(":")[1]||0)]||type.options[0];
 }
 function syncLivePreviewData(){
- const data={};fields.forEach(id=>data[id]=$(id).value);data.selectedAssets=selectedAssets;data.selectedSounds=selectedSounds;data.soundEnabled=soundEnabled;data.climateSelections=selectedClimateByGroup;data.updatedAt=Date.now();
+ const data={};fields.forEach(id=>data[id]=$(id).value);data.selectedAssets=selectedAssets;data.selectedSounds=selectedSounds;data.soundEnabled=soundEnabled;data.climateSelections=selectedClimateByGroup;data.assetOptions=Object.fromEntries(allImageTypes().map(type=>[type.id,type.options]));data.updatedAt=Date.now();
  try{sessionStorage.setItem("gamezaar-live-preview-v1",JSON.stringify(data));}catch{}
  if(playablePreviewFrame&&playablePreviewFrame.contentWindow&&playablePreviewFrame.getAttribute("src")!=="about:blank")playablePreviewFrame.contentWindow.postMessage({type:"GAMEZAAR_PREVIEW_REFRESH"},"*");
 }
@@ -196,8 +194,7 @@ function render(){
  $("pixelScene").style.aspectRatio=$("orientation").value==="landscape"?"16 / 9":"9 / 16";$("pixelScene").style.height=$("orientation").value==="landscape"?"190px":"320px";
  const carValue=selectedAssets.vehicle||"preset:0",carRecord=carValue.startsWith("custom:")?customAssets.find(x=>x.id===carValue.slice(7)):null;
  setPreviewImage($("previewPlayer"),carRecord,"🏎️","contain");
- const signChoices=Array.isArray(selectedAssets.bgSigns)?selectedAssets.bgSigns.map(value=>backgroundTypes.find(type=>type.id==="bgSigns").options[Number(value.split(":")[1])]?.[1]).filter(Boolean):[];
- const summary=[["Car",assetLabel("vehicle")],["Road",assetLabel("bgRoad")],["Land",assetLabel("bgLand")],["Tree",assetLabel("bgTree")],["Signs",signChoices.length?signChoices.join(", "):"None"],["Play",assetLabel("btnPlay")],["Pause",assetLabel("btnPause")]].map(x=>x.join(": ")).join(" · ");
+  const summary=[["Car",assetLabel("vehicle")],["Houses",assetLabel("bgBuilding")],["Road",assetLabel("bgRoad")],["Ground",assetLabel("bgLand")],["Trees",assetLabel("bgTree")],["Play",assetLabel("btnPlay")],["Pause",assetLabel("btnPause")]].map(x=>x.join(": ")).join(" · ");
  $("selectedSummary").textContent=summary;
  Object.entries(climateGroupsByType).forEach(([typeId,groups])=>{
   const optionsBox=document.querySelector('[data-climate-options="'+typeId+'"]');
@@ -227,7 +224,7 @@ function setValues(data){fields.forEach(id=>{if(data[id]!==undefined)$(id).value
 fields.forEach(id=>$(id).addEventListener("input",render));
 $("orientation").addEventListener("change",()=>{render();setStatus("Orientation changed. Choose background images matching your scene.");});
 $("saveGame").addEventListener("click",()=>{
- const data={};fields.forEach(id=>data[id]=$(id).value);data.selectedAssets=selectedAssets;data.selectedSounds=selectedSounds;data.soundEnabled=soundEnabled;data.climateSelections=selectedClimateByGroup;data.savedAt=new Date().toISOString();
+ const data={};fields.forEach(id=>data[id]=$(id).value);data.selectedAssets=selectedAssets;data.selectedSounds=selectedSounds;data.soundEnabled=soundEnabled;data.climateSelections=selectedClimateByGroup;data.assetOptions=Object.fromEntries(allImageTypes().map(type=>[type.id,type.options]));data.savedAt=new Date().toISOString();
  try{localStorage.setItem(settingsKey,JSON.stringify(data));setStatus("Racing game settings saved on this device. Uploaded files remain in this browser.");}catch{setStatus("Browser storage is full. Remove some uploads and try again.");}
 });
 $("resetGame").addEventListener("click",()=>{
@@ -238,7 +235,7 @@ $("previewPlay").addEventListener("click",()=>setStatus("This is a customization
 async function init(){
  buildAssetGroups();buildSoundGroups();
  try{customAssets=await dbAll();customAssets.forEach(item=>{if(item.blob&&!objectUrls.has(item.id))objectUrls.set(item.id,URL.createObjectURL(item.blob));});}catch{setStatus("Browser storage is unavailable. You can still select preset designs.");}
- setValues({...defaults,...saved});selectedAssets=saved.selectedAssets||{};selectedSounds=saved.selectedSounds||{};soundEnabled=saved.soundEnabled||{};selectedClimateByGroup={bgTree:"summer",bgRoad:"summer",bgLand:"summer",...(saved.climateSelections||{}),...(saved.treeClimate?{bgTree:saved.treeClimate}:{})};render();
+ setValues({...defaults,...saved});selectedAssets={bgBuilding:"preset:0",...(saved.selectedAssets||{})};selectedSounds=saved.selectedSounds||{};soundEnabled=saved.soundEnabled||{};selectedClimateByGroup={bgTree:"summer",bgRoad:"summer",bgLand:"summer",...(saved.climateSelections||{}),...(saved.treeClimate?{bgTree:saved.treeClimate}:{})};render();
 }
 init();
 
