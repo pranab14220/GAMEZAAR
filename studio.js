@@ -8,7 +8,7 @@ const DB_NAME = "gamezaar-custom-assets";
 const DB_STORE = "uploads";
 const MAX_TOTAL = 2 * 1024 * 1024;
 const imageTypes = [
- {id:"vehicle",title:"Player Car",desc:"Choose the car controlled by the player",limit:"150 KB · 256 × 256 px max",maxKB:150,maxW:256,maxH:256,count:5,options:[["🏎️","Street Racer"],["🚗","Sport Coupe"],["🚙","Rally SUV"],["🏁","Formula"],["🚘","Supercar"]]},
+ {id:"vehicle",title:"Player Car",desc:"Choose one of the five custom top-down cars from your example racing game",limit:"150 KB · 256 × 256 px max",maxKB:150,maxW:256,maxH:256,count:5,options:[["🔴","Red Racing"],["🔵","Blue Flame"],["🟡","Yellow Checker"],["🟢","Green Arrow"],["⚪","White Blue Stripe"]]},
  {id:"trafficCars",title:"Traffic Cars",desc:"Choose one type of car for the other vehicles on the road",limit:"100 KB · 128 × 128 px max",maxKB:100,maxW:128,maxH:128,count:5,options:[["🚕","Taxi"],["🚙","SUV"],["🚚","Truck"],["🚓","Police Car"],["🚗","Sedan"]]},
  {id:"roadBarriers",title:"Road Barriers",desc:"Choose one barrier style for road obstacles",limit:"100 KB · 128 × 128 px max",maxKB:100,maxW:128,maxH:128,count:5,options:[["🚧","Construction"],["🛑","Stop Block"],["🪵","Wood Barrier"],["🧱","Brick Block"],["⛔","Road Block"]]},
  {id:"roadHazards",title:"Road Hazards",desc:"Choose one hazard style to avoid while driving",limit:"100 KB · 128 × 128 px max",maxKB:100,maxW:128,maxH:128,count:5,options:[["🛢️","Oil Drum"],["🪨","Rock"],["🕳️","Pothole"],["🔥","Fire"],["⚠️","Warning Cone"]]},
@@ -91,7 +91,7 @@ function groupMarkup(type){
  const climateGroups=climateGroupsByType[type.id];
  const climateMarkup=climateGroups
   ? `<div class="tree-climate-tabs">${climateGroups.map(group=>`<button type="button" class="tree-climate-tab" data-climate-group="${type.id}" data-climate="${group.id}" aria-pressed="false">${group.title}</button>`).join("")}</div><div class="asset-options" data-climate-options="${type.id}"></div>`
-  : `<div class="asset-options">${type.options.map((option,index)=>`<button type="button" class="asset-option" data-type="${type.id}" data-option="${index}" aria-pressed="false"><span class="asset-glyph">${option[0]}</span><small>${option[1]}</small></button>`).join("")}</div>`;
+  : `<div class="asset-options">${type.options.map((option,index)=>`<button type="button" class="asset-option" data-type="${type.id}" data-option="${index}" aria-pressed="false">${type.id==="vehicle"&&window.GAMEZAAR_PLAYER_CARS?.[index]?`<img class="player-car-option-image" src="${window.GAMEZAAR_PLAYER_CARS[index].src}" alt="${option[1]}">`:`<span class="asset-glyph">${option[0]}</span>`}<small>${option[1]}</small></button>`).join("")}</div>`;
  return `<section class="asset-group" data-asset-group="${type.id}">
   <button type="button" class="asset-group-toggle" aria-expanded="false"><span><b>${type.title}</b><small>${type.desc}</small></span><span class="asset-chevron">＋</span></button>
   <div class="asset-group-panel" hidden>
@@ -193,7 +193,7 @@ function render(){
  $("gameDevice").classList.toggle("landscape-device",$("orientation").value==="landscape");
  $("pixelScene").style.aspectRatio=$("orientation").value==="landscape"?"16 / 9":"9 / 16";$("pixelScene").style.height=$("orientation").value==="landscape"?"190px":"320px";
  const carValue=selectedAssets.vehicle||"preset:0",carRecord=carValue.startsWith("custom:")?customAssets.find(x=>x.id===carValue.slice(7)):null;
- setPreviewImage($("previewPlayer"),carRecord,"🏎️","contain");
+ if(carRecord){setPreviewImage($("previewPlayer"),carRecord,"🏎️","contain");}else{const car=window.GAMEZAAR_PLAYER_CARS?.[Number((carValue.split(":")[1]||0))]||window.GAMEZAAR_PLAYER_CARS?.[0];$("previewPlayer").textContent="";$("previewPlayer").style.backgroundImage=car?"url(\""+car.src+"\")":"";$("previewPlayer").style.backgroundRepeat="no-repeat";$("previewPlayer").style.backgroundPosition="center";$("previewPlayer").style.backgroundSize="contain";}
   const summary=[["Car",assetLabel("vehicle")],["Houses",assetLabel("bgBuilding")],["Road",assetLabel("bgRoad")],["Ground",assetLabel("bgLand")],["Trees",assetLabel("bgTree")],["Play",assetLabel("btnPlay")],["Pause",assetLabel("btnPause")]].map(x=>x.join(": ")).join(" · ");
  $("selectedSummary").textContent=summary;
  Object.entries(climateGroupsByType).forEach(([typeId,groups])=>{
