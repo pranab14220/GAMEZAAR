@@ -213,8 +213,17 @@ function selectedCarImage(car){
 }
 function drawSelectedCar(x,y,car,width,height,tilt=0){
  const img=selectedCarImage(car);
- if(img){ctx.save();ctx.translate(x,y);ctx.rotate(tilt);ctx.drawImage(img,-width/2,-height/2,width,height);ctx.restore();}
- else drawCar(x,y,car.color,true,tilt,car.accent);
+ if(img){
+  ctx.save();ctx.translate(x,y);ctx.rotate(tilt);
+  if(car.type==="player"&&img.src.startsWith("data:image/svg+xml")){
+   const sx=42,sw=172,sh=256,scale=Math.min(width/sw,height/sh),dw=sw*scale,dh=sh*scale;
+   ctx.drawImage(img,sx,0,sw,sh,-dw/2,-dh/2,dw,dh);
+  }else{
+   const scale=Math.min(width/img.naturalWidth,height/img.naturalHeight),dw=img.naturalWidth*scale,dh=img.naturalHeight*scale;
+   ctx.drawImage(img,-dw/2,-dh/2,dw,dh);
+  }
+  ctx.restore();
+ }else drawCar(x,y,car.color,true,tilt,car.accent);
 }
 function drawCoin(x,y,now){
  const custom=customAsset("coin");if(custom?.complete){ctx.drawImage(custom,x-12,y-12,24,24);return;}
