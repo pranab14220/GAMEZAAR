@@ -136,6 +136,13 @@ function drawBuilding(b){
  ctx.fillStyle="#f4c06e";ctx.fillRect(x+20,y+h-14,17,9);
  ctx.fillStyle="#fff0ae";ctx.fillRect(x+22,y+h-12,3,3);
 }
+const winterTreeSprite = new Image();
+winterTreeSprite.src = "assets/winter-tree-sprite.svg";
+function drawWinterTree(cx,baseY,index){
+ if(!winterTreeSprite.complete||!winterTreeSprite.naturalWidth)return false;
+ ctx.drawImage(winterTreeSprite,(index%5)*32,0,32,48,cx-15,baseY-44,30,45);
+ return true;
+}
 function drawSummerTree(cx,baseY,index){
  ctx.save();ctx.translate(cx,baseY);
  // warm summer trunk and five distinct leafy silhouettes
@@ -181,8 +188,9 @@ function drawRoad(){
    else{
     const treeValue=CFG.selectedAssets?.bgTree||"preset:0";
     const treeIndex=treeValue.startsWith("preset:")?Math.max(0,Math.min(24,Number(treeValue.split(":")[1])||0)):0;
-    const summer=(!CFG.climateSelections?.bgTree||CFG.climateSelections.bgTree==="summer")&&treeIndex<5;
-    if(summer)drawSummerTree(x+9,y+31,treeIndex);
+    const treeClimate=CFG.climateSelections?.bgTree||"summer";
+    if(treeClimate==="summer"&&treeIndex<5)drawSummerTree(x+9,y+31,treeIndex);
+    else if(treeClimate==="winter"&&treeIndex>=5&&treeIndex<10){if(!drawWinterTree(x+9,y+39,treeIndex-5)){ctx.fillStyle="#526b58";ctx.fillRect(x,y+5,18,22);ctx.fillStyle="#f3f6f4";ctx.fillRect(x+2,y+2,14,5);ctx.fillRect(x-1,y+11,20,4);}}
     else{ctx.fillStyle="#294b3b";ctx.fillRect(x,y+5,18,22);ctx.fillRect(x+3,y,12,8);ctx.fillStyle="#689451";ctx.fillRect(x+4,y+5,5,5);ctx.fillRect(x+11,y+12,4,5);}
    }
    ctx.fillStyle="#59696a";ctx.fillRect(x+8,y+37,2,19);ctx.fillRect(x+8,y+37,12,2);
