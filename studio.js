@@ -104,7 +104,7 @@ function groupMarkup(type){
    ${climateMarkup}
    ${type.id==="trafficCars"?trafficUploadMarkup():""}
    ${type.id==="vehicle"?`<label class="player-car-name-editor">Selected player car name<input type="text" maxlength="24" data-player-car-name value="${escapeHTML(playerCarNames[Number((selectedAssets.vehicle||"preset:0").split(":")[1]||0)]||"Player Car")}" placeholder="Enter player car name"><small>Choose a car above, then edit its name here.</small></label>`:""}
-   ${type.id==="trafficCars"?"":`<div class="asset-upload-row"><label class="asset-upload-button">＋ Upload your own<input type="file" accept="image/png,image/jpeg,image/webp" data-upload="${type.id}"></label><span class="asset-upload-note">1 upload maximum · ${type.maxKB} KB</span></div>`}
+   ${type.id==="trafficCars"?"":`<div class="asset-upload-row"><label class="asset-upload-button">＋ Upload your own<input type="file" accept="${type.id==="roadHazards"?"image/png,image/jpeg,image/webp,image/gif":"image/png,image/jpeg,image/webp"}" data-upload="${type.id}"></label><span class="asset-upload-note">1 upload maximum · ${type.maxKB} KB</span></div>`}
    <div class="uploaded-list" data-uploaded-list="${type.id}"></div>
   </div>
  </section>`;
@@ -144,7 +144,7 @@ async function handleImageUploads(typeId,files,input){
  const type=typeFor(typeId),file=files[0];
  if(!file){input.value="";return;}
  if(getAssets(typeId).length>=1){showImageUploadError(typeId,"A design is already uploaded for "+type.title+". Tap × on its preview and confirm delete before uploading another.");input.value="";return;}
- if(!["image/png","image/jpeg","image/webp"].includes(file.type)){showImageUploadError(typeId,"Upload nahi ho sakta: sirf PNG, JPG ya WebP image select karo.");input.value="";return;}
+ const isGif=typeId==="roadHazards"&&(file.type==="image/gif"||/\.gif$/i.test(file.name));if(!["image/png","image/jpeg","image/webp"].includes(file.type)&&!isGif){showImageUploadError(typeId,typeId==="roadHazards"?"Sirf PNG, JPG, WebP ya animated GIF upload karo.":"Sirf PNG, JPG ya WebP image select karo.");input.value="";return;}
  if(file.size>type.maxKB*1024){showImageUploadError(typeId,"Upload nahi ho sakta: "+file.name+" file bahut badi hai. "+type.title+" ke liye maximum size "+type.maxKB+" KB hai.");input.value="";return;}
  if(totalBytes()+file.size>MAX_TOTAL){showImageUploadError(typeId,"Upload nahi ho sakta: sabhi custom uploads ka total limit 2 MB hai. Pehle koi purani file delete karo.");input.value="";return;}
  const dimensions=await readDimensions(file);if(!dimensions){showImageUploadError(typeId,"Upload nahi ho sakta: "+file.name+" image open nahi ho pa rahi.");input.value="";return;}
