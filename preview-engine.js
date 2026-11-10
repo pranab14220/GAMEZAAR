@@ -216,8 +216,11 @@ function drawSelectedCar(x,y,car,width,height,tilt=0){
  if(img){
   ctx.save();ctx.translate(x,y);ctx.rotate(tilt);
   if(car.type==="player"&&img.src.startsWith("data:image/svg+xml")){
-   const sx=42,sw=172,sh=256,scale=Math.min(width/sw,height/sh),dw=sw*scale,dh=sh*scale;
-   ctx.drawImage(img,sx,0,sw,sh,-dw/2,-dh/2,dw,dh);
+   // The player-car SVG has transparent side margins; scale the full SVG using the visible body bounds.
+   // Never crop the source image, so the nose, wheels and rear of the car all remain visible.
+   const bodyWidth=154,bodyHeight=252,scale=Math.min(width/bodyWidth,height/bodyHeight);
+   const drawSize=256*scale;
+   ctx.drawImage(img,-drawSize/2,-drawSize/2,drawSize,drawSize);
   }else{
    const scale=Math.min(width/img.naturalWidth,height/img.naturalHeight),dw=img.naturalWidth*scale,dh=img.naturalHeight*scale;
    ctx.drawImage(img,-dw/2,-dh/2,dw,dh);
