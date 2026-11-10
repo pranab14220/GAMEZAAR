@@ -7,9 +7,10 @@ const CFG=(()=>{try{return JSON.parse(sessionStorage.getItem("gamezaar-live-prev
 window.__GAMEZAAR_PREVIEW_CONFIG_VERSION=CFG.updatedAt||0;
 const SCORE_RULES=CFG.scoreSystem||{overtake:{enabled:true,points:10},coin:{enabled:true,points:5},survival:{enabled:true,points:1}};
 const PREVIEW_KEYS={coins:"gamezaar-preview-coins-v2",unlocked:"gamezaar-preview-unlocked-v2",selected:"gamezaar-preview-selected-v2",best:"gamezaar-preview-best-v2"};
-let survivalClock=0,customImages={},presetImages=[];
-function loadCustomImages(){try{const req=indexedDB.open("gamezaar-custom-assets",1);req.onsuccess=()=>{const db=req.result;if(!db.objectStoreNames.contains("uploads"))return;const q=db.transaction("uploads","readonly").objectStore("uploads").getAll();q.onsuccess=()=>{(q.result||[]).forEach(item=>{if(item.kind==="image"&&item.blob){const img=new Image();img.decoding="async";const url=URL.createObjectURL(item.blob);img.onload=()=>draw();img.src=url;customImages[item.id]=img;if(item.type==="roadHazards"&&item.blob.type==="image/gif"){img.style.cssText="position:fixed;left:0;top:0;width:2px;height:2px;opacity:.01;pointer-events:none;z-index:-1";img.setAttribute("aria-hidden","true");document.body.appendChild(img);}}});};};}catch(e){}}
+let survivalClock=0,customImages={},customImageTypes={},presetImages=[],animatedHazardNodes=new Map();
+function loadCustomImages(){try{const req=indexedDB.open("gamezaar-custom-assets",1);req.onsuccess=()=>{const db=req.result;if(!db.objectStoreNames.contains("uploads"))return;const q=db.transaction("uploads","readonly").objectStore("uploads").getAll();q.onsuccess=()=>{(q.result||[]).forEach(item=>{if(item.kind==="image"&&item.blob){const img=new Image();img.decoding="async";img.src=URL.createObjectURL(item.blob);img.onload=()=>draw();customImages[item.id]=img;customImageTypes[item.id]=item.blob.type||"";}});};};}catch(e){}}
 function customAsset(type){const v=CFG.selectedAssets?.[type];return typeof v==="string"&&v.startsWith("custom:")?customImages[v.slice(7)]:null;}
+function updateAnimatedHazards(){const custom=customAsset("roadHazards"),id=(CFG.selectedAssets?.roadHazards||"").slice(7),isGif=custom&&customImageTypes[id]==="image/gif";const wrap=document.querySelector(".canvas-wrap");if(!wrap)return;if(!isGif){animatedHazardNodes.forEach(n=>n.remove());animatedHazardNodes.clear();return;}wrap.style.position="relative";const cr=canvas.getBoundingClientRect(),wr=wrap.getBoundingClientRect(),sx=cr.width/W,sy=cr.height/H,active=new Set();roadHazards.forEach(h=>{active.add(h);let node=animatedHazardNodes.get(h);if(!node){node=document.createElement("img");node.src=custom.src;node.alt="";node.draggable=false;node.style.cssText="position:absolute;z-index:2;pointer-events:none;object-fit:contain;transform:translate(-50%,-50%)";wrap.appendChild(node);animatedHazardNodes.set(h,node);}node.style.left=(cr.left-wr.left+lanes[h.lane]*sx)+"px";node.style.top=(cr.top-wr.top+h.y*sy)+"px";node.style.width=(38*sx)+"px";node.style.height=(38*sy)+"px";});animatedHazardNodes.forEach((node,h)=>{if(!active.has(h)){node.remove();animatedHazardNodes.delete(h);}});}
 function presetAsset(type,index){const v=CFG.selectedAssets?.[type];const i=typeof v==="string"&&v.startsWith("preset:")?Number(v.split(":")[1])||0:index||0;const list=type==="vehicle"?window.GAMEZAAR_PLAYER_CARS:type==="trafficCars"?window.GAMEZAAR_TRAFFIC_CARS:null;return list?.[i]?.src||null;}
 
 const GARAGE_DESIGNS=window.GAMEZAAR_GARAGE_CARS||[];
@@ -246,7 +247,7 @@ function drawCoin(x,y,now){
 }
 function drawRoadHazard(x,y,now){
  const custom=customAsset("roadHazards");
- if(custom?.complete&&custom.naturalWidth){ctx.drawImage(custom,x-19,y-19,38,38);return;}
+ if(custom?.complete&&custom.naturalWidth){const id=(CFG.selectedAssets?.roadHazards||"").slice(7);if(customImageTypes[id]==="image/gif")return;ctx.drawImage(custom,x-19,y-19,38,38);return;}
  const choice=CFG.selectedAssets?.roadHazards||"preset:0";
  const idx=choice.startsWith("preset:")?Math.max(0,Math.min(4,Number(choice.split(":")[1])||0)):0;
  ctx.save();ctx.translate(x,y);
@@ -275,6 +276,7 @@ function drawRoadHazard(x,y,now){
 function draw(){
  drawRoad();
  roadHazards.forEach(h=>drawRoadHazard(lanes[h.lane],h.y,performance.now()));
+  updateAnimatedHazards();
  traffic.forEach(v=>{const x=lanes[v.lane],y=v.y,upload=customAsset("trafficCars");const design=v.design||"preset:0";const idx=Math.max(0,Math.min(4,Number(String(design).split(":")[1])||0));const isTruck=idx===1;const drawW=isTruck?40:42;const drawH=isTruck?60:40;const individualUpload=customAsset("trafficCar"+idx)||upload;ctx.save();ctx.translate(x,y);ctx.rotate(Math.PI);if(individualUpload?.complete&&individualUpload.naturalWidth){ctx.drawImage(individualUpload,-drawW/2,-drawH/2,drawW,drawH);ctx.restore();return;}const car=window.GAMEZAAR_TRAFFIC_CARS?.[idx];if(car?.src){let img=presetImages[10+idx];if(!img){img=new Image();img.src=car.src;presetImages[10+idx]=img;}if(img.complete&&img.naturalWidth){ctx.drawImage(img,-drawW/2,-drawH/2,drawW,drawH);ctx.restore();return;}}ctx.restore();drawCar(x,y,["#ef343d","#f28b19","#18b94e","#ffbd18","#f4f6f8"][idx],false,Math.PI);});
  roadCoins.forEach(c=>drawCoin(lanes[c.lane],c.y,performance.now()));
  scorePopups=scorePopups.filter(p=>p.life>0);
@@ -282,7 +284,7 @@ function draw(){
  drawSelectedCar(playerX,500,selectedCar,30,45,playerTilt);
 }
 function speedForScore(s){return Number((1+Math.floor(s/100)*0.1).toFixed(1));}
-function reset(){survivalClock=0;playerLane=1;playerX=lanes[1];playerTilt=0;traffic=[];trafficSpawnIndex=0;roadCoins=[];roadHazards=[];hazardSpawn=0;nextHazardSpawn=720+Math.random()*240;scorePopups=[];coinSpawn=0;nextCoinSpawn=900+Math.random()*300;coinsThisRace=0;score=0;speed=1;spawn=0;crashing=false;last=performance.now();$("score").textContent="0000";$("speed").textContent="1.0x";if(raf)cancelAnimationFrame(raf);}
+function reset(){survivalClock=0;playerLane=1;playerX=lanes[1];playerTilt=0;traffic=[];trafficSpawnIndex=0;roadCoins=[];roadHazards=[];animatedHazardNodes.forEach(n=>n.remove());animatedHazardNodes.clear();hazardSpawn=0;nextHazardSpawn=720+Math.random()*240;scorePopups=[];coinSpawn=0;nextCoinSpawn=900+Math.random()*300;coinsThisRace=0;score=0;speed=1;spawn=0;crashing=false;last=performance.now();$("score").textContent="0000";$("speed").textContent="1.0x";if(raf)cancelAnimationFrame(raf);}
 function endGame(){
  if(crashing)return;
  running=false;crashing=true;crashStarted=performance.now();explosion={x:playerX,y:500};
