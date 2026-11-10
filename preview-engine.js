@@ -265,7 +265,7 @@ function drawExplosion(now){
 }
 function frame(now){
  const dt=Math.min((now-last)/16.67||1,2);last=now;
- world+=(running?1.8+speed*2.65:2.2)*dt;
+ world+=(running?1.8+speed*2.65:3.8)*dt;
  if(running){
   // Smoothly steer toward the selected lane and lean the car into the turn.
   const targetX=lanes[playerLane],previousX=playerX;
