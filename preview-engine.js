@@ -12,13 +12,22 @@ function loadCustomImages(){try{const req=indexedDB.open("gamezaar-custom-assets
 function customAsset(type){const v=CFG.selectedAssets?.[type];return typeof v==="string"&&v.startsWith("custom:")?customImages[v.slice(7)]:null;}
 function presetAsset(type,index){const v=CFG.selectedAssets?.[type];const i=typeof v==="string"&&v.startsWith("preset:")?Number(v.split(":")[1])||0:index||0;const list=type==="vehicle"?window.GAMEZAAR_PLAYER_CARS:type==="trafficCars"?window.GAMEZAAR_TRAFFIC_CARS:null;return list?.[i]?.src||null;}
 
-const CAR_LIST=(window.GAMEZAAR_GARAGE_CARS||[]).map((car,i)=>({id:["starter","ocean","venom","royal","sunfire","neon","blaze","phantom"][i],name:car.name,color:["#df454c","#238bd5","#73bd45","#8755d7","#ed9a28","#20b8ae","#ed5c9b","#d9e0e8"][i],accent:["#ffe0a1","#9df0ff","#e4ff9c","#e5c5ff","#fff0a1","#bafff3","#ffd0e4","#7c9ab8"][i],price:Math.max(0,Math.floor(Number(CFG.garagePrices?.[i]??[0,30,50,70,90,120,150,200][i])||0))}));
+const GARAGE_DESIGNS=window.GAMEZAAR_GARAGE_CARS||[];
+const PLAYER_VALUE=CFG.selectedAssets?.vehicle||"preset:0";
+const PLAYER_INDEX=typeof PLAYER_VALUE==="string"&&PLAYER_VALUE.startsWith("preset:")?Math.max(0,Math.min(4,Number(PLAYER_VALUE.split(":")[1])||0)):0;
+const PLAYER_NAME=CFG.assetOptions?.vehicle?.[PLAYER_INDEX]?.[1]||window.GAMEZAAR_PLAYER_CARS?.[PLAYER_INDEX]?.name||"Player Car";
+const CAR_LIST=[
+ {id:"player",name:PLAYER_NAME,color:"#df454c",accent:"#ffe0a1",type:"player",garageIndex:-1,price:0},
+ ...GARAGE_DESIGNS.map((car,i)=>({id:["garage-0","garage-1","garage-2","garage-3","garage-4","garage-5","garage-6","garage-7"][i],name:car.name,color:["#df454c","#238bd5","#73bd45","#8755d7","#ed9a28","#20b8ae","#ed5c9b","#d9e0e8"][i],accent:["#ffe0a1","#9df0ff","#e4ff9c","#e5c5ff","#fff0a1","#bafff3","#ffd0e4","#7c9ab8"][i],type:"garage",garageIndex:i,src:car.src,uploadId:(CFG.garageCars?.[i]||{}).uploadId||null,price:Math.max(0,Math.floor(Number(CFG.garagePrices?.[i]??[30,50,70,90,120,150,200,250][i])||0))}))
+];
 function readJSON(key,fallback){try{const v=JSON.parse(localStorage.getItem(key));return Array.isArray(v)?v:fallback;}catch(e){return fallback;}}
 let coins=Math.max(0,Number(localStorage.getItem(PREVIEW_KEYS.coins)||0));
-let unlocked=readJSON(PREVIEW_KEYS.unlocked,["starter"]).filter(id=>CAR_LIST.some(c=>c.id===id));
-if(!unlocked.includes("starter"))unlocked.unshift("starter");
-let selectedCarId=localStorage.getItem(PREVIEW_KEYS.selected)||"starter";
-if(!unlocked.includes(selectedCarId))selectedCarId="starter";
+const legacyIds=["starter","ocean","venom","royal","sunfire","neon","blaze","phantom"];
+let unlocked=readJSON(PREVIEW_KEYS.unlocked,["player"]).map(id=>id==="starter"?"garage-0":legacyIds.includes(id)?"garage-"+legacyIds.indexOf(id):id).filter(id=>CAR_LIST.some(c=>c.id===id));
+if(!unlocked.includes("player"))unlocked.unshift("player");
+let selectedCarId=localStorage.getItem(PREVIEW_KEYS.selected)||"player";
+selectedCarId=selectedCarId==="starter"?"garage-0":legacyIds.includes(selectedCarId)?"garage-"+legacyIds.indexOf(selectedCarId):selectedCarId;
+if(!unlocked.includes(selectedCarId))selectedCarId="player";
 let selectedCar=CAR_LIST.find(c=>c.id===selectedCarId)||CAR_LIST[0];
 let playerLane=1,playerX=lanes[1],playerTilt=0,traffic=[],score=0,best=Number(localStorage.getItem(PREVIEW_KEYS.best)||0);
 let speed=1,running=false,crashing=false,crashStarted=0,last=0,spawn=0,world=0,raf=0,audio=null,explosion={x:180,y:500};
@@ -37,7 +46,7 @@ function renderPreview(){
  const pc=$("carPreview"),pctx=pc.getContext("2d");pctx.clearRect(0,0,pc.width,pc.height);
  pctx.fillStyle="#2b3853";pctx.fillRect(0,0,pc.width,pc.height);
  pctx.fillStyle="#43516c";pctx.fillRect(20,15,140,120);
- const old=ctx;ctx=pctx;drawCar(90,75,selectedCar.color,true,0,selectedCar.accent);ctx=old;
+ const old=ctx;ctx=pctx;drawSelectedCar(90,75,selectedCar,56,94);ctx=old;
 }
 function renderGarage(){
  $("garageCoins").textContent=String(coins);
@@ -193,6 +202,20 @@ function drawCar(x,y,color,player=false,tilt=0,accent="#ffe0a1"){
  if(player){ctx.fillStyle=accent;ctx.fillRect(-3,-23,6,12);ctx.fillStyle="#fff0b0";ctx.fillRect(-2,-1,4,3);ctx.fillStyle=accent;ctx.fillRect(-2,16,4,2);}
  ctx.restore();
 }
+function selectedCarImage(car){
+ if(car.type==="player"){
+  const upload=customAsset("vehicle");if(upload?.complete&&upload.naturalWidth)return upload;
+  const src=presetAsset("vehicle",PLAYER_INDEX);if(!src)return null;
+  const key=PLAYER_INDEX;if(!presetImages[key]){presetImages[key]=new Image();presetImages[key].src=src;}return presetImages[key].complete&&presetImages[key].naturalWidth?presetImages[key]:null;
+ }
+ const upload=car.uploadId?customImages[car.uploadId]:null;if(upload?.complete&&upload.naturalWidth)return upload;
+ const key=20+car.garageIndex;if(!presetImages[key]){presetImages[key]=new Image();presetImages[key].src=car.src;}return presetImages[key].complete&&presetImages[key].naturalWidth?presetImages[key]:null;
+}
+function drawSelectedCar(x,y,car,width,height,tilt=0){
+ const img=selectedCarImage(car);
+ if(img){ctx.save();ctx.translate(x,y);ctx.rotate(tilt);ctx.drawImage(img,-width/2,-height/2,width,height);ctx.restore();}
+ else drawCar(x,y,car.color,true,tilt,car.accent);
+}
 function drawCoin(x,y,now){
  const custom=customAsset("coin");if(custom?.complete){ctx.drawImage(custom,x-12,y-12,24,24);return;}
  const pulse=1+Math.sin(now/115)*.09;
@@ -211,7 +234,7 @@ function draw(){
  roadCoins.forEach(c=>drawCoin(lanes[c.lane],c.y,performance.now()));
  scorePopups=scorePopups.filter(p=>p.life>0);
  scorePopups.forEach(p=>{ctx.save();ctx.globalAlpha=Math.min(1,p.life/18);ctx.font="bold 13px monospace";ctx.textAlign="center";ctx.fillStyle="#fff0a0";ctx.shadowColor="#ffb84d";ctx.shadowBlur=8;ctx.fillText("+"+(p.value??10),p.x,p.y);ctx.restore();p.y-=.65;p.life-=1;});
- drawCar(playerX,500,selectedCar.color,true,playerTilt,selectedCar.accent);const playerUpload=selectedCar.id==="starter"?customAsset("vehicle"):customImages[(CFG.garageCars?.[CAR_LIST.findIndex(c=>c.id===selectedCar.id)]||{}).uploadId];if(playerUpload?.complete){ctx.save();ctx.translate(playerX,500);ctx.rotate(playerTilt);ctx.drawImage(playerUpload,-22,-32,44,64);ctx.restore();}else{const src=presetAsset("vehicle",0);if(src&&selectedCar.id==="starter"){if(!presetImages[0]){presetImages[0]=new Image();presetImages[0].src=src;}if(presetImages[0].complete)ctx.drawImage(presetImages[0],playerX-22,468,44,64);}}
+ drawSelectedCar(playerX,500,selectedCar,44,64,playerTilt);
 }
 function speedForScore(s){return Number((1+Math.floor(s/100)*0.1).toFixed(1));}
 function reset(){survivalClock=0;playerLane=1;playerX=lanes[1];playerTilt=0;traffic=[];trafficSpawnIndex=0;roadCoins=[];scorePopups=[];coinSpawn=0;nextCoinSpawn=900+Math.random()*300;coinsThisRace=0;score=0;speed=1;spawn=0;crashing=false;last=performance.now();$("score").textContent="0000";$("speed").textContent="1.0x";if(raf)cancelAnimationFrame(raf);}
