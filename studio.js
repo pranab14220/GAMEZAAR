@@ -21,6 +21,7 @@ const imageTypes = [
  {id:"logo",title:"Game Logo",desc:"Artwork for your racing game's title",limit:"100 KB · 256 × 256 px max",maxKB:100,maxW:256,maxH:256,count:5,options:[["🏆","Champion"],["⚡","Turbo"],["🔥","Blaze"],["🏎️","Racer"],["🌟","Legend"]]}
 ];
 const garageUploadTypes=Array.from({length:8},(_,i)=>({id:"garageCar"+i,title:"Garage Car "+(i+1),desc:"Optional custom image for garage car "+(i+1),limit:"150 KB · 256 × 256 px max",maxKB:150,maxW:256,maxH:256,count:1,options:[]}));
+const trafficUploadTypes=Array.from({length:5},(_,i)=>({id:"trafficCar"+i,title:"Enemy Car "+(i+1),desc:"Replacement image for enemy traffic car "+(i+1),limit:"100 KB · 128 × 128 px max",maxKB:100,maxW:128,maxH:128,count:1,options:[]}));
 const defaultGaragePrices=[30,50,70,90,120,150,180,220];
 let garagePrices=[...defaultGaragePrices];
 let garageNames=(window.GAMEZAAR_GARAGE_CARS||[]).map(car=>car.name);
@@ -79,7 +80,7 @@ async function dbPut(record){const db=await openAssetDB();return new Promise((re
 async function dbDelete(id){const db=await openAssetDB();return new Promise((resolve,reject)=>{const tx=db.transaction(DB_STORE,"readwrite");tx.objectStore(DB_STORE).delete(id);tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);});}
 async function dbAll(){const db=await openAssetDB();return new Promise((resolve,reject)=>{const tx=db.transaction(DB_STORE,"readonly");const req=tx.objectStore(DB_STORE).getAll();req.onsuccess=()=>resolve(req.result||[]);req.onerror=()=>reject(req.error);});}
 function bytesLabel(bytes){return bytes<1024?bytes+" B":(bytes/1024).toFixed(bytes<10240?1:0)+" KB";}
-function allImageTypes(){return [...imageTypes,...garageUploadTypes,...backgroundTypes];}
+function allImageTypes(){return [...imageTypes,...garageUploadTypes,...trafficUploadTypes,...backgroundTypes];}
 function typeFor(id){return allImageTypes().find(x=>x.id===id);}
 function getAssets(id){return customAssets.filter(x=>x.type===id);}
 function totalBytes(){return customAssets.reduce((sum,x)=>sum+x.size,0);}
@@ -91,6 +92,7 @@ function showImageUploadError(typeId,message){
 }
 function escapeHTML(value){return String(value).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 function garageMarkup(){return `<section class="garage-studio-section"><div class="garage-studio-heading"><b>🏁 Garage Cars</b><small>8 stylish cars stay locked in the game Garage until players buy them with coins.</small></div><div class="garage-studio-grid">${(window.GAMEZAAR_GARAGE_CARS||[]).map((car,i)=>`<article class="garage-studio-car"><div class="garage-studio-art"><img src="${car.src}" alt="${escapeHTML(garageNames[i]||car.name)}"></div><label>Car name<input type="text" maxlength="24" data-garage-name="${i}" value="${escapeHTML(garageNames[i]||car.name)}" placeholder="Enter car name"></label><label>Price (coins)<input type="number" min="0" step="1" data-garage-price="${i}" value="${garagePrices[i]??defaultGaragePrices[i]}"></label><label class="garage-upload-label">＋ Upload car ${i+1}<input type="file" accept="image/png,image/jpeg,image/webp" data-upload="garageCar${i}"></label><small>150 KB max · optional</small><div class="uploaded-list" data-uploaded-list="garageCar${i}"></div></article>`).join("")}</div></section>`;}
+function trafficUploadMarkup(){return `<div class="garage-studio-section traffic-upload-section"><div class="garage-studio-heading"><b>🚘 Replace Enemy Cars</b><small>Har enemy car ka image alag upload karo. Upload sirf usi car ko replace karega; baaki enemy cars par asar nahi padega.</small></div><div class="garage-studio-grid">${(imageTypes.find(x=>x.id==="trafficCars")?.options||[]).map((option,i)=>`<article class="garage-studio-car"><div class="garage-studio-art"><img src="${window.GAMEZAAR_TRAFFIC_CARS?.[i]?.src||""}" alt="${escapeHTML(option[1])}"></div><strong>${escapeHTML(option[1])}</strong><label class="garage-upload-label">＋ Replace this car<input type="file" accept="image/png,image/jpeg,image/webp" data-upload="trafficCar${i}"></label><small>100 KB max · 128 × 128 px · optional</small><div class="uploaded-list" data-uploaded-list="trafficCar${i}"></div></article>`).join("")}</div></div>`;}
 function groupMarkup(type){
  const climateGroups=climateGroupsByType[type.id];
  const climateMarkup=climateGroups
@@ -101,8 +103,9 @@ function groupMarkup(type){
   <div class="asset-group-panel" hidden>
    <div class="asset-group-meta"><span>${type.limit}</span><span>${type.multi?"Choose up to 5 designs":climateGroups?"5 climate categories · 5 designs each":"5 styles + your upload"}</span></div>
    ${climateMarkup}
+   ${type.id==="trafficCars"?trafficUploadMarkup():""}
    ${type.id==="vehicle"?`<label class="player-car-name-editor">Selected player car name<input type="text" maxlength="24" data-player-car-name value="${escapeHTML(playerCarNames[Number((selectedAssets.vehicle||"preset:0").split(":")[1]||0)]||"Player Car")}" placeholder="Enter player car name"><small>Choose a car above, then edit its name here.</small></label>`:""}
-   <div class="asset-upload-row"><label class="asset-upload-button">＋ Upload your own<input type="file" accept="image/png,image/jpeg,image/webp" data-upload="${type.id}"></label><span class="asset-upload-note">1 upload maximum · ${type.maxKB} KB</span></div>
+   ${type.id==="trafficCars"?"":`<div class="asset-upload-row"><label class="asset-upload-button">＋ Upload your own<input type="file" accept="image/png,image/jpeg,image/webp" data-upload="${type.id}"></label><span class="asset-upload-note">1 upload maximum · ${type.maxKB} KB</span></div>`}
    <div class="uploaded-list" data-uploaded-list="${type.id}"></div>
   </div>
  </section>`;
