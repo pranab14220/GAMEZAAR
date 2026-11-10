@@ -28,7 +28,7 @@ let garageNames=(window.GAMEZAAR_GARAGE_CARS||[]).map(car=>car.name);
 const treeClimateTypes = [
  {id:"summer",title:"Summer",options:[["🌳","Mango Tree"],["🌴","Palm Tree"],["🌿","Neem Tree"],["🌳","Banyan Tree"],["🌼","Flowering Tree"]]},
  {id:"winter",title:"Winter",options:[["🌲","Pine Tree"],["🌲","Fir Tree"],["🌳","Birch Tree"],["🍂","Bare Winter Tree"],["🌲","Spruce Tree"]]},
- {id:"desert",title:"Desert",options:[["🌵","Saguaro Cactus"],["🌴","Date Palm"],["🌵","Barrel Cactus"],["🌿","Desert Shrub"],["🌳","Acacia Tree"]]},
+ {id:"desert",title:"Desert",options:[["🌵","Saguaro Cactus"],["🌴","Desert Palm"],["🌳","Acacia Tree"],["🌲","Joshua Tree"],["🌸","Pink Desert Flower Tree"]]},
  {id:"tropical",title:"Tropical",options:[["🌴","Coconut Palm"],["🌴","Banana Plant"],["🌳","Rainforest Tree"],["🌺","Hibiscus Tree"],["🌴","Tropical Fern"]]},
  {id:"autumn",title:"Autumn",options:[["🍁","Red Maple"],["🍂","Golden Birch"],["🍁","Orange Oak"],["🌳","Autumn Elm"],["🍂","Falling Leaves Tree"]]}
 ];

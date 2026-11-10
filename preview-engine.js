@@ -138,9 +138,16 @@ function drawBuilding(b){
 }
 const winterTreeSprite = new Image();
 winterTreeSprite.src = "assets/winter-tree-sprite.svg";
+const desertTreeSprite = new Image();
+desertTreeSprite.src = "assets/desert-tree-sprite.svg";
 function drawWinterTree(cx,baseY,index){
  if(!winterTreeSprite.complete||!winterTreeSprite.naturalWidth)return false;
  ctx.drawImage(winterTreeSprite,(index%5)*32,0,32,48,cx-15,baseY-44,30,45);
+ return true;
+}
+function drawDesertTree(cx,baseY,index){
+ if(!desertTreeSprite.complete||!desertTreeSprite.naturalWidth)return false;
+ ctx.drawImage(desertTreeSprite,(index%5)*128,0,128,128,cx-19,baseY-45,38,45);
  return true;
 }
 function drawSummerTree(cx,baseY,index){
@@ -191,6 +198,7 @@ function drawRoad(){
     const treeClimate=CFG.climateSelections?.bgTree||"summer";
     if(treeClimate==="summer"&&treeIndex<5)drawSummerTree(x+9,y+31,treeIndex);
     else if(treeClimate==="winter"&&treeIndex>=5&&treeIndex<10){if(!drawWinterTree(x+9,y+39,treeIndex-5)){ctx.fillStyle="#526b58";ctx.fillRect(x,y+5,18,22);ctx.fillStyle="#f3f6f4";ctx.fillRect(x+2,y+2,14,5);ctx.fillRect(x-1,y+11,20,4);}}
+    else if(treeClimate==="desert"&&treeIndex>=10&&treeIndex<15){if(!drawDesertTree(x+9,y+39,treeIndex-10)){ctx.fillStyle="#8a7544";ctx.fillRect(x+4,y+5,10,30);}}
     else{ctx.fillStyle="#294b3b";ctx.fillRect(x,y+5,18,22);ctx.fillRect(x+3,y,12,8);ctx.fillStyle="#689451";ctx.fillRect(x+4,y+5,5,5);ctx.fillRect(x+11,y+12,4,5);}
    }
    ctx.fillStyle="#59696a";ctx.fillRect(x+8,y+37,2,19);ctx.fillRect(x+8,y+37,12,2);
