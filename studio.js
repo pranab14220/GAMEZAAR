@@ -65,6 +65,7 @@ const soundTypes = [
 let saved = {};
 try { saved = JSON.parse(localStorage.getItem(settingsKey) || "{}"); } catch {}
 let selectedAssets = {bgBuilding:"preset:0",trafficCars:["preset:0","preset:1","preset:2","preset:3","preset:4"],...(saved.selectedAssets || {})};
+if(typeof selectedAssets.roadHazards==="string")selectedAssets.roadHazards=[selectedAssets.roadHazards];
 let playerCarNames=(window.GAMEZAAR_PLAYER_CARS||[]).map((car,i)=>String(saved.playerCarNames?.[i]||imageTypes.find(type=>type.id==="vehicle")?.options?.[i]?.[1]||car.name).slice(0,24));
 let selectedSounds = saved.selectedSounds || {};
 let soundEnabled = saved.soundEnabled || {};
