@@ -263,7 +263,7 @@ playablePreviewFrame.addEventListener("load",()=>{if(playablePreviewFrame.getAtt
 function openPlayablePreview(){
  playablePreviewModal.classList.add("open");
  playablePreviewModal.setAttribute("aria-hidden","false");
- if(playablePreviewFrame.getAttribute("src")==="about:blank")syncLivePreviewData();playablePreviewFrame.src="./preview.html?game="+encodeURIComponent(params.get("game")||"Car Racing")+"&v=13";
+ if(playablePreviewFrame.getAttribute("src")==="about:blank")syncLivePreviewData();playablePreviewFrame.src="./preview.html?game="+encodeURIComponent(params.get("game")||"Car Racing")+"&v=14";
  document.body.style.overflow="hidden";
  closePlayablePreview.focus();
 }
