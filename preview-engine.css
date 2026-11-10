@@ -149,3 +149,21 @@ html,body{width:100%;height:100%;min-height:100dvh;margin:0;overflow:hidden;back
  .game-overlay #garageList .garage-car{height:70px!important;min-height:70px!important}
  .game-overlay #startBtn{height:38px!important;min-height:38px!important}
 }
+
+/* Force compact garage layout after the preview iframe refreshes. */
+.game-overlay .garage-card{display:flex!important;flex-direction:column!important;align-items:stretch!important;justify-content:flex-start!important;width:min(88%,440px)!important;max-width:440px!important;max-height:78%!important;height:auto!important;overflow:hidden!important;padding:9px 10px!important;gap:4px!important;box-sizing:border-box!important}
+.game-overlay .garage-top{flex:0 0 auto!important}
+.game-overlay .garage-card h2{flex:0 0 auto!important;font-size:clamp(18px,4.4vw,24px)!important;margin:2px 0!important}
+.game-overlay .garage-card>p{flex:0 0 auto!important;margin:0!important;font-size:clamp(10px,2.3vw,12px)!important;line-height:1.2!important}
+.game-overlay .garage-showcase{display:flex!important;flex:0 0 105px!important;height:105px!important;min-height:105px!important;max-height:105px!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:2px!important;padding:0!important;overflow:hidden!important}
+.game-overlay .showcase-bracket{width:116px!important;height:78px!important;min-height:78px!important;max-height:78px!important;flex:0 0 78px!important;aspect-ratio:auto!important;margin:0 auto!important}
+.game-overlay .showcase-bracket canvas,.game-overlay #carPreview{width:116px!important;height:78px!important;max-width:116px!important;max-height:78px!important;object-fit:contain!important}
+.game-overlay .showcase-name{display:flex!important;visibility:visible!important;opacity:1!important;position:static!important;flex:0 0 23px!important;height:23px!important;min-height:23px!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:0!important}
+.game-overlay .showcase-name strong{font-size:11px!important;line-height:12px!important}.game-overlay .showcase-name span{font-size:8px!important;line-height:9px!important}
+.game-overlay .garage-list-wrap{display:block!important;visibility:visible!important;flex:0 0 82px!important;height:82px!important;min-height:82px!important;max-height:82px!important;overflow:hidden!important}
+.game-overlay #garageList{display:flex!important;visibility:visible!important;flex-wrap:nowrap!important;width:100%!important;height:78px!important;min-height:78px!important;overflow-x:auto!important;overflow-y:hidden!important;gap:5px!important;padding:3px 2px 5px!important}
+.game-overlay #garageList .garage-car{display:flex!important;visibility:visible!important;opacity:1!important;flex:0 0 70px!important;width:70px!important;min-width:70px!important;height:68px!important;min-height:68px!important;padding:3px 2px!important}
+.game-overlay #garageList .garage-car .car-swatch{width:20px!important;height:29px!important}.game-overlay #garageList .garage-car strong,.game-overlay #garageList .garage-car small{font-size:8px!important}
+.game-overlay .garage-message{display:block!important;flex:0 0 13px!important;min-height:13px!important;margin:0!important;font-size:8px!important}
+.game-overlay #startBtn{display:block!important;flex:0 0 38px!important;width:100%!important;height:38px!important;min-height:38px!important;margin:0!important;padding:5px!important}
+@media(max-height:620px){.game-overlay .garage-card{max-height:74%!important;padding:7px!important;gap:3px!important}.game-overlay .garage-showcase{flex-basis:88px!important;height:88px!important;min-height:88px!important;max-height:88px!important}.game-overlay .showcase-bracket,.game-overlay .showcase-bracket canvas,.game-overlay #carPreview{height:64px!important;min-height:64px!important;max-height:64px!important}.game-overlay .showcase-bracket{flex-basis:64px!important}.game-overlay .garage-list-wrap{flex-basis:72px!important;height:72px!important;min-height:72px!important;max-height:72px!important}.game-overlay #garageList{height:68px!important;min-height:68px!important}.game-overlay #garageList .garage-car{height:62px!important;min-height:62px!important}.game-overlay #startBtn{flex-basis:34px!important;height:34px!important;min-height:34px!important}}
