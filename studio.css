@@ -106,3 +106,8 @@
 .playable-preview-header h2{font-size:.82rem;margin:0;line-height:1.2}
 .playable-preview-note{display:none}
 @media(max-width:430px){.playable-preview-header{min-height:34px;padding:5px 9px}.playable-preview-header h2{font-size:.78rem}}
+
+/* Editable garage car names */
+.garage-studio-car>label{display:grid;gap:4px;font-size:.64rem;color:#aeb8ce}
+.garage-studio-car input[data-garage-name]{width:100%;min-width:0;box-sizing:border-box;background:#272f49;border:1px solid #52607e;border-radius:7px;padding:7px;color:#fff;font:inherit;font-size:.72rem}
+.garage-studio-car input[data-garage-name]:focus{outline:2px solid #ff9b54;border-color:#ffbd8c}
