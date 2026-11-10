@@ -275,16 +275,27 @@ function frame(now){
   if(Math.abs(targetX-playerX)<.45){playerX=targetX;playerTilt*=.75;}
   survivalClock+=dt;if(survivalClock>=60){const seconds=Math.floor(survivalClock/60);survivalClock-=seconds*60;if(SCORE_RULES.survival?.enabled!==false)score+=seconds*Math.max(0,Math.floor(Number(SCORE_RULES.survival?.points)||0));$("score").textContent=String(score).padStart(4,"0");}
   spawn+=dt;
-  // Spawn traffic one car at a time. Wait until the previous car has moved
-  // well down the road before allowing another, keeping a clear vertical gap
-  // and preventing cars from appearing side-by-side across different lanes.
+  // Spawn traffic in readable waves: mostly pairs in two lanes, sometimes
+  // a single car. A pair always leaves one complete lane open and is staggered
+  // vertically so the player has time to choose and move through the gap.
   const selectedTrafficDesigns=Array.isArray(CFG.selectedAssets?.trafficCars)?CFG.selectedAssets.trafficCars.filter(x=>typeof x==="string"&&/^preset:[0-4]$/.test(x)):[];
   const trafficSpawnInterval=8;
-  if(spawn>trafficSpawnInterval&&!traffic.some(v=>v.y<260)){
+  if(spawn>trafficSpawnInterval&&!traffic.some(v=>v.y<115)){
    spawn=0;
-   const lane=Math.floor(Math.random()*3);
-   const design=selectedTrafficDesigns.length?selectedTrafficDesigns[trafficSpawnIndex++%selectedTrafficDesigns.length]:"preset:0";
-   traffic.push({lane,y:-58,design,passed:false});
+   const makeCar=(lane,y)=>{
+    const design=selectedTrafficDesigns.length?selectedTrafficDesigns[trafficSpawnIndex++%selectedTrafficDesigns.length]:"preset:0";
+    traffic.push({lane,y,design,passed:false});
+   };
+   if(Math.random()<0.68){
+    const openLane=Math.floor(Math.random()*3);
+    const blockedLanes=[0,1,2].filter(lane=>lane!==openLane);
+    if(Math.random()<0.5)blockedLanes.reverse();
+    const stagger=78+Math.random()*24;
+    makeCar(blockedLanes[0],-58);
+    makeCar(blockedLanes[1],-58-stagger);
+   }else{
+    makeCar(Math.floor(Math.random()*3),-58);
+   }
   }
   traffic.forEach(v=>{v.y+=(1.7+speed*2.45)*dt;if(!v.passed&&v.y>535){v.passed=true;if(SCORE_RULES.overtake?.enabled!==false)score+=Math.max(0,Math.floor(Number(SCORE_RULES.overtake?.points)||0));scorePopups.push({x:lanes[v.lane],y:510,life:34,value:Math.max(0,Math.floor(Number(SCORE_RULES.overtake?.points)||0))});$("score").textContent=String(score).padStart(4,"0");}});
   // A road coin appears roughly every 15–20 seconds: only touching it adds to the wallet.
