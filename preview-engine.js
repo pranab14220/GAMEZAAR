@@ -46,7 +46,7 @@ function renderPreview(){
  const pc=$("carPreview"),pctx=pc.getContext("2d");pctx.clearRect(0,0,pc.width,pc.height);
  pctx.fillStyle="#2b3853";pctx.fillRect(0,0,pc.width,pc.height);
  pctx.fillStyle="#43516c";pctx.fillRect(20,15,140,120);
- const old=ctx;ctx=pctx;drawSelectedCar(90,75,selectedCar,56,94);ctx=old;
+ const old=ctx;ctx=pctx;drawSelectedCar(90,75,selectedCar,54,91);ctx=old;
 }
 function renderGarage(){
  $("garageCoins").textContent=String(coins);
@@ -234,7 +234,7 @@ function draw(){
  roadCoins.forEach(c=>drawCoin(lanes[c.lane],c.y,performance.now()));
  scorePopups=scorePopups.filter(p=>p.life>0);
  scorePopups.forEach(p=>{ctx.save();ctx.globalAlpha=Math.min(1,p.life/18);ctx.font="bold 13px monospace";ctx.textAlign="center";ctx.fillStyle="#fff0a0";ctx.shadowColor="#ffb84d";ctx.shadowBlur=8;ctx.fillText("+"+(p.value??10),p.x,p.y);ctx.restore();p.y-=.65;p.life-=1;});
- drawSelectedCar(playerX,500,selectedCar,44,64,playerTilt);
+ drawSelectedCar(playerX,500,selectedCar,42,61,playerTilt);
 }
 function speedForScore(s){return Number((1+Math.floor(s/100)*0.1).toFixed(1));}
 function reset(){survivalClock=0;playerLane=1;playerX=lanes[1];playerTilt=0;traffic=[];trafficSpawnIndex=0;roadCoins=[];scorePopups=[];coinSpawn=0;nextCoinSpawn=900+Math.random()*300;coinsThisRace=0;score=0;speed=1;spawn=0;crashing=false;last=performance.now();$("score").textContent="0000";$("speed").textContent="1.0x";if(raf)cancelAnimationFrame(raf);}
