@@ -215,16 +215,19 @@ function drawSelectedCar(x,y,car,width,height,tilt=0){
  const img=selectedCarImage(car);
  if(img){
   ctx.save();ctx.translate(x,y);ctx.rotate(tilt);
+  // Normalize every preset car to the same visible body dimensions as Blue Flame.
+  // Player SVG body bounds: 154x252 in a 256x256 viewBox.
+  // Garage SVG body bounds: 96x123 in a 128x128 viewBox.
+  let bodyWidth=img.naturalWidth,bodyHeight=img.naturalHeight,sourceWidth=img.naturalWidth,sourceHeight=img.naturalHeight;
   if(car.type==="player"&&img.src.startsWith("data:image/svg+xml")){
-   // The player-car SVG has transparent side margins; scale the full SVG using the visible body bounds.
-   // Never crop the source image, so the nose, wheels and rear of the car all remain visible.
-   const bodyWidth=154,bodyHeight=252,scale=Math.min(width/bodyWidth,height/bodyHeight);
-   const drawSize=256*scale;
-   ctx.drawImage(img,-drawSize/2,-drawSize/2,drawSize,drawSize);
-  }else{
-   const scale=Math.min(width/img.naturalWidth,height/img.naturalHeight),dw=img.naturalWidth*scale,dh=img.naturalHeight*scale;
-   ctx.drawImage(img,-dw/2,-dh/2,dw,dh);
+   bodyWidth=154;bodyHeight=252;sourceWidth=256;sourceHeight=256;
+  }else if(car.type==="garage"&&img.src.startsWith("data:image/svg+xml")){
+   bodyWidth=96;bodyHeight=123;sourceWidth=128;sourceHeight=128;
   }
+  const referenceScale=Math.min(width/(car.type==="player"?154:154),height/252);
+  const targetBodyWidth=154*referenceScale,targetBodyHeight=252*referenceScale;
+  const dw=sourceWidth*(targetBodyWidth/bodyWidth),dh=sourceHeight*(targetBodyHeight/bodyHeight);
+  ctx.drawImage(img,-dw/2,-dh/2,dw,dh);
   ctx.restore();
  }else drawCar(x,y,car.color,true,tilt,car.accent);
 }
