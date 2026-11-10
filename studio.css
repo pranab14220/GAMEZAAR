@@ -117,3 +117,8 @@
 .player-car-name-editor input{width:100%;box-sizing:border-box;background:#171b2e;border:1px solid #52607e;border-radius:10px;color:#fff;padding:11px 12px;font:inherit;min-height:44px}
 .player-car-name-editor input:focus{outline:2px solid #ff9b54;border-color:#ffbd8c}
 .player-car-name-editor small{font-size:.72rem;color:#aeb8ce;font-weight:500}
+
+/* Match traffic vehicle thumbnails to Player Car proportions; cargo truck gets +2px height. */
+.traffic-car-option-image{display:block!important;width:100%!important;height:48px!important;max-height:48px!important;object-fit:contain!important;object-position:center!important;margin:0 auto 2px!important}
+.asset-option[data-type="trafficCars"][data-option="1"] .traffic-car-option-image{height:50px!important;max-height:50px!important}
+@media(max-width:430px){.traffic-car-option-image{height:48px!important;max-height:48px!important}.asset-option[data-type="trafficCars"][data-option="1"] .traffic-car-option-image{height:50px!important;max-height:50px!important}}
