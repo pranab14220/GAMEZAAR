@@ -15,12 +15,13 @@ const MAX_TOTAL = 2 * 1024 * 1024;
 const imageTypes = [
  {id:"vehicle",title:"Player Car",desc:"Choose one of the five custom top-down cars from your example racing game",limit:"150 KB · 256 × 256 px max",maxKB:150,maxW:256,maxH:256,count:5,options:[["🔴","Red Racing"],["🔵","Blue Flame"],["🟡","Yellow Checker"],["🟢","Green Arrow"],["⚪","White Blue Stripe"]]},
  {id:"trafficCars",title:"Traffic Cars",desc:"Choose the vehicles approaching from the opposite direction (select up to all 5)",limit:"100 KB · 128 × 128 px max",maxKB:100,maxW:128,maxH:128,count:5,multi:true,options:[["🚗","Red Sedan"],["🚚","Cargo Truck"],["🏎️","Green Sports"],["🚌","Yellow Bus"],["🚑","Ambulance"]]},
- {id:"roadHazards",title:"Road Hazards",desc:"Choose hazards the player must avoid while driving",limit:"100 KB · 128 × 128 px max",maxKB:100,maxW:128,maxH:128,count:5,options:[["🕳️","Pothole"],["🛢️","Oil Spill"],["🪵","Fallen Tree Branch"],["🪨","Rock Debris"],["🔥","Burning Tyre"]]},
+ {id:"roadHazards",title:"Road Hazards",desc:"Select multiple hazards; upload a separate image or animated GIF for each hazard type",limit:"100 KB · 128 × 128 px max per hazard",maxKB:100,maxW:128,maxH:128,count:5,multi:true,options:[["🕳️","Pothole"],["🛢️","Oil Spill"],["🪵","Fallen Tree Branch"],["🪨","Rock Debris"],["🔥","Burning Tyre"]]},
  {id:"coin",title:"Coins & Collectibles",desc:"Objects the player can collect on the road",limit:"50 KB · 64 × 64 px max",maxKB:50,maxW:64,maxH:64,count:5,options:[["🪙","Gold Coin"],["💎","Gem"],["⭐","Star"],["💰","Bonus"],["🏅","Medal"]]},
  {id:"logo",title:"Game Logo",desc:"Artwork for your racing game's title",limit:"100 KB · 256 × 256 px max",maxKB:100,maxW:256,maxH:256,count:5,options:[["🏆","Champion"],["⚡","Turbo"],["🔥","Blaze"],["🏎️","Racer"],["🌟","Legend"]]}
 ];
 const garageUploadTypes=Array.from({length:8},(_,i)=>({id:"garageCar"+i,title:"Garage Car "+(i+1),desc:"Optional custom image for garage car "+(i+1),limit:"150 KB · 256 × 256 px max",maxKB:150,maxW:256,maxH:256,count:1,options:[]}));
 const trafficUploadTypes=Array.from({length:5},(_,i)=>({id:"trafficCar"+i,title:"Enemy Car "+(i+1),desc:"Replacement image for enemy traffic car "+(i+1),limit:"100 KB · 128 × 128 px max",maxKB:100,maxW:128,maxH:128,count:1,options:[]}));
+const roadHazardUploadTypes=Array.from({length:5},(_,i)=>({id:"roadHazard"+i,title:"Road Hazard "+(i+1),desc:"Custom image for "+imageTypes.find(x=>x.id==="roadHazards").options[i][1],limit:"100 KB · 128 × 128 px max",maxKB:100,maxW:128,maxH:128,count:1,options:[]}));
 const defaultGaragePrices=[30,50,70,90,120,150,180,220];
 let garagePrices=[...defaultGaragePrices];
 let garageNames=(window.GAMEZAAR_GARAGE_CARS||[]).map(car=>car.name);
@@ -79,7 +80,7 @@ async function dbPut(record){const db=await openAssetDB();return new Promise((re
 async function dbDelete(id){const db=await openAssetDB();return new Promise((resolve,reject)=>{const tx=db.transaction(DB_STORE,"readwrite");tx.objectStore(DB_STORE).delete(id);tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);});}
 async function dbAll(){const db=await openAssetDB();return new Promise((resolve,reject)=>{const tx=db.transaction(DB_STORE,"readonly");const req=tx.objectStore(DB_STORE).getAll();req.onsuccess=()=>resolve(req.result||[]);req.onerror=()=>reject(req.error);});}
 function bytesLabel(bytes){return bytes<1024?bytes+" B":(bytes/1024).toFixed(bytes<10240?1:0)+" KB";}
-function allImageTypes(){return [...imageTypes,...garageUploadTypes,...trafficUploadTypes,...backgroundTypes];}
+function allImageTypes(){return [...imageTypes,...garageUploadTypes,...trafficUploadTypes,...roadHazardUploadTypes,...backgroundTypes];}
 function typeFor(id){return allImageTypes().find(x=>x.id===id);}
 function getAssets(id){return customAssets.filter(x=>x.type===id);}
 function totalBytes(){return customAssets.reduce((sum,x)=>sum+x.size,0);}
@@ -91,6 +92,7 @@ function showImageUploadError(typeId,message){
 }
 function escapeHTML(value){return String(value).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 function garageMarkup(){return `<section class="garage-studio-section"><div class="garage-studio-heading"><b>🏁 Garage Cars</b><small>8 stylish cars stay locked in the game Garage until players buy them with coins.</small></div><div class="garage-studio-grid">${(window.GAMEZAAR_GARAGE_CARS||[]).map((car,i)=>`<article class="garage-studio-car"><div class="garage-studio-art"><img src="${car.src}" alt="${escapeHTML(garageNames[i]||car.name)}"></div><label>Car name<input type="text" maxlength="24" data-garage-name="${i}" value="${escapeHTML(garageNames[i]||car.name)}" placeholder="Enter car name"></label><label>Price (coins)<input type="number" min="0" step="1" data-garage-price="${i}" value="${garagePrices[i]??defaultGaragePrices[i]}"></label><label class="garage-upload-label">＋ Upload car ${i+1}<input type="file" accept="image/png,image/jpeg,image/webp" data-upload="garageCar${i}"></label><small>150 KB max · optional</small><div class="uploaded-list" data-uploaded-list="garageCar${i}"></div></article>`).join("")}</div></section>`;}
+function roadHazardUploadMarkup(){return `<div class="garage-studio-section hazard-upload-section"><div class="garage-studio-heading"><b>🛣️ Custom Hazard Images</b><small>Har hazard type ke liye alag image ya animated GIF upload karo. Upload karte hi woh hazard selection mein add ho jayega.</small></div><div class="garage-studio-grid">${roadHazardUploadTypes.map((type,i)=>`<article class="garage-studio-car"><div class="garage-studio-art"><span class="asset-glyph">${imageTypes.find(x=>x.id==="roadHazards").options[i][0]}</span></div><strong>${escapeHTML(imageTypes.find(x=>x.id==="roadHazards").options[i][1])}</strong><label class="garage-upload-label">＋ Upload this hazard<input type="file" accept="image/png,image/jpeg,image/webp,image/gif" data-upload="${type.id}"></label><small>100 KB max · 128 × 128 px · GIF allowed</small><div class="uploaded-list" data-uploaded-list="${type.id}"></div></article>`).join("")}</div></div>`;}
 function trafficUploadMarkup(){return `<div class="garage-studio-section traffic-upload-section"><div class="garage-studio-heading"><b>🚘 Replace Enemy Cars</b><small>Har enemy car ka image alag upload karo. Upload sirf usi car ko replace karega; baaki enemy cars par asar nahi padega.</small></div><div class="garage-studio-grid">${(imageTypes.find(x=>x.id==="trafficCars")?.options||[]).map((option,i)=>`<article class="garage-studio-car"><div class="garage-studio-art"><img src="${window.GAMEZAAR_TRAFFIC_CARS?.[i]?.src||""}" alt="${escapeHTML(option[1])}"></div><strong>${escapeHTML(option[1])}</strong><label class="garage-upload-label">＋ Replace this car<input type="file" accept="image/png,image/jpeg,image/webp" data-upload="trafficCar${i}"></label><small>100 KB max · 128 × 128 px · optional</small><div class="uploaded-list" data-uploaded-list="trafficCar${i}"></div></article>`).join("")}</div></div>`;}
 function groupMarkup(type){
  const climateGroups=climateGroupsByType[type.id];
@@ -102,9 +104,9 @@ function groupMarkup(type){
   <div class="asset-group-panel" hidden>
    <div class="asset-group-meta"><span>${type.limit}</span><span>${type.multi?"Choose up to 5 designs":climateGroups?"5 climate categories · 5 designs each":"5 styles + your upload"}</span></div>
    ${climateMarkup}
-   ${type.id==="trafficCars"?trafficUploadMarkup():""}
+   ${type.id==="trafficCars"?trafficUploadMarkup():type.id==="roadHazards"?roadHazardUploadMarkup():""}
    ${type.id==="vehicle"?`<label class="player-car-name-editor">Selected player car name<input type="text" maxlength="24" data-player-car-name value="${escapeHTML(playerCarNames[Number((selectedAssets.vehicle||"preset:0").split(":")[1]||0)]||"Player Car")}" placeholder="Enter player car name"><small>Choose a car above, then edit its name here.</small></label>`:""}
-   ${type.id==="trafficCars"?"":`<div class="asset-upload-row"><label class="asset-upload-button">＋ Upload your own<input type="file" accept="${type.id==="roadHazards"?"image/png,image/jpeg,image/webp,image/gif":"image/png,image/jpeg,image/webp"}" data-upload="${type.id}"></label><span class="asset-upload-note">1 upload maximum · ${type.maxKB} KB</span></div>`}
+   ${type.id==="trafficCars"||type.id==="roadHazards"?"":`<div class="asset-upload-row"><label class="asset-upload-button">＋ Upload your own<input type="file" accept="${type.id==="roadHazards"?"image/png,image/jpeg,image/webp,image/gif":"image/png,image/jpeg,image/webp"}" data-upload="${type.id}"></label><span class="asset-upload-note">1 upload maximum · ${type.maxKB} KB</span></div>`}
    <div class="uploaded-list" data-uploaded-list="${type.id}"></div>
   </div>
  </section>`;
@@ -144,7 +146,7 @@ async function handleImageUploads(typeId,files,input){
  const type=typeFor(typeId),file=files[0];
  if(!file){input.value="";return;}
  if(getAssets(typeId).length>=1){showImageUploadError(typeId,"A design is already uploaded for "+type.title+". Tap × on its preview and confirm delete before uploading another.");input.value="";return;}
- const isGif=typeId==="roadHazards"&&(file.type==="image/gif"||/\.gif$/i.test(file.name));if(!["image/png","image/jpeg","image/webp"].includes(file.type)&&!isGif){showImageUploadError(typeId,typeId==="roadHazards"?"Sirf PNG, JPG, WebP ya animated GIF upload karo.":"Sirf PNG, JPG ya WebP image select karo.");input.value="";return;}
+ const isRoadHazardUpload=typeId==="roadHazards"||typeId.startsWith("roadHazard");const isGif=isRoadHazardUpload&&(file.type==="image/gif"||/\.gif$/i.test(file.name));if(!["image/png","image/jpeg","image/webp"].includes(file.type)&&!isGif){showImageUploadError(typeId,typeId==="roadHazards"?"Sirf PNG, JPG, WebP ya animated GIF upload karo.":"Sirf PNG, JPG ya WebP image select karo.");input.value="";return;}
  if(file.size>type.maxKB*1024){showImageUploadError(typeId,"Upload nahi ho sakta: "+file.name+" file bahut badi hai. "+type.title+" ke liye maximum size "+type.maxKB+" KB hai.");input.value="";return;}
  if(totalBytes()+file.size>MAX_TOTAL){showImageUploadError(typeId,"Upload nahi ho sakta: sabhi custom uploads ka total limit 2 MB hai. Pehle koi purani file delete karo.");input.value="";return;}
  const dimensions=await readDimensions(file);if(!dimensions){showImageUploadError(typeId,"Upload nahi ho sakta: "+file.name+" image open nahi ho pa rahi.");input.value="";return;}
@@ -152,7 +154,7 @@ async function handleImageUploads(typeId,files,input){
  if(typeId==="bgRoad"||typeId==="bgLand"){valid=dimensions.width<=1280&&dimensions.height<=720;}
  if(!valid){showImageUploadError(typeId,"Upload nahi ho sakta: "+file.name+" ka image size "+type.title+" ke allowed dimensions se bada hai.");input.value="";return;}
  const id=typeId+"-"+Date.now()+"-"+Math.random().toString(36).slice(2,7),record={id,type:typeId,kind:"image",name:file.name,size:file.size,width:dimensions.width,height:dimensions.height,blob:file};
- try{await dbPut(record);customAssets.push(record);selectedAssets[typeId]="custom:"+id;render();setStatus("Image uploaded. Its preview is shown directly below the Upload button.");document.querySelector('[data-uploaded-list="'+typeId+'"]')?.scrollIntoView({behavior:"smooth",block:"nearest"});}
+ try{await dbPut(record);customAssets.push(record);if(typeId.startsWith("roadHazard")){const chosen=Array.isArray(selectedAssets.roadHazards)?selectedAssets.roadHazards:[];selectedAssets.roadHazards=chosen.includes("custom:"+id)?chosen:[...chosen,"custom:"+id];}else selectedAssets[typeId]="custom:"+id;render();setStatus("Image uploaded. Its preview is shown directly below the Upload button.");document.querySelector('[data-uploaded-list="'+typeId+'"]')?.scrollIntoView({behavior:"smooth",block:"nearest"});}
  catch{setStatus("Could not save this image in browser storage.");}
  input.value="";
 }
@@ -176,11 +178,11 @@ async function removeAsset(id){
  try{await dbDelete(id);}catch{}
  customAssets=customAssets.filter(x=>x.id!==id);
  if(item.kind==="audio"){if(selectedSounds[item.type]==="custom:"+id)delete selectedSounds[item.type];}
- else if(selectedAssets[item.type]==="custom:"+id)delete selectedAssets[item.type];
+ else if(item.type.startsWith("roadHazard")){selectedAssets.roadHazards=(Array.isArray(selectedAssets.roadHazards)?selectedAssets.roadHazards:[]).filter(value=>value!=="custom:"+id);}else if(selectedAssets[item.type]==="custom:"+id)delete selectedAssets[item.type];
  const url=objectUrls.get(id);if(url)URL.revokeObjectURL(url);objectUrls.delete(id);render();setStatus("Custom upload removed.");
 }
 function assetLabel(typeId){
- const value=selectedAssets[typeId]||"preset:0";if(value.startsWith("custom:"))return customAssets.find(x=>x.id===value.slice(7))?.name||"Your upload";
+ const value=selectedAssets[typeId]||"preset:0";if(Array.isArray(value))return value.map(v=>v.startsWith("custom:")?customAssets.find(x=>x.id===v.slice(7))?.name||"Upload":imageTypes.find(t=>t.id===typeId)?.options[Number(v.split(":")[1])]?.[1]).filter(Boolean).join(", ")||"None selected";if(value.startsWith("custom:"))return customAssets.find(x=>x.id===value.slice(7))?.name||"Your upload";
  const type=typeFor(typeId),index=Number(value.split(":")[1]||0);return type.options[index]?.[1]||type.options[0][1];
 }
 function soundLabel(typeId){
@@ -211,7 +213,7 @@ function render(){
   optionsBox.innerHTML=climate.options.map((option,index)=>`<button type="button" class="asset-option" data-type="${typeId}" data-option="${offset+index}" aria-pressed="false"><span class="asset-glyph">${option[0]}</span><small>${option[1]}</small></button>`).join("");
  });
  document.querySelectorAll(".tree-climate-tab").forEach(button=>{const active=button.dataset.climate===selectedClimateByGroup[button.dataset.climateGroup];button.classList.toggle("active",active);button.setAttribute("aria-pressed",String(active));});
- document.querySelectorAll(".asset-option").forEach(button=>{const type=typeFor(button.dataset.type);const current=selectedAssets[button.dataset.type]||(type?.multi?[]:"preset:0");const active=type?.multi?current.includes("preset:"+button.dataset.option):current==="preset:"+button.dataset.option;button.classList.toggle("active",active);button.classList.toggle("multi-selected",!!type?.multi&&active);button.setAttribute("aria-pressed",String(active));});
+ document.querySelectorAll(".asset-option").forEach(button=>{const type=typeFor(button.dataset.type);const current=selectedAssets[button.dataset.type]||(type?.multi?[]:"preset:0");const active=type?.multi?(Array.isArray(current)?current:[]).includes("preset:"+button.dataset.option):current==="preset:"+button.dataset.option;button.classList.toggle("active",active);button.classList.toggle("multi-selected",!!type?.multi&&active);button.setAttribute("aria-pressed",String(active));});
  allImageTypes().forEach(type=>{
   const list=document.querySelector('[data-uploaded-list="'+type.id+'"]');if(!list)return;
   const uploads=getAssets(type.id);
