@@ -136,6 +136,32 @@ function drawBuilding(b){
  ctx.fillStyle="#f4c06e";ctx.fillRect(x+20,y+h-14,17,9);
  ctx.fillStyle="#fff0ae";ctx.fillRect(x+22,y+h-12,3,3);
 }
+function drawSummerTree(cx,baseY,index){
+ ctx.save();ctx.translate(cx,baseY);
+ // warm summer trunk and five distinct leafy silhouettes
+ ctx.fillStyle="#765039";ctx.beginPath();ctx.moveTo(-2,0);ctx.lineTo(-1,-18);ctx.lineTo(2,-23);ctx.lineTo(4,-18);ctx.lineTo(3,0);ctx.closePath();ctx.fill();
+ ctx.strokeStyle="#a77a4d";ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(1,-9);ctx.lineTo(-5,-17);ctx.moveTo(2,-14);ctx.lineTo(7,-21);ctx.stroke();
+ if(index===0){ // Mango: broad rounded canopy with small mangoes
+  ctx.fillStyle="#286b3e";ctx.beginPath();ctx.arc(-7,-24,10,0,Math.PI*2);ctx.arc(3,-29,12,0,Math.PI*2);ctx.arc(12,-22,9,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle="#4b9a45";ctx.beginPath();ctx.arc(-5,-28,7,0,Math.PI*2);ctx.arc(7,-31,7,0,Math.PI*2);ctx.arc(12,-22,5,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle="#e9ad36";ctx.beginPath();ctx.ellipse(-10,-19,2,3,-.35,0,Math.PI*2);ctx.ellipse(8,-18,2,3,.3,0,Math.PI*2);ctx.fill();
+ }else if(index===1){ // Palm: tall curved stem and arching fronds
+  ctx.fillStyle="#8b603a";ctx.beginPath();ctx.moveTo(-1,0);ctx.quadraticCurveTo(2,-18,0,-30);ctx.lineTo(3,-31);ctx.quadraticCurveTo(7,-16,3,0);ctx.fill();
+  for(let k=0;k<7;k++){const ang=(-Math.PI*.95)+(k*Math.PI*1.9/6);ctx.strokeStyle=k%2?"#347d43":"#4c9b4b";ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(2,-30);ctx.quadraticCurveTo(2+Math.cos(ang)*9,-34+Math.sin(ang)*4,2+Math.cos(ang)*18,-29+Math.sin(ang)*12);ctx.stroke();ctx.strokeStyle="#9ac65d";ctx.lineWidth=.8;ctx.beginPath();ctx.moveTo(2,-30);ctx.lineTo(2+Math.cos(ang)*17,-29+Math.sin(ang)*12);ctx.stroke();}
+  ctx.fillStyle="#e8a64a";ctx.beginPath();ctx.arc(0,-29,2.3,0,Math.PI*2);ctx.arc(4,-28,2,0,Math.PI*2);ctx.fill();
+ }else if(index===2){ // Neem: airy layered leaf clusters
+  for(const [x,y,r] of [[-8,-23,8],[1,-29,9],[10,-22,8],[0,-19,7]]){ctx.fillStyle="#246b3e";ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();ctx.fillStyle="#66a84e";ctx.beginPath();ctx.arc(x-2,y-2,r*.55,0,Math.PI*2);ctx.fill();}
+  ctx.strokeStyle="#b1d477";ctx.lineWidth=.7;ctx.beginPath();ctx.moveTo(-12,-23);ctx.lineTo(10,-27);ctx.moveTo(-7,-17);ctx.lineTo(8,-20);ctx.stroke();
+ }else if(index===3){ // Banyan: wide canopy and hanging aerial roots
+  ctx.fillStyle="#285d39";ctx.beginPath();ctx.ellipse(0,-25,19,10,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle="#4d8b43";ctx.beginPath();ctx.ellipse(-7,-28,11,8,-.2,0,Math.PI*2);ctx.ellipse(8,-28,12,8,.15,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle="#9a7048";ctx.lineWidth=1.3;for(const x of [-13,-8,8,14]){ctx.beginPath();ctx.moveTo(x,-22);ctx.quadraticCurveTo(x+2,-13,x+1,-5);ctx.stroke();}
+ }else{ // Flowering tree: green crown with pink blossoms
+  ctx.fillStyle="#286b40";ctx.beginPath();ctx.arc(-7,-23,9,0,Math.PI*2);ctx.arc(4,-28,11,0,Math.PI*2);ctx.arc(12,-21,8,0,Math.PI*2);ctx.fill();
+  for(const [x,y] of [[-12,-27],[-5,-32],[3,-22],[10,-30],[15,-21],[-2,-18]]){ctx.fillStyle="#f08aaa";ctx.beginPath();ctx.arc(x,y,3,0,Math.PI*2);ctx.fill();ctx.fillStyle="#ffe1a0";ctx.fillRect(x-1,y-1,2,2);}
+ }
+ ctx.restore();
+}
 function drawRoad(){
  drawSky();const land=customAsset("bgLand");if(land?.complete)ctx.drawImage(land,0,0,W,H);
  // moving city blocks on either side of the road
@@ -150,8 +176,15 @@ function drawRoad(){
  for(let y=-95+(world%190);y<H+80;y+=190){
   for(const x of [62,286]){
    ctx.fillStyle="#75533e";ctx.fillRect(x+2,y+24,14,13);
-   ctx.fillStyle="#294b3b";ctx.fillRect(x,y+5,18,22);ctx.fillRect(x+3,y,12,8);
-   const tree=customAsset("bgTree");if(tree?.complete)ctx.drawImage(tree,x-6,y-5,30,34);else{ctx.fillStyle="#689451";ctx.fillRect(x+4,y+5,5,5);ctx.fillRect(x+11,y+12,4,5);}
+   const tree=customAsset("bgTree");
+   if(tree?.complete){ctx.drawImage(tree,x-6,y-5,30,34);}
+   else{
+    const treeValue=CFG.selectedAssets?.bgTree||"preset:0";
+    const treeIndex=treeValue.startsWith("preset:")?Math.max(0,Math.min(24,Number(treeValue.split(":")[1])||0)):0;
+    const summer=(!CFG.climateSelections?.bgTree||CFG.climateSelections.bgTree==="summer")&&treeIndex<5;
+    if(summer)drawSummerTree(x+9,y+31,treeIndex);
+    else{ctx.fillStyle="#294b3b";ctx.fillRect(x,y+5,18,22);ctx.fillRect(x+3,y,12,8);ctx.fillStyle="#689451";ctx.fillRect(x+4,y+5,5,5);ctx.fillRect(x+11,y+12,4,5);}
+   }
    ctx.fillStyle="#59696a";ctx.fillRect(x+8,y+37,2,19);ctx.fillRect(x+8,y+37,12,2);
    glowRect(x+17,y+34,4,4,"#ffe1a0",7);
   }
