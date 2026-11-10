@@ -18,7 +18,7 @@ const PLAYER_INDEX=typeof PLAYER_VALUE==="string"&&PLAYER_VALUE.startsWith("pres
 const PLAYER_NAME=CFG.assetOptions?.vehicle?.[PLAYER_INDEX]?.[1]||window.GAMEZAAR_PLAYER_CARS?.[PLAYER_INDEX]?.name||"Player Car";
 const CAR_LIST=[
  {id:"player",name:PLAYER_NAME,color:"#df454c",accent:"#ffe0a1",type:"player",garageIndex:-1,price:0},
- ...GARAGE_DESIGNS.map((car,i)=>({id:["garage-0","garage-1","garage-2","garage-3","garage-4","garage-5","garage-6","garage-7"][i],name:car.name,color:["#df454c","#238bd5","#73bd45","#8755d7","#ed9a28","#20b8ae","#ed5c9b","#d9e0e8"][i],accent:["#ffe0a1","#9df0ff","#e4ff9c","#e5c5ff","#fff0a1","#bafff3","#ffd0e4","#7c9ab8"][i],type:"garage",garageIndex:i,src:car.src,uploadId:(CFG.garageCars?.[i]||{}).uploadId||null,price:Math.max(0,Math.floor(Number(CFG.garagePrices?.[i]??[30,50,70,90,120,150,200,250][i])||0))}))
+ ...GARAGE_DESIGNS.map((car,i)=>({id:["garage-0","garage-1","garage-2","garage-3","garage-4","garage-5","garage-6","garage-7"][i],name:String(CFG.garageNames?.[i]||CFG.garageCars?.[i]?.name||car.name).trim().slice(0,24)||car.name,color:["#df454c","#238bd5","#73bd45","#8755d7","#ed9a28","#20b8ae","#ed5c9b","#d9e0e8"][i],accent:["#ffe0a1","#9df0ff","#e4ff9c","#e5c5ff","#fff0a1","#bafff3","#ffd0e4","#7c9ab8"][i],type:"garage",garageIndex:i,src:car.src,uploadId:(CFG.garageCars?.[i]||{}).uploadId||null,price:Math.max(0,Math.floor(Number(CFG.garagePrices?.[i]??[30,50,70,90,120,150,200,250][i])||0))}))
 ];
 function readJSON(key,fallback){try{const v=JSON.parse(localStorage.getItem(key));return Array.isArray(v)?v:fallback;}catch(e){return fallback;}}
 let coins=Math.max(0,Number(localStorage.getItem(PREVIEW_KEYS.coins)||0));
