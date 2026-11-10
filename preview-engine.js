@@ -245,10 +245,9 @@ function drawCoin(x,y,now){
  ctx.restore();
  if(Math.floor(now/150)%2===0){ctx.fillStyle="rgba(255,239,155,.9)";ctx.fillRect(x+12,y-12,3,3);ctx.fillRect(x-15,y+7,2,2);}
 }
-function drawRoadHazard(x,y,now){
- const custom=customAsset("roadHazards");
- if(custom?.complete&&custom.naturalWidth){const id=(CFG.selectedAssets?.roadHazards||"").slice(7);if(customImageTypes[id]==="image/gif")return;ctx.drawImage(custom,x-19,y-19,38,38);return;}
- const choice=CFG.selectedAssets?.roadHazards||"preset:0";
+function drawRoadHazard(x,y,now,choice){
+ choice=choice||"preset:0";
+ if(choice.startsWith("custom:")){const id=choice.slice(7),custom=customImages[id];if(custom?.complete&&custom.naturalWidth&&customImageTypes[id]!=="image/gif"){ctx.drawImage(custom,x-19,y-19,38,38);return;}if(customImageTypes[id]==="image/gif")return;}
  const idx=choice.startsWith("preset:")?Math.max(0,Math.min(4,Number(choice.split(":")[1])||0)):0;
  ctx.save();ctx.translate(x,y);
  if(idx===0){
@@ -345,8 +344,9 @@ function frame(now){
    }
   }
   traffic.forEach(v=>{v.y+=(1.7+speed*2.45)*dt;if(!v.passed&&v.y>535){v.passed=true;if(SCORE_RULES.overtake?.enabled!==false)score+=Math.max(0,Math.floor(Number(SCORE_RULES.overtake?.points)||0));scorePopups.push({x:lanes[v.lane],y:510,life:34,value:Math.max(0,Math.floor(Number(SCORE_RULES.overtake?.points)||0))});$("score").textContent=String(score).padStart(4,"0");}});
-  // Spawn the currently selected road hazard every 12–16 seconds.
-  if(typeof CFG.selectedAssets?.roadHazards==="string"){
+  // Spawn a random hazard from all selected types every 12–16 seconds.
+  const selectedHazards=Array.isArray(CFG.selectedAssets?.roadHazards)?CFG.selectedAssets.roadHazards:(typeof CFG.selectedAssets?.roadHazards==="string"?[CFG.selectedAssets.roadHazards]:[]);
+  if(selectedHazards.length){
    hazardSpawn+=dt;
    if(hazardSpawn>=nextHazardSpawn){
     hazardSpawn=0;nextHazardSpawn=720+Math.random()*240;
