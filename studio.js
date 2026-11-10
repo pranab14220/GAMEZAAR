@@ -64,6 +64,7 @@ const soundTypes = [
 let saved = {};
 try { saved = JSON.parse(localStorage.getItem(settingsKey) || "{}"); } catch {}
 let selectedAssets = {bgBuilding:"preset:0",trafficCars:["preset:0","preset:1","preset:2","preset:3","preset:4"],...(saved.selectedAssets || {})};
+let playerCarNames=(window.GAMEZAAR_PLAYER_CARS||[]).map((car,i)=>String(saved.playerCarNames?.[i]||imageTypes.find(type=>type.id==="vehicle")?.options?.[i]?.[1]||car.name).slice(0,24));
 let selectedSounds = saved.selectedSounds || {};
 let soundEnabled = saved.soundEnabled || {};
 let customAssets = [];
@@ -100,6 +101,7 @@ function groupMarkup(type){
   <div class="asset-group-panel" hidden>
    <div class="asset-group-meta"><span>${type.limit}</span><span>${type.multi?"Choose up to 5 designs":climateGroups?"5 climate categories · 5 designs each":"5 styles + your upload"}</span></div>
    ${climateMarkup}
+   ${type.id==="vehicle"?`<label class="player-car-name-editor">Selected player car name<input type="text" maxlength="24" data-player-car-name value="${escapeHTML(playerCarNames[Number((selectedAssets.vehicle||"preset:0").split(":")[1]||0)]||"Player Car")}" placeholder="Enter player car name"><small>Choose a car above, then edit its name here.</small></label>`:""}
    <div class="asset-upload-row"><label class="asset-upload-button">＋ Upload your own<input type="file" accept="image/png,image/jpeg,image/webp" data-upload="${type.id}"></label><span class="asset-upload-note">1 upload maximum · ${type.maxKB} KB</span></div>
    <div class="uploaded-list" data-uploaded-list="${type.id}"></div>
   </div>
@@ -115,11 +117,11 @@ function buildAssetGroups(){
    const climate=event.target.closest("[data-climate-group]");
    if(climate){selectedClimateByGroup[climate.dataset.climateGroup]=climate.dataset.climate;render();return;}
    const option=event.target.closest(".asset-option");
-   if(option){const type=typeFor(option.dataset.type);if(type?.multi){const key=option.dataset.type,values=Array.isArray(selectedAssets[key])?selectedAssets[key]:[];const value="preset:"+option.dataset.option;selectedAssets[key]=values.includes(value)?values.filter(item=>item!==value):values.length<5?[...values,value]:values;setStatus("Selected "+selectedAssets[key].length+" of 5 traffic vehicles.");}else{selectedAssets[option.dataset.type]="preset:"+option.dataset.option;}render();return;}
+   if(option){const type=typeFor(option.dataset.type);if(type?.multi){const key=option.dataset.type,values=Array.isArray(selectedAssets[key])?selectedAssets[key]:[];const value="preset:"+option.dataset.option;selectedAssets[key]=values.includes(value)?values.filter(item=>item!==value):values.length<5?[...values,value]:values;setStatus("Selected "+selectedAssets[key].length+" of 5 traffic vehicles.");}else{selectedAssets[option.dataset.type]="preset:"+option.dataset.option;if(option.dataset.type==="vehicle"){const nameInput=document.querySelector("[data-player-car-name]");if(nameInput)nameInput.value=playerCarNames[Number(option.dataset.option)]||type.options[Number(option.dataset.option)]?.[1]||"Player Car";}}render();return;}
    const remove=event.target.closest("[data-remove-asset]");
    if(remove)removeAsset(remove.dataset.removeAsset);
   });
-  root.addEventListener("input",event=>{const name=event.target.closest("[data-garage-name]");if(name){const i=Number(name.dataset.garageName);garageNames[i]=name.value.slice(0,24);syncLivePreviewData();return;}const price=event.target.closest("[data-garage-price]");if(price){const i=Number(price.dataset.garagePrice);garagePrices[i]=Math.max(0,Math.floor(Number(price.value)||0));syncLivePreviewData();}});
+  root.addEventListener("input",event=>{const playerName=event.target.closest("[data-player-car-name]");if(playerName){const i=Math.max(0,Math.min(4,Number((selectedAssets.vehicle||"preset:0").split(":")[1]||0)));playerCarNames[i]=playerName.value.slice(0,24);syncLivePreviewData();return;}const name=event.target.closest("[data-garage-name]");if(name){const i=Number(name.dataset.garageName);garageNames[i]=name.value.slice(0,24);syncLivePreviewData();return;}const price=event.target.closest("[data-garage-price]");if(price){const i=Number(price.dataset.garagePrice);garagePrices[i]=Math.max(0,Math.floor(Number(price.value)||0));syncLivePreviewData();}});
   root.addEventListener("change",event=>{const input=event.target.closest("input[data-upload]");if(input&&input.files?.length)handleImageUploads(input.dataset.upload,[...input.files],input);});
  });
 }
@@ -184,7 +186,7 @@ function soundLabel(typeId){
  const type=soundTypes.find(x=>x.id===typeId);return type.options[Number(value.split(":")[1]||0)]||type.options[0];
 }
 function syncLivePreviewData(){
- const data={};fields.forEach(id=>data[id]=$(id).value);data.selectedAssets=selectedAssets;data.scoreSystem=readScoreSystem();data.garagePrices=garagePrices;data.garageNames=garageNames;data.garageCars=(window.GAMEZAAR_GARAGE_CARS||[]).map((car,i)=>({name:garageNames[i]||car.name,price:garagePrices[i]??defaultGaragePrices[i],uploadId:(selectedAssets["garageCar"+i]||"").startsWith("custom:")?selectedAssets["garageCar"+i].slice(7):null}));data.selectedSounds=selectedSounds;data.soundEnabled=soundEnabled;data.climateSelections=selectedClimateByGroup;data.assetOptions=Object.fromEntries(allImageTypes().map(type=>[type.id,type.options]));data.updatedAt=Date.now();
+ const data={};fields.forEach(id=>data[id]=$(id).value);data.selectedAssets=selectedAssets;data.scoreSystem=readScoreSystem();data.garagePrices=garagePrices;data.garageNames=garageNames;data.garageCars=(window.GAMEZAAR_GARAGE_CARS||[]).map((car,i)=>({name:garageNames[i]||car.name,price:garagePrices[i]??defaultGaragePrices[i],uploadId:(selectedAssets["garageCar"+i]||"").startsWith("custom:")?selectedAssets["garageCar"+i].slice(7):null}));data.selectedSounds=selectedSounds;data.soundEnabled=soundEnabled;data.climateSelections=selectedClimateByGroup;data.playerCarNames=playerCarNames;data.assetOptions=Object.fromEntries(allImageTypes().map(type=>[type.id,type.id==="vehicle"?type.options.map((option,i)=>[option[0],playerCarNames[i]||option[1]]):type.options]));data.updatedAt=Date.now();
  try{sessionStorage.setItem("gamezaar-live-preview-v1",JSON.stringify(data));}catch{}
  postLivePreviewData();
 }
@@ -228,18 +230,18 @@ fields.forEach(id=>$(id).addEventListener("input",render));
 scoreFieldIds.forEach(id=>$(id).addEventListener("input",()=>{scoreSystem=readScoreSystem();syncLivePreviewData();}));
 
 $("saveGame").addEventListener("click",()=>{
- const data={};fields.forEach(id=>data[id]=$(id).value);data.selectedAssets=selectedAssets;data.garagePrices=garagePrices;data.garageNames=garageNames;data.garageCars=(window.GAMEZAAR_GARAGE_CARS||[]).map((car,i)=>({name:String(garageNames[i]||car.name).trim().slice(0,24)||car.name,price:garagePrices[i]??defaultGaragePrices[i],uploadId:(selectedAssets["garageCar"+i]||"").startsWith("custom:")?selectedAssets["garageCar"+i].slice(7):null}));data.selectedSounds=selectedSounds;data.soundEnabled=soundEnabled;data.climateSelections=selectedClimateByGroup;data.assetOptions=Object.fromEntries(allImageTypes().map(type=>[type.id,type.options]));data.savedAt=new Date().toISOString();
+ const data={};fields.forEach(id=>data[id]=$(id).value);data.selectedAssets=selectedAssets;data.playerCarNames=playerCarNames;data.garagePrices=garagePrices;data.garageNames=garageNames;data.garageCars=(window.GAMEZAAR_GARAGE_CARS||[]).map((car,i)=>({name:String(garageNames[i]||car.name).trim().slice(0,24)||car.name,price:garagePrices[i]??defaultGaragePrices[i],uploadId:(selectedAssets["garageCar"+i]||"").startsWith("custom:")?selectedAssets["garageCar"+i].slice(7):null}));data.selectedSounds=selectedSounds;data.soundEnabled=soundEnabled;data.climateSelections=selectedClimateByGroup;data.assetOptions=Object.fromEntries(allImageTypes().map(type=>[type.id,type.options]));data.savedAt=new Date().toISOString();
  try{localStorage.setItem(settingsKey,JSON.stringify(data));syncLivePreviewData();setStatus("Racing game settings saved on this device. Uploaded files remain in this browser.");}catch{setStatus("Browser storage is full. Remove some uploads and try again.");}
 });
 $("resetGame").addEventListener("click",()=>{
  if(!confirm("Reset racing game settings and remove all uploaded images and sounds from this device?"))return;
- localStorage.removeItem(settingsKey);Promise.all(customAssets.map(item=>dbDelete(item.id))).finally(()=>{objectUrls.forEach(url=>URL.revokeObjectURL(url));objectUrls.clear();customAssets=[];selectedAssets={bgBuilding:"preset:0",trafficCars:["preset:0","preset:1","preset:2","preset:3","preset:4"]};garagePrices=[...defaultGaragePrices];garageNames=(window.GAMEZAAR_GARAGE_CARS||[]).map(car=>car.name);selectedSounds={};soundEnabled={};selectedClimateByGroup={bgTree:"summer",bgRoad:"summer",bgLand:"summer"};setValues(defaults);setStatus("Builder settings and all custom uploads have been reset.");});
+ localStorage.removeItem(settingsKey);Promise.all(customAssets.map(item=>dbDelete(item.id))).finally(()=>{objectUrls.forEach(url=>URL.revokeObjectURL(url));objectUrls.clear();customAssets=[];selectedAssets={bgBuilding:"preset:0",trafficCars:["preset:0","preset:1","preset:2","preset:3","preset:4"]};garagePrices=[...defaultGaragePrices];garageNames=(window.GAMEZAAR_GARAGE_CARS||[]).map(car=>car.name);playerCarNames=(window.GAMEZAAR_PLAYER_CARS||[]).map((car,i)=>imageTypes.find(type=>type.id==="vehicle")?.options?.[i]?.[1]||car.name);selectedSounds={};soundEnabled={};selectedClimateByGroup={bgTree:"summer",bgRoad:"summer",bgLand:"summer"};setValues(defaults);setStatus("Builder settings and all custom uploads have been reset.");});
 });
 $("previewPlay").addEventListener("click",()=>setStatus("This is a customization preview. The playable racing engine and APK/AAB export are not connected yet."));
 async function init(){
  buildAssetGroups();buildSoundGroups();
  try{customAssets=await dbAll();customAssets.forEach(item=>{if(item.blob&&!objectUrls.has(item.id))objectUrls.set(item.id,URL.createObjectURL(item.blob));});}catch{setStatus("Browser storage is unavailable. You can still select preset designs.");}
- setValues({...defaults,...saved});setScoreSystem(saved.scoreSystem);selectedAssets={bgBuilding:"preset:0",trafficCars:["preset:0","preset:1","preset:2","preset:3","preset:4"],...(saved.selectedAssets||{})};if(typeof selectedAssets.trafficCars==="string")selectedAssets.trafficCars=[selectedAssets.trafficCars];garagePrices=defaultGaragePrices.map((v,i)=>Math.max(0,Math.floor(Number(saved.garagePrices?.[i]??v)||0)));garageNames=(window.GAMEZAAR_GARAGE_CARS||[]).map((car,i)=>String(saved.garageNames?.[i]||car.name).slice(0,24));selectedSounds=saved.selectedSounds||{};soundEnabled=saved.soundEnabled||{};selectedClimateByGroup={bgTree:"summer",bgRoad:"summer",bgLand:"summer",...(saved.climateSelections||{}),...(saved.treeClimate?{bgTree:saved.treeClimate}:{})};render();
+ setValues({...defaults,...saved});setScoreSystem(saved.scoreSystem);selectedAssets={bgBuilding:"preset:0",trafficCars:["preset:0","preset:1","preset:2","preset:3","preset:4"],...(saved.selectedAssets||{})};playerCarNames=(window.GAMEZAAR_PLAYER_CARS||[]).map((car,i)=>String(saved.playerCarNames?.[i]||imageTypes.find(type=>type.id==="vehicle")?.options?.[i]?.[1]||car.name).slice(0,24));if(typeof selectedAssets.trafficCars==="string")selectedAssets.trafficCars=[selectedAssets.trafficCars];garagePrices=defaultGaragePrices.map((v,i)=>Math.max(0,Math.floor(Number(saved.garagePrices?.[i]??v)||0)));garageNames=(window.GAMEZAAR_GARAGE_CARS||[]).map((car,i)=>String(saved.garageNames?.[i]||car.name).slice(0,24));selectedSounds=saved.selectedSounds||{};soundEnabled=saved.soundEnabled||{};selectedClimateByGroup={bgTree:"summer",bgRoad:"summer",bgLand:"summer",...(saved.climateSelections||{}),...(saved.treeClimate?{bgTree:saved.treeClimate}:{})};render();
 }
 init();
 
