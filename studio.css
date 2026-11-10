@@ -111,3 +111,9 @@
 .garage-studio-car>label{display:grid;gap:4px;font-size:.64rem;color:#aeb8ce}
 .garage-studio-car input[data-garage-name]{width:100%;min-width:0;box-sizing:border-box;background:#272f49;border:1px solid #52607e;border-radius:7px;padding:7px;color:#fff;font:inherit;font-size:.72rem}
 .garage-studio-car input[data-garage-name]:focus{outline:2px solid #ff9b54;border-color:#ffbd8c}
+
+/* Editable selected player-car name */
+.player-car-name-editor{display:grid;gap:6px;margin:12px 0 4px;color:#dce2ef;font-size:.82rem;font-weight:700}
+.player-car-name-editor input{width:100%;box-sizing:border-box;background:#171b2e;border:1px solid #52607e;border-radius:10px;color:#fff;padding:11px 12px;font:inherit;min-height:44px}
+.player-car-name-editor input:focus{outline:2px solid #ff9b54;border-color:#ffbd8c}
+.player-car-name-editor small{font-size:.72rem;color:#aeb8ce;font-weight:500}
