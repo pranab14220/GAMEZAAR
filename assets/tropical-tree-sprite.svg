@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="128" viewBox="0 0 640 128">
+<defs>
+ <linearGradient id="trunk" x2="1"><stop stop-color="#70452b"/><stop offset=".5" stop-color="#a87543"/><stop offset="1" stop-color="#56351f"/></linearGradient>
+ <linearGradient id="leaf" x2=".8" y2="1"><stop stop-color="#8ed45a"/><stop offset=".55" stop-color="#32934c"/><stop offset="1" stop-color="#145b39"/></linearGradient>
+ <linearGradient id="fruit" x2="1" y2="1"><stop stop-color="#ffe56b"/><stop offset="1" stop-color="#e88a22"/></linearGradient>
+ <radialGradient id="flower"><stop stop-color="#ffdf68"/><stop offset=".35" stop-color="#ff8c9b"/><stop offset="1" stop-color="#d93461"/></radialGradient>
+ <radialGradient id="plum"><stop stop-color="#fffbd8"/><stop offset=".7" stop-color="#fff"/><stop offset="1" stop-color="#f3d6a5"/></radialGradient>
+</defs>
+<!-- 1 Coconut palm -->
+<g transform="translate(0)">
+ <path d="M62 119 Q68 82 59 45 Q57 35 61 27" fill="none" stroke="url(#trunk)" stroke-width="8" stroke-linecap="round"/>
+ <path d="M60 29 Q28 4 13 21 Q35 16 58 34 Q31 22 22 39 Q43 30 59 38 Q48 43 43 56 Q60 45 65 38 Q82 13 108 19 Q86 21 68 36 Q97 28 111 43 Q87 37 68 43 Q93 46 99 61 Q80 49 64 43" fill="none" stroke="#287a42" stroke-width="6" stroke-linecap="round"/>
+ <path d="M58 35 Q31 7 18 20 M61 34 Q90 7 109 20 M62 39 Q31 26 24 42 M65 39 Q93 31 109 45" fill="none" stroke="#8dcc56" stroke-width="2"/>
+ <ellipse cx="61" cy="44" rx="5" ry="7" fill="#8b552d"/><ellipse cx="69" cy="46" rx="5" ry="7" fill="#a66b35"/><ellipse cx="64" cy="52" rx="5" ry="6" fill="#744322"/>
+ <path d="M35 120h60" stroke="#b8a16b" stroke-width="3" stroke-linecap="round"/>
+</g>
+<!-- 2 Banana tree -->
+<g transform="translate(128)">
+ <path d="M61 120 Q63 82 62 47" stroke="url(#trunk)" stroke-width="9" fill="none"/>
+ <path d="M62 49 Q15 4 9 31 Q34 22 59 57 Q19 40 16 65 Q41 48 62 63 Q40 69 33 89 Q57 78 65 65 Q84 22 116 31 Q88 35 68 57 Q104 42 116 65 Q87 57 67 69" fill="url(#leaf)" stroke="#1b6c3d" stroke-width="2"/>
+ <path d="M62 55 Q22 26 13 34 M63 59 Q95 30 111 34 M63 66 Q34 56 20 67 M66 67 Q94 56 111 68" fill="none" stroke="#b5dc69" stroke-width="2"/>
+ <path d="M73 67 Q82 76 78 92 Q73 99 69 91 Q66 81 73 67" fill="#7c263a"/>
+ <g fill="#f5d13e" stroke="#b88a24" stroke-width="1"><path d="M62 54q-7 8-1 18q6 4 8-2q-1-10-7-16"/><path d="M69 57q-5 10 2 18q7 2 7-5q-2-9-9-13"/><path d="M56 60q-5 10 2 17q6 1 6-6q-1-7-8-11"/><path d="M65 68q-4 10 3 16q6 1 6-6q-1-7-9-10"/></g>
+ <path d="M34 120h61" stroke="#b8a16b" stroke-width="3" stroke-linecap="round"/>
+</g>
+<!-- 3 Mango tree -->
+<g transform="translate(256)">
+ <path d="M63 120V62 M63 83L39 59 M63 78L86 54" fill="none" stroke="url(#trunk)" stroke-width="9" stroke-linecap="round"/>
+ <g fill="url(#leaf)" stroke="#1b6c3d" stroke-width="2"><circle cx="35" cy="48" r="24"/><circle cx="59" cy="31" r="27"/><circle cx="86" cy="48" r="25"/><circle cx="62" cy="55" r="25"/></g>
+ <g fill="#a9dc65" opacity=".8"><circle cx="35" cy="40" r="10"/><circle cx="60" cy="23" r="11"/><circle cx="86" cy="39" r="10"/></g>
+ <g fill="url(#fruit)" stroke="#a66b24" stroke-width="1"><path d="M31 52q-10 8-2 18q10 5 13-6q-1-9-11-12"/><path d="M83 52q-9 7-3 17q10 4 13-6q-1-9-10-11"/></g>
+ <path d="M32 120h63" stroke="#b8a16b" stroke-width="3" stroke-linecap="round"/>
+</g>
+<!-- 4 Red hibiscus tree -->
+<g transform="translate(384)">
+ <path d="M63 120V63 M63 83L39 61 M63 79L88 57" fill="none" stroke="url(#trunk)" stroke-width="8" stroke-linecap="round"/>
+ <g fill="url(#leaf)" stroke="#1b6c3d" stroke-width="2"><circle cx="34" cy="50" r="22"/><circle cx="62" cy="33" r="25"/><circle cx="90" cy="49" r="22"/><circle cx="63" cy="58" r="24"/></g>
+ <g fill="url(#flower)" stroke="#b72d50" stroke-width="1"><g transform="translate(35 43)"><ellipse cy="-8" rx="5" ry="10"/><ellipse cy="8" rx="5" ry="10"/><ellipse cx="-8" rx="10" ry="5"/><ellipse cx="8" rx="10" ry="5"/><circle r="4" fill="#ffd45e"/></g><g transform="translate(77 34)"><ellipse cy="-7" rx="5" ry="9"/><ellipse cy="7" rx="5" ry="9"/><ellipse cx="-7" rx="9" ry="5"/><ellipse cx="7" rx="9" ry="5"/><circle r="4" fill="#ffd45e"/></g><g transform="translate(64 65)"><ellipse cy="-7" rx="5" ry="9"/><ellipse cy="7" rx="5" ry="9"/><ellipse cx="-7" rx="9" ry="5"/><ellipse cx="7" rx="9" ry="5"/><circle r="4" fill="#ffd45e"/></g></g>
+ <path d="M32 120h63" stroke="#b8a16b" stroke-width="3" stroke-linecap="round"/>
+</g>
+<!-- 5 White plumeria tree -->
+<g transform="translate(512)">
+ <path d="M63 120V66 M63 86L37 61 M63 81L90 55" fill="none" stroke="url(#trunk)" stroke-width="8" stroke-linecap="round"/>
+ <g fill="url(#leaf)" stroke="#1b6c3d" stroke-width="2"><circle cx="35" cy="48" r="22"/><circle cx="63" cy="31" r="25"/><circle cx="91" cy="48" r="22"/><circle cx="63" cy="59" r="23"/></g>
+ <g fill="url(#plum)" stroke="#e4d6b6" stroke-width="1"><g transform="translate(38 42)"><ellipse cy="-7" rx="5" ry="9"/><ellipse cy="7" rx="5" ry="9"/><ellipse cx="-7" rx="9" ry="5"/><ellipse cx="7" rx="9" ry="5"/><circle r="3.5" fill="#f2b83c"/></g><g transform="translate(82 39)"><ellipse cy="-7" rx="5" ry="9"/><ellipse cy="7" rx="5" ry="9"/><ellipse cx="-7" rx="9" ry="5"/><ellipse cx="7" rx="9" ry="5"/><circle r="3.5" fill="#f2b83c"/></g><g transform="translate(63 65)"><ellipse cy="-7" rx="5" ry="9"/><ellipse cy="7" rx="5" ry="9"/><ellipse cx="-7" rx="9" ry="5"/><ellipse cx="7" rx="9" ry="5"/><circle r="3.5" fill="#f2b83c"/></g></g>
+ <path d="M32 120h63" stroke="#b8a16b" stroke-width="3" stroke-linecap="round"/>
+</g>
+</svg>
