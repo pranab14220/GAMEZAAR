@@ -245,7 +245,7 @@ function drawCoin(x,y,now){
 }
 function draw(){
  drawRoad();
- traffic.forEach(v=>{const upload=customAsset("trafficCars");if(upload?.complete&&upload.naturalWidth){ctx.drawImage(upload,lanes[v.lane]-20,v.y-30,40,60);return;}const design=v.design||"preset:0";const idx=Math.max(0,Math.min(4,Number(String(design).split(":")[1])||0));const car=window.GAMEZAAR_TRAFFIC_CARS?.[idx];if(car?.src){let img=presetImages[10+idx];if(!img){img=new Image();img.src=car.src;presetImages[10+idx]=img;}if(img.complete&&img.naturalWidth){ctx.drawImage(img,lanes[v.lane]-20,v.y-30,40,60);return;}}drawCar(lanes[v.lane],v.y,["#ef343d","#f28b19","#18b94e","#ffbd18","#f4f6f8"][idx],false);});
+ traffic.forEach(v=>{const x=lanes[v.lane],y=v.y,upload=customAsset("trafficCars");ctx.save();ctx.translate(x,y);ctx.rotate(Math.PI);if(upload?.complete&&upload.naturalWidth){ctx.drawImage(upload,-20,-30,40,60);ctx.restore();return;}const design=v.design||"preset:0";const idx=Math.max(0,Math.min(4,Number(String(design).split(":")[1])||0));const car=window.GAMEZAAR_TRAFFIC_CARS?.[idx];if(car?.src){let img=presetImages[10+idx];if(!img){img=new Image();img.src=car.src;presetImages[10+idx]=img;}if(img.complete&&img.naturalWidth){ctx.drawImage(img,-20,-30,40,60);ctx.restore();return;}}ctx.restore();drawCar(x,y,["#ef343d","#f28b19","#18b94e","#ffbd18","#f4f6f8"][idx],false,Math.PI);});
  roadCoins.forEach(c=>drawCoin(lanes[c.lane],c.y,performance.now()));
  scorePopups=scorePopups.filter(p=>p.life>0);
  scorePopups.forEach(p=>{ctx.save();ctx.globalAlpha=Math.min(1,p.life/18);ctx.font="bold 13px monospace";ctx.textAlign="center";ctx.fillStyle="#fff0a0";ctx.shadowColor="#ffb84d";ctx.shadowBlur=8;ctx.fillText("+"+(p.value??10),p.x,p.y);ctx.restore();p.y-=.65;p.life-=1;});
