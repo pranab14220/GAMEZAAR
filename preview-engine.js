@@ -180,7 +180,7 @@ function drawRoad(){
   ctx.fillStyle="#89948a";ctx.fillRect(60,y+8,2,2);ctx.fillRect(296,y+22,3,3);
  }
  // planters, trees and street lamps scroll with the city
- for(let y=-95+(world%190);y<H+80;y+=190){
+ for(let y=-55+(world%110);y<H+65;y+=110){
   for(const x of [62,286]){
    ctx.fillStyle="#75533e";ctx.fillRect(x+2,y+24,14,13);
    const tree=customAsset("bgTree");
