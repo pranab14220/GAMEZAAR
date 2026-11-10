@@ -275,19 +275,16 @@ function frame(now){
   if(Math.abs(targetX-playerX)<.45){playerX=targetX;playerTilt*=.75;}
   survivalClock+=dt;if(survivalClock>=60){const seconds=Math.floor(survivalClock/60);survivalClock-=seconds*60;if(SCORE_RULES.survival?.enabled!==false)score+=seconds*Math.max(0,Math.floor(Number(SCORE_RULES.survival?.points)||0));$("score").textContent=String(score).padStart(4,"0");}
   spawn+=dt;
-  // When multiple enemy designs are selected, bring them in as a staggered stream so all selected cars become visible together, never side-by-side.
+  // Spawn traffic one car at a time. Wait until the previous car has moved
+  // well down the road before allowing another, keeping a clear vertical gap
+  // and preventing cars from appearing side-by-side across different lanes.
   const selectedTrafficDesigns=Array.isArray(CFG.selectedAssets?.trafficCars)?CFG.selectedAssets.trafficCars.filter(x=>typeof x==="string"&&/^preset:[0-4]$/.test(x)):[];
-  const trafficSpawnInterval=selectedTrafficDesigns.length>1?18:Math.max(78,96-speed*2);
-  if(spawn>trafficSpawnInterval){
+  const trafficSpawnInterval=8;
+  if(spawn>trafficSpawnInterval&&!traffic.some(v=>v.y<260)){
    spawn=0;
-   const available=[0,1,2].filter(lane=>!traffic.some(v=>v.lane===lane&&v.y<145&&v.y>-190));
-   if(available.length){
-    const nearPlayerBand=traffic.filter(v=>v.y>300&&v.y<610).map(v=>v.lane);
-    const safe=available.filter(l=>!(nearPlayerBand.includes(l)&&nearPlayerBand.length>=2));
-    const choices=safe.length?safe:available;
-    const lane=choices[Math.floor(Math.random()*choices.length)];
-    const design=selectedTrafficDesigns.length?selectedTrafficDesigns[trafficSpawnIndex++%selectedTrafficDesigns.length]:"preset:0";traffic.push({lane,y:-58,design,passed:false});
-   }
+   const lane=Math.floor(Math.random()*3);
+   const design=selectedTrafficDesigns.length?selectedTrafficDesigns[trafficSpawnIndex++%selectedTrafficDesigns.length]:"preset:0";
+   traffic.push({lane,y:-58,design,passed:false});
   }
   traffic.forEach(v=>{v.y+=(1.7+speed*2.45)*dt;if(!v.passed&&v.y>535){v.passed=true;if(SCORE_RULES.overtake?.enabled!==false)score+=Math.max(0,Math.floor(Number(SCORE_RULES.overtake?.points)||0));scorePopups.push({x:lanes[v.lane],y:510,life:34,value:Math.max(0,Math.floor(Number(SCORE_RULES.overtake?.points)||0))});$("score").textContent=String(score).padStart(4,"0");}});
   // A road coin appears roughly every 15–20 seconds: only touching it adds to the wallet.
