@@ -155,7 +155,7 @@ async function handleImageUploads(typeId,files,input){
  if(typeId==="bgRoad"||typeId==="bgLand"){valid=dimensions.width<=1280&&dimensions.height<=720;}
  if(!valid){showImageUploadError(typeId,"Upload nahi ho sakta: "+file.name+" ka image size "+type.title+" ke allowed dimensions se bada hai.");input.value="";return;}
  const id=typeId+"-"+Date.now()+"-"+Math.random().toString(36).slice(2,7),record={id,type:typeId,kind:"image",name:file.name,size:file.size,width:dimensions.width,height:dimensions.height,blob:file};
- try{await dbPut(record);customAssets.push(record);if(typeId.startsWith("roadHazard")){const chosen=Array.isArray(selectedAssets.roadHazards)?selectedAssets.roadHazards:[];selectedAssets.roadHazards=chosen.includes("custom:"+id)?chosen:[...chosen,"custom:"+id];}else selectedAssets[typeId]="custom:"+id;render();setStatus("Image uploaded. Its preview is shown directly below the Upload button.");document.querySelector('[data-uploaded-list="'+typeId+'"]')?.scrollIntoView({behavior:"smooth",block:"nearest"});}
+ try{await dbPut(record);customAssets.push(record);if(typeId.startsWith("roadHazard")){const hazardIndex=Number(typeId.slice("roadHazard".length)),chosen=Array.isArray(selectedAssets.roadHazards)?selectedAssets.roadHazards:[];selectedAssets.roadHazards=[...chosen.filter(value=>value!=="preset:"+hazardIndex), "custom:"+id];}else selectedAssets[typeId]="custom:"+id;render();setStatus("Image uploaded. Its preview is shown directly below the Upload button.");document.querySelector('[data-uploaded-list="'+typeId+'"]')?.scrollIntoView({behavior:"smooth",block:"nearest"});}
  catch{setStatus("Could not save this image in browser storage.");}
  input.value="";
 }
